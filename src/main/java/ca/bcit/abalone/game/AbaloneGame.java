@@ -8,6 +8,7 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
     public static final char BLACK = '@';
     public static final char WHITE = 'O';
     public static final char EMPTY = '+';
+    public static final char OUT_OF_BOARD = '!';
 
     /**
      * I O O O O O            0-4
@@ -37,13 +38,10 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
         super(AbaloneGame.INITIAL_STATE);
     }
 
-    // 6 directions
-    // left [[i,j],[i-1,j],[i-2,j]]
-    // right [[i,j],[i+1,j],[i+2,j]]
-    // up-left [[i,j],[i,j-1],[i,j-2]]
-    // up-right [[i,j],[i+1,j-1],[i+2,j-2]]
-    // down-left [[i,j],[i,j+1],[i,j+2]]
-    // down-right [[i,j],[i+1,j+1],[i+2,j+2]]
+    public AbaloneGame(char[][] state) {
+        super(state);
+    }
+
     private static final int[][][] MOVE_IN_POSITION = new int[][][]{
             {
                     {-1, 0}, // LEFT
@@ -85,7 +83,6 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
             {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}   // DOWN_LEFT
     };
 
-    // TODO: compute all the valid actions
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneAction[] actions(char[][] state) {
         ArrayList<AbaloneAction> validActions = new ArrayList<>();
@@ -109,17 +106,17 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
                     {},
                     {"O+"},
                     {"OO+"},
-                    {"OO@+", "OOO+"},
-                    {"OOO@+"},
-                    {"OOO@@+"}
+                    {"OO@+", "OO@!", "OOO+"},
+                    {"OOO@+", "OOO@!"},
+                    {"OOO@@+", "OOO@@!"}
             },
             { // black
                     {},
                     {"@+"},
                     {"@@+"},
-                    {"@@O+", "@@@+"},
-                    {"@@@O+"},
-                    {"@@@OO+"}
+                    {"@@O+", "@@O!", "@@@+"},
+                    {"@@@O+", "@@@O!"},
+                    {"@@@OO+", "@@@OO!"}
             }
     };
 
@@ -144,7 +141,7 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
             int player = firstMarble == BLACK ? 1 : 0;
             int i = 0;
             String currentMove = "";
-            while (isValidPoint(x, y) && i < LONGEST_PUSH) {
+            while (i < LONGEST_PUSH) {
                 currentMove += getState(x, y);
 
                 String[] validMoves = VALID_PUSHES[player][i];
@@ -161,16 +158,10 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
         } else {
             // side-move
             int[] friendDirections = SIDE_MOVE_DIRECTION[action.direction];
-            if (!isValidPoint(x + transMatrix[friendDirections[0]][0], y + transMatrix[friendDirections[0]][1])) {
-                return false;
-            }
             char friend = getState(x + transMatrix[friendDirections[0]][0], y + transMatrix[friendDirections[0]][1]);
             if (friend == firstMarble) {
                 return isValidSideMove(action, transMatrix[friendDirections[0]]);
             } else { // check second friend
-                if (!isValidPoint(x + transMatrix[friendDirections[1]][0], y + transMatrix[friendDirections[1]][1])) {
-                    return false;
-                }
                 if (getState(x + transMatrix[friendDirections[1]][0], y + transMatrix[friendDirections[1]][1]) == firstMarble) {
                     return isValidSideMove(action, transMatrix[friendDirections[1]]);
                 }
@@ -188,8 +179,7 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
         int thirdFriendX = x + 2 * friendDirection[0];
         int thirdFriendY = y + 2 * friendDirection[1];
         if (action.numberOfMarbles == 3
-                && (!isValidPoint(thirdFriendX, thirdFriendY)
-                || firstMarble != getState(thirdFriendX, thirdFriendY))) {
+                && firstMarble != getState(thirdFriendX, thirdFriendY)) {
             return false;
         }
         // check if the blocks they are moving to are empty
@@ -249,6 +239,9 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
     }
 
     private char getState(int col, int row) {
+        if (!isValidPoint(col, row)) {
+            return OUT_OF_BOARD;
+        }
         return state[row][col];
     }
 

@@ -125,4 +125,20 @@ public class AbaloneGameTest {
         System.out.println(Arrays.toString(game.validActions));
         assertEquals(88, game.validActions.length);
     }
+
+    @Test
+    public void pushOpponentOutOfBoard() {
+        AbaloneGame game = new AbaloneGame(new char[][]{
+                {'O', 'O', 'O', 'O', 'O',},
+                {'O', 'O', 'O', 'O', 'O', 'O',},
+                {'@', '+', 'O', 'O', 'O', '+', '+',},
+                {'@', '+', '+', '+', '+', '+', '+', '+',},
+                {'@', '+', '+', '+', '+', '+', '+', '+', '+',},
+                {'+', '+', '+', '+', '+', '+', '+', '+',},
+                {'+', '+', '@', '@', '@', '+', '+',},
+                {'@', '@', '@', '@', '@', '@',},
+                {'@', '@', '@', '@', '@',},
+        });
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, 0, 4, 2)));
+    }
 }
