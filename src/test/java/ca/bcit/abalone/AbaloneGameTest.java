@@ -1,5 +1,8 @@
 package ca.bcit.abalone;
 
+import ca.bcit.abalone.game.AbaloneAction;
+import ca.bcit.abalone.game.AbaloneGame;
+import ca.bcit.abalone.game.Game;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -116,10 +119,10 @@ public class AbaloneGameTest {
      * middle row: 12 <= good here
      * inner row: 12 <= good here
      * total valid moves per player: 10 + 10 + 12 + 12 = 44
-      */
+     */
     @Test
     public void actions() {
         System.out.println(Arrays.toString(game.validActions));
-        System.out.println(game.validActions.length);
+        assertEquals(88, game.validActions.length);
     }
 }

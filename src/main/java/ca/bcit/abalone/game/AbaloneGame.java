@@ -1,4 +1,4 @@
-package ca.bcit.abalone;
+package ca.bcit.abalone.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,7 +230,7 @@ public class AbaloneGame extends Game<char[][], AbaloneAction> {
     }
 
     @Override
-    char[][] makeStateCopy(char[][] state) {
+    public char[][] makeStateCopy(char[][] state) {
         char[][] copy = new char[state.length][];
         for (int i = 0; i < state.length; i++) {
             char[] innerCopy = new char[state[i].length];

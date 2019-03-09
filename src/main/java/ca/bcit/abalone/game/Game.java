@@ -1,4 +1,4 @@
-package ca.bcit.abalone;
+package ca.bcit.abalone.game;
 
 public abstract class Game<S, A> {
 
