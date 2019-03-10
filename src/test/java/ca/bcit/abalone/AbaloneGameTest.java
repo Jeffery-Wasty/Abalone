@@ -3,7 +3,6 @@ package ca.bcit.abalone;
 import ca.bcit.abalone.game.AbaloneAction;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Game;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -15,95 +14,90 @@ public class AbaloneGameTest {
 
     AbaloneGame game = new AbaloneGame();
 
-    @Before
-    public void setUp() throws Exception {
-        System.out.println(game);
-    }
-
     @Test
     public void isValidAction() {
         // Push 0,0
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 0, 0, AbaloneAction.DOWN_LEFT))); // OO+
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 0, 0, AbaloneAction.DOWN_RIGHT))); // OOO+
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 0, 0, AbaloneAction.UP_LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 0, 0, AbaloneAction.UP_RIGHT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 0, 0, AbaloneAction.LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 0, 0, AbaloneAction.RIGHT))); //
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.DOWN_LEFT))); // OO+
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.DOWN_RIGHT))); // OOO+
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.UP_LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.UP_RIGHT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.RIGHT))); //
 
         // Push 3,7
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 3, 7, AbaloneAction.DOWN_LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 3, 7, AbaloneAction.DOWN_RIGHT))); //
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 3, 7, AbaloneAction.UP_LEFT))); // @@+
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 3, 7, AbaloneAction.UP_RIGHT))); // @@+
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 3, 7, AbaloneAction.LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 3, 7, AbaloneAction.RIGHT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[7][3], AbaloneAction.DOWN_LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[7][3], AbaloneAction.DOWN_RIGHT))); //
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[7][3], AbaloneAction.UP_LEFT))); // @@+
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[7][3], AbaloneAction.UP_RIGHT))); // @@+
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[7][3], AbaloneAction.LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[7][3], AbaloneAction.RIGHT))); //
 
         // Push 1,8
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.DOWN_LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.DOWN_RIGHT))); //
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.UP_LEFT))); // @@+
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.UP_RIGHT))); // @@@+
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.RIGHT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.DOWN_LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.DOWN_RIGHT))); //
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.UP_LEFT))); // @@+
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.UP_RIGHT))); // @@@+
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.RIGHT))); //
 
         // Push 2,8
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.DOWN_LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.DOWN_RIGHT))); //
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.UP_LEFT))); // @@@+
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.UP_RIGHT))); // @@@+
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 1, 8, AbaloneAction.RIGHT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.DOWN_LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.DOWN_RIGHT))); //
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.UP_LEFT))); // @@@+
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.UP_RIGHT))); // @@@+
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[8][1], AbaloneAction.RIGHT))); //
 
         // Push 3,2
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 3, 2, AbaloneAction.DOWN_LEFT))); // O+
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 3, 2, AbaloneAction.DOWN_RIGHT))); // O+
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 3, 2, AbaloneAction.UP_LEFT))); //
-        assertEquals(false, game.isValidAction(new AbaloneAction(1, 3, 2, AbaloneAction.UP_RIGHT))); //
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 3, 2, AbaloneAction.LEFT))); // OO+
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 3, 2, AbaloneAction.RIGHT))); // OO+
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[2][3], AbaloneAction.DOWN_LEFT))); // O+
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[2][3], AbaloneAction.DOWN_RIGHT))); // O+
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[2][3], AbaloneAction.UP_LEFT))); //
+        assertEquals(false, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[2][3], AbaloneAction.UP_RIGHT))); //
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[2][3], AbaloneAction.LEFT))); // OO+
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[2][3], AbaloneAction.RIGHT))); // OO+
 
         // side move 2,1,1
-        assertEquals(true, game.isValidAction(new AbaloneAction(2, 1, 1, AbaloneAction.DOWN_LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 1, 1, AbaloneAction.DOWN_RIGHT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 1, 1, AbaloneAction.UP_LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 1, 1, AbaloneAction.UP_RIGHT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 1, 1, AbaloneAction.LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 1, 1, AbaloneAction.RIGHT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.DOWN_LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.DOWN_RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.UP_LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.UP_RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.RIGHT)));
 
         // side move 3,1,1
-        assertEquals(false, game.isValidAction(new AbaloneAction(3, 1, 1, AbaloneAction.DOWN_LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(3, 1, 1, AbaloneAction.DOWN_RIGHT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(3, 1, 1, AbaloneAction.UP_LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(3, 1, 1, AbaloneAction.UP_RIGHT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(3, 1, 1, AbaloneAction.LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(3, 1, 1, AbaloneAction.RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.DOWN_LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.DOWN_RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.UP_LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.UP_RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[1][1], AbaloneAction.RIGHT)));
 
-        assertEquals(true, game.isValidAction(new AbaloneAction(3, 4, 2, AbaloneAction.DOWN_LEFT)));
-        assertEquals(true, game.isValidAction(new AbaloneAction(3, 4, 2, AbaloneAction.DOWN_RIGHT)));
-        assertEquals(true, game.isValidAction(new AbaloneAction(2, 4, 1, AbaloneAction.DOWN_RIGHT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[2][4], AbaloneAction.DOWN_LEFT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(3, AbaloneGame.LINEAR_LOCATION[2][4], AbaloneAction.DOWN_RIGHT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][4], AbaloneAction.DOWN_RIGHT)));
 
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 0, 7, AbaloneAction.DOWN_LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 0, 7, AbaloneAction.DOWN_RIGHT)));
-        assertEquals(true, game.isValidAction(new AbaloneAction(2, 0, 7, AbaloneAction.UP_LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 0, 7, AbaloneAction.UP_RIGHT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 0, 7, AbaloneAction.LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 0, 7, AbaloneAction.RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][0], AbaloneAction.DOWN_LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][0], AbaloneAction.DOWN_RIGHT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][0], AbaloneAction.UP_LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][0], AbaloneAction.UP_RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][0], AbaloneAction.LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][0], AbaloneAction.RIGHT)));
 
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 5, 7, AbaloneAction.UP_LEFT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 5, 7, AbaloneAction.UP_RIGHT)));
-        assertEquals(false, game.isValidAction(new AbaloneAction(2, 5, 7, AbaloneAction.RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][5], AbaloneAction.UP_LEFT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][5], AbaloneAction.UP_RIGHT)));
+        assertEquals(false, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][5], AbaloneAction.RIGHT)));
 
-        assertEquals(true, game.isValidAction(new AbaloneAction(2, 4, 1, AbaloneAction.DOWN_RIGHT)));
-        assertEquals(true, game.isValidAction(new AbaloneAction(2, 1, 7, AbaloneAction.UP_LEFT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[1][4], AbaloneAction.DOWN_RIGHT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[7][1], AbaloneAction.UP_LEFT)));
         // 2, 2, 2, 5
-        assertEquals(true, game.isValidAction(new AbaloneAction(2, 2, 2, AbaloneAction.DOWN_LEFT)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(2, AbaloneGame.LINEAR_LOCATION[2][2], AbaloneAction.DOWN_LEFT)));
 
     }
 
     @Test
     public void execute() {
-        Game<char[][], AbaloneAction> game = new AbaloneGame();
-
+        Game<char[], AbaloneAction> game = new AbaloneGame();
+        // TODO
     }
 
     @Test
@@ -123,22 +117,28 @@ public class AbaloneGameTest {
     @Test
     public void actions() {
         System.out.println(Arrays.toString(game.validActions));
+        int[][] counts = new int[2][3];
+        for (AbaloneAction action : game.validActions) {
+            counts[action.location < 30 ? 0 : 1][action.numberOfMarbles - 1]++;
+        }
+        assertArrayEquals(new int[]{34, 8, 2}, counts[0]);
+        assertArrayEquals(new int[]{34, 8, 2}, counts[1]);
         assertEquals(88, game.validActions.length);
     }
 
     @Test
     public void pushOpponentOutOfBoard() {
-        AbaloneGame game = new AbaloneGame(new char[][]{
-                {'O', 'O', 'O', 'O', 'O',},
-                {'O', 'O', 'O', 'O', 'O', 'O',},
-                {'@', '+', 'O', 'O', 'O', '+', '+',},
-                {'@', '+', '+', '+', '+', '+', '+', '+',},
-                {'@', '+', '+', '+', '+', '+', '+', '+', '+',},
-                {'+', '+', '+', '+', '+', '+', '+', '+',},
-                {'+', '+', '@', '@', '@', '+', '+',},
-                {'@', '@', '@', '@', '@', '@',},
-                {'@', '@', '@', '@', '@',},
+        AbaloneGame game = new AbaloneGame(new char[]{
+                'O', 'O', 'O', 'O', 'O',
+                'O', 'O', 'O', 'O', 'O', 'O',
+                '@', '+', 'O', 'O', 'O', '+', '+',
+                '@', '+', '+', '+', '+', '+', '+', '+',
+                '@', '+', '+', '+', '+', '+', '+', '+', '+',
+                '+', '+', '+', '+', '+', '+', '+', '+',
+                '+', '+', '@', '@', '@', '+', '+',
+                '@', '@', '@', '@', '@', '@',
+                '@', '@', '@', '@', '@',
         });
-        assertEquals(true, game.isValidAction(new AbaloneAction(1, 0, 4, 2)));
+        assertEquals(true, game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[4][0], 2)));
     }
 }
