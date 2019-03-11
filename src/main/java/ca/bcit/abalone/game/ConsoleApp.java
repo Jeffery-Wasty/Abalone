@@ -1,13 +1,16 @@
 package ca.bcit.abalone.game;
 
+import ca.bcit.abalone.ai.AbaloneAI;
+
 import java.util.Scanner;
 
 public class ConsoleApp {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        AbaloneGame game = new AbaloneGame();
-        while (true) {
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.INITIAL_STATE, 1), 7);
+        AbaloneAI ai = new AbaloneAI();
+        while (game.validActions != null && game.validActions.length != 0) {
             System.out.println(game);
             System.out.println(game.player + "'s turn. Input your action: {n, location, direction}");
             String line = scanner.nextLine();
@@ -22,6 +25,16 @@ public class ConsoleApp {
                 System.out.println("Invalid Action");
             } else {
                 game = game.result(gameAction);
+                long time = System.currentTimeMillis();
+                AbaloneGame.Action aiAction = ai.play(game);
+                time = System.currentTimeMillis() - time;
+                System.out.println(time + "ms");
+                if (aiAction != null) {
+                    game = game.result(aiAction);
+                } else {
+                    System.out.println("No More Actions");
+                    break;
+                }
             }
         }
         System.out.println("Program Exited");

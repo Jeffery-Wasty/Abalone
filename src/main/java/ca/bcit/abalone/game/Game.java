@@ -2,14 +2,17 @@ package ca.bcit.abalone.game;
 
 public abstract class Game<P, S, A> {
 
-    public final boolean isTerminal;
-    public final A[] validActions;
-    public final S state;
-    public final P player;
-    public final int utility;
+    public boolean isTerminal;
+    public A[] validActions;
+    public S state;
+    public P player;
+    public int utility;
 
     public Game(final S state) {
         this.state = makeStateCopy(state);
+    }
+
+    protected void init() {
         this.isTerminal = isTerminal(state);
         this.player = getPlayer(state);
         if (this.isTerminal) {
@@ -21,9 +24,9 @@ public abstract class Game<P, S, A> {
         }
     }
 
-    protected abstract S makeStateCopy(S state);
+    public abstract S makeStateCopy(S state);
 
-    protected abstract Game result(A action);
+    public abstract Game<P, S, A> result(A action);
 
     protected abstract A[] actions(S state);
 

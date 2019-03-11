@@ -32,6 +32,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     public AbaloneGame(AbaloneGame.State state, int turnLimit) {
         super(state);
         this.turnLimit = turnLimit;
+        super.init();
     }
 
     public static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
@@ -209,7 +210,9 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
                 if (piece != OUT_OF_BOARD && piece != EMPTY) {
                     loc = LOCATION_LOOKUP_TABLE[loc][action.direction];
-                    gameAction.add(new byte[]{loc, (byte) piece});
+                    if (!isInvalidLocation(loc)) {
+                        gameAction.add(new byte[]{loc, (byte) piece});
+                    }
                 }
 
                 for (String validMove : validMoves) {
@@ -312,6 +315,10 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         AbaloneGame.State nextState = makeStateCopy(state);
 
         for (byte[] piece : action.newPieces) {
+            if (piece[0] == -1) {
+                System.out.println(this);
+                System.out.println(action);
+            }
             nextState.board[piece[0]] = (char) piece[1];
         }
 
@@ -345,6 +352,9 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("turn: ");
+        sb.append(state.turn);
+        sb.append("\n");
         for (byte[] row : LINEAR_LOCATION) {
             for (int i = 0; i < 9 - row.length; i++) sb.append(' ');
             for (byte loc : row) {
