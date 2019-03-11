@@ -2,8 +2,9 @@ package ca.bcit.abalone.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class AbaloneGame extends Game<char[], AbaloneAction> {
+public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
 
     public static final char BLACK = '@';
     public static final char WHITE = 'O';
@@ -97,7 +98,7 @@ public class AbaloneGame extends Game<char[], AbaloneAction> {
     /**
      * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
      */
-    public static final int[][] SIDE_MOVE_DIRECTION = new int[][]{
+    public static final byte[][] SIDE_MOVE_DIRECTION = new byte[][]{
             {AbaloneAction.UP_LEFT, AbaloneAction.UP_RIGHT}, // LEFT
             {AbaloneAction.UP_RIGHT, AbaloneAction.RIGHT},// UP_LEFT
             {AbaloneAction.RIGHT, AbaloneAction.DOWN_RIGHT}, // UP_RIGHT,
@@ -107,19 +108,20 @@ public class AbaloneGame extends Game<char[], AbaloneAction> {
     };
 
     // Enumerate all the 6 directions for each marbles on the board
-    public AbaloneAction[] actions(char[] state) {
-        ArrayList<AbaloneAction> validActions = new ArrayList<>();
+    public AbaloneGame.Action[] actions(char[] state) {
+        ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
         for (int loc = 0; loc < state.length; loc++) {
             for (int i = 1; i <= 3; i++) {
                 for (int j = 0; j < 6; j++) {
                     AbaloneAction action = new AbaloneAction(i, loc, j);
-                    if (isValidAction(action)) {
-                        validActions.add(action);
+                    AbaloneGame.Action gameAction = isValidAction(action);
+                    if (gameAction != null) {
+                        validActions.add(gameAction);
                     }
                 }
             }
         }
-        return validActions.toArray(new AbaloneAction[0]);
+        return validActions.toArray(new AbaloneGame.Action[0]);
     }
 
     public static final String[][][] VALID_PUSHES = new String[][][]{
@@ -143,75 +145,106 @@ public class AbaloneGame extends Game<char[], AbaloneAction> {
 
     public static final int LONGEST_PUSH = VALID_PUSHES[0].length;
 
+    public static class Action {
+        private final byte[][] newPieces;
+
+        private Action(byte[][] newPieces) {
+            this.newPieces = newPieces;
+        }
+
+        private Action(List<byte[]> gameAction) {
+            newPieces = gameAction.toArray(new byte[0][0]);
+        }
+
+        @Override
+        public String toString() {
+            return "Action{" +
+                    "newPieces=" + Arrays.deepToString(newPieces) +
+                    '}';
+        }
+    }
+
     // diagonal: +++OOO, ++OO, +O, OOO+++, OO++, O+
     // push:  {starting point, direction}
     // diagonal:  {starting point, direction, number of marbles to move with} always counts from start to the right of the direction it moves to.
     // [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
     // 18 * 28 marbles at most = 504 actions to validate at most
-    public boolean isValidAction(AbaloneAction action) {
+    public Action isValidAction(AbaloneAction action) {
         // in-line
-        int loc = action.location;
+        byte loc = action.location;
         char firstMarble = getState(loc);
         if (firstMarble == EMPTY) {
-            return false;
+            return null;
         }
         if (action.numberOfMarbles == 1) {
             int player = firstMarble == BLACK ? 1 : 0;
             int i = 0;
             String currentMove = "";
+            List<byte[]> gameAction = new ArrayList<>();
+            gameAction.add(new byte[]{loc, EMPTY});
+
             while (i < LONGEST_PUSH) {
-                currentMove += getState(loc);
+                char piece = getState(loc);
+                currentMove += piece;
 
                 String[] validMoves = VALID_PUSHES[player][i];
 
+                if (piece != OUT_OF_BOARD && piece != EMPTY) {
+                    loc = LOCATION_LOOKUP_TABLE[loc][action.direction];
+                    gameAction.add(new byte[]{loc, (byte) piece});
+                }
+
                 for (String validMove : validMoves) {
                     if (validMove.equals(currentMove)) {
-                        return true;
+                        return new Action(gameAction);
                     }
                 }
 
-                if (getState(loc) == OUT_OF_BOARD) {
-                    return false;
+                if (piece == OUT_OF_BOARD) {
+                    return null;
                 }
 
-                loc = LOCATION_LOOKUP_TABLE[loc][action.direction];
                 i++;
             }
         } else {
             // side-move
-            int[] friendDirections = SIDE_MOVE_DIRECTION[action.direction];
+            byte[] friendDirections = SIDE_MOVE_DIRECTION[action.direction];
             if (getState(LOCATION_LOOKUP_TABLE[loc][friendDirections[0]]) == firstMarble) {
                 return isValidSideMove(action, friendDirections[0]);
             } else if (getState(LOCATION_LOOKUP_TABLE[loc][friendDirections[1]]) == firstMarble) { // check second friend
                 return isValidSideMove(action, friendDirections[1]);
             }
         }
-        return false;
+        return null;
     }
 
     // 2, 0, 7, AbaloneGame.UP_RIGHT
-    private boolean isValidSideMove(AbaloneAction action, int friendDirection) {
-        int loc = action.location;
+    private Action isValidSideMove(AbaloneAction action, int friendDirection) {
+        byte loc = action.location;
         char firstMarble = getState(loc);
         // marbles has to be in a straight line
-        int thirdFriendLoc = LOCATION_LOOKUP_TABLE[LOCATION_LOOKUP_TABLE[loc][friendDirection]][friendDirection];
+        byte thirdFriendLoc = LOCATION_LOOKUP_TABLE[LOCATION_LOOKUP_TABLE[loc][friendDirection]][friendDirection];
         if (action.numberOfMarbles == 3
                 && firstMarble != getState(thirdFriendLoc)) {
-            return false;
+            return null;
         }
+
+        List<byte[]> gameAction = new ArrayList<>();
         // check if the blocks they are moving to are empty
         byte moveInLoc = LOCATION_LOOKUP_TABLE[loc][action.direction];
         for (int i = 0; i < action.numberOfMarbles; i++) {
             if (isInvalidLocation(loc) || isInvalidLocation(moveInLoc)) {
-                return false;
+                return null;
             }
             if (EMPTY != getState(moveInLoc)) {
-                return false;
+                return null;
             }
+            gameAction.add(new byte[]{loc, EMPTY});
+            gameAction.add(new byte[]{moveInLoc, (byte) getState(loc)});
             moveInLoc = LOCATION_LOOKUP_TABLE[moveInLoc][friendDirection];
             loc = LOCATION_LOOKUP_TABLE[loc][friendDirection];
         }
-        return true;
+        return new Action(gameAction);
     }
 
     public boolean isTerminal(char[] state) {
@@ -237,10 +270,14 @@ public class AbaloneGame extends Game<char[], AbaloneAction> {
         return copy;
     }
 
-    // TODO
-    public AbaloneGame execute(AbaloneAction action) {
+    public AbaloneGame result(AbaloneGame.Action action) {
+        char[] nextState = makeStateCopy(state);
 
-        return new AbaloneGame();
+        for (byte[] piece : action.newPieces) {
+            nextState[piece[0]] = (char) piece[1];
+        }
+
+        return new AbaloneGame(nextState);
     }
 
     public static final byte[][] LINEAR_LOCATION = new byte[][]{
@@ -255,21 +292,28 @@ public class AbaloneGame extends Game<char[], AbaloneAction> {
             {56, 57, 58, 59, 60},
     };
 
-    private char getState(int loc) {
+    private char getState(byte loc) {
         if (isInvalidLocation(loc)) {
             return OUT_OF_BOARD;
         }
         return state[loc];
     }
 
-    private boolean isInvalidLocation(int loc) {
+    private boolean isInvalidLocation(byte loc) {
         return loc < 0 || loc >= 61;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Arrays.toString(state));
+        for (byte[] row : LINEAR_LOCATION) {
+            for (int i = 0; i < 9 - row.length; i++) sb.append(' ');
+            for (byte loc : row) {
+                sb.append(getState(loc));
+                sb.append(", ");
+            }
+            sb.append('\n');
+        }
         return sb.toString();
     }
 }

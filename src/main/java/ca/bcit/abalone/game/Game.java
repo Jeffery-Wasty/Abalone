@@ -15,7 +15,7 @@ public abstract class Game<S, A> {
 
     abstract S makeStateCopy(S state);
 
-    abstract Game execute(A action);
+    abstract Game result(A action);
 
     abstract A[] actions(S state);
 
