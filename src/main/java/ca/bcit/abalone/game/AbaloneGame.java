@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
+public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
     public static final char BLACK = '@';
     public static final char WHITE = 'O';
@@ -23,12 +23,15 @@ public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
             '@', '@', '@', '@', '@',
     };
 
+    private final int turnLimit;
+
     public AbaloneGame() {
-        super(AbaloneGame.INITIAL_STATE);
+        this(new AbaloneGame.State(AbaloneGame.INITIAL_STATE, 1), -1);
     }
 
-    public AbaloneGame(char[] state) {
+    public AbaloneGame(AbaloneGame.State state, int turnLimit) {
         super(state);
+        this.turnLimit = turnLimit;
     }
 
     public static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
@@ -108,9 +111,9 @@ public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
     };
 
     // Enumerate all the 6 directions for each marbles on the board
-    public AbaloneGame.Action[] actions(char[] state) {
+    public AbaloneGame.Action[] actions(AbaloneGame.State state) {
         ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
-        for (int loc = 0; loc < state.length; loc++) {
+        for (int loc = 0; loc < state.board.length; loc++) {
             for (int i = 1; i <= 3; i++) {
                 for (int j = 0; j < 6; j++) {
                     AbaloneAction action = new AbaloneAction(i, loc, j);
@@ -122,6 +125,11 @@ public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
             }
         }
         return validActions.toArray(new AbaloneGame.Action[0]);
+    }
+
+    @Override
+    protected Character getPlayer(State state) {
+        return state.turn % 2 == 1 ? BLACK : WHITE;
     }
 
     public static final String[][][] VALID_PUSHES = new String[][][]{
@@ -145,7 +153,17 @@ public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
 
     public static final int LONGEST_PUSH = VALID_PUSHES[0].length;
 
-    public static class Action {
+    public static class State {
+        private char[] board;
+        private byte turn;
+
+        public State(char[] board, int turn) {
+            this.board = board;
+            this.turn = (byte) turn;
+        }
+    }
+
+    public class Action {
         private final byte[][] newPieces;
 
         private Action(byte[][] newPieces) {
@@ -173,7 +191,7 @@ public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
         // in-line
         byte loc = action.location;
         char firstMarble = getState(loc);
-        if (firstMarble == EMPTY) {
+        if (firstMarble != player) {
             return null;
         }
         if (action.numberOfMarbles == 1) {
@@ -247,37 +265,58 @@ public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
         return new Action(gameAction);
     }
 
-    public boolean isTerminal(char[] state) {
-        char b = 14;
-        char w = 14;
-        for (char piece : state) {
+    public boolean isTerminal(AbaloneGame.State state) {
+        if (turnLimit > 0 && state.turn > turnLimit) {
+            return true;
+        }
+        byte[] lost = getNumberOfLostPieces();
+        return lost[0] >= 6 || lost[1] >= 6;
+    }
+
+    private byte[] pieceLost = null;
+
+    private byte[] getNumberOfLostPieces() {
+        if (pieceLost != null) {
+            return pieceLost;
+        }
+        byte b = 0;
+        byte w = 0;
+        for (char piece : state.board) {
             switch (piece) {
                 case BLACK:
-                    b--;
+                    b++;
                     break;
                 case WHITE:
-                    w--;
+                    w++;
                     break;
             }
         }
-        return b <= 8 || w <= 8;
+        pieceLost = new byte[]{(byte) (14 - b), (byte) (14 - w)};
+        return pieceLost;
     }
 
     @Override
-    public char[] makeStateCopy(char[] state) {
-        char[] copy = new char[state.length];
-        System.arraycopy(state, 0, copy, 0, state.length);
-        return copy;
+    protected int getUtility(State state) {
+        byte[] pieceLost = getNumberOfLostPieces();
+        return pieceLost[1] - pieceLost[0];
+    }
+
+    @Override
+    public AbaloneGame.State makeStateCopy(AbaloneGame.State state) {
+        char[] copy = new char[state.board.length];
+        System.arraycopy(state.board, 0, copy, 0, state.board.length);
+        return new AbaloneGame.State(copy, state.turn);
     }
 
     public AbaloneGame result(AbaloneGame.Action action) {
-        char[] nextState = makeStateCopy(state);
+        AbaloneGame.State nextState = makeStateCopy(state);
 
         for (byte[] piece : action.newPieces) {
-            nextState[piece[0]] = (char) piece[1];
+            nextState.board[piece[0]] = (char) piece[1];
         }
 
-        return new AbaloneGame(nextState);
+        nextState.turn += 1;
+        return new AbaloneGame(nextState, turnLimit);
     }
 
     public static final byte[][] LINEAR_LOCATION = new byte[][]{
@@ -296,7 +335,7 @@ public class AbaloneGame extends Game<char[], AbaloneGame.Action> {
         if (isInvalidLocation(loc)) {
             return OUT_OF_BOARD;
         }
-        return state[loc];
+        return state.board[loc];
     }
 
     private boolean isInvalidLocation(byte loc) {
