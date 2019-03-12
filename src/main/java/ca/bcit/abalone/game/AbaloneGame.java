@@ -72,7 +72,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             {32, 24, 25, 34, 42, 41,},
             {33, 25, -1, -1, -1, 42,},
             {-1, 26, 27, 36, 43, -1,},
-            {36, 27, 28, 37, 44, 43,},
+            {35, 27, 28, 37, 44, 43,},
             {36, 28, 29, 38, 45, 44,},
             {37, 29, 30, 39, 46, 45,},
             {38, 30, 31, 40, 47, 46,},
@@ -199,7 +199,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             int player = firstMarble == BLACK ? 1 : 0;
             int i = 0;
             String currentMove = "";
-            List<byte[]> gameAction = new ArrayList<>();
+            List<byte[]> gameAction = new ArrayList<>(6);
             gameAction.add(new byte[]{loc, EMPTY});
 
             while (i < LONGEST_PUSH) {
@@ -221,7 +221,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                     }
                 }
 
-                if (piece == OUT_OF_BOARD) {
+                if (piece == OUT_OF_BOARD || piece == EMPTY) {
                     return null;
                 }
 
@@ -250,7 +250,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             return null;
         }
 
-        List<byte[]> gameAction = new ArrayList<>();
+        List<byte[]> gameAction = new ArrayList<>(6);
         // check if the blocks they are moving to are empty
         byte moveInLoc = LOCATION_LOOKUP_TABLE[loc][action.direction];
         for (int i = 0; i < action.numberOfMarbles; i++) {
@@ -294,6 +294,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                     break;
             }
         }
+
         pieceLost = new byte[]{(byte) (14 - b), (byte) (14 - w)};
         return pieceLost;
     }
@@ -315,14 +316,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         AbaloneGame.State nextState = makeStateCopy(state);
 
         for (byte[] piece : action.newPieces) {
-            if (piece[0] == -1) {
-                System.out.println(this);
-                System.out.println(action);
-            }
             nextState.board[piece[0]] = (char) piece[1];
         }
 
         nextState.turn += 1;
+
         return new AbaloneGame(nextState, turnLimit);
     }
 
