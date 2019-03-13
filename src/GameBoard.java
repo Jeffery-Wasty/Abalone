@@ -2,16 +2,11 @@
  * 
  */
 
-import javafx.application.Application;
-import javafx.stage.Stage;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.paint.Color;
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-
 
 
 
@@ -23,20 +18,21 @@ import javafx.scene.layout.GridPane;
  */
 public class GameBoard extends Group {
     //
-    private Circle[] board = new Circle[BOARDSIZE];
+    // Unsure how we want handle clicks
     //
-    private Circle[] pieces = new Circle[BOARDSIZE];
+    private Piece firstClick;
+    //
+    private Piece secondClick;
+    //
+    private Piece thirdClick;
     
-    private Circle firstClick;
-    //
-    private Circle secondClick;
-    //
+    //first click flag
     private boolean first = true;
     
-    //
+    //Size of the pane
     static final int SCENEBARRIER = 1000;
     
-    //
+    //Size of the board
     static final int BOARDSIZE = 61;
     
     //IF YOU WANT TO MOVE THE BOARD -- this will shift the entire board on the x-axis
@@ -45,33 +41,67 @@ public class GameBoard extends Group {
     //SHIFT THE WHOLE BOARD IN THE Y-AXIS
     static final int BOARD_START_POSY = 110;
     
+    private Piece[] board;
+    
+    private Piece[] pieces;
+    
+    //
+    //builds the board
+    //Is a group that is used in the GUI class
+    //
     public GameBoard() {
+        board = new Piece[BOARDSIZE];
+        pieces = new Piece[BOARDSIZE];
         buildBoard();
         standardLayout();
         setOnMousePressed(this::processMousePressed);
     }
     
-   
-   public void processMousePressed(MouseEvent event) {
-       Circle target = (Circle) event.getTarget();
-       if (first && target.getFill() != Color.BROWN) {
-           firstClick = (Circle) target;
-           first = !first;
-       } else {
-           secondClick = (Circle) target;
-           firstClick.setCenterX(secondClick.getCenterX());
-           firstClick.setCenterY(secondClick.getCenterY());
-           secondClick = null;
-           firstClick = null;
-           first = !first;
-       }
+    //
+    //Unsure how we want to handle clicks and movement
+    //
+    public void processMousePressed(MouseEvent event) {
+        Object target = event.getTarget();
+        Piece p = (Piece) target;
        
+        if (first && p.getFill() != Color.BROWN) {
+            firstClick = p;
+            first = !first;
+            highlight();
+        } else if (!first && p.getFill() == Color.BROWN) {
+            secondClick = p;
+            firstClick.setCenterX(secondClick.getCenterX());
+            firstClick.setCenterY(secondClick.getCenterY());
+            firstClick.setPos(secondClick.getPos()); //set the new location of the piece
+            unhighlight();
+            secondClick = null;
+            firstClick = null;
+            first = !first;
+        }
+    }
+   
+   //
+   //Used to highlight the current tile selected
+   //
+   public void highlight() {
+       firstClick.setStrokeWidth(5);
+       firstClick.setStrokeType(StrokeType.OUTSIDE);
+       firstClick.setStroke(Color.GREEN);
+   }
+   
+   //
+   //Unhighlight the selected piece after it has been moved.
+   //
+   public void unhighlight() {
+       firstClick.setStrokeWidth(0);
    }
     
+   //
+   //Builds the board (The brown underlay for the pieces)
+   //Creates Board Pieces and sets a position identical to the internal logic
+   //
     public void buildBoard () {
-      //Initiating board
-        
-        //Group circlename = new Group();
+        //Initiating board
         
         //first (top) row
         // 0 - 4
@@ -81,10 +111,10 @@ public class GameBoard extends Group {
         int tileshift = posx;
         for (int i = 0; i < 5; i++)
         {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
-            //circlename.getChildren().add(c);
         }
         
         //second row
@@ -93,7 +123,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 5; i < 11; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c); 
         }
@@ -104,7 +135,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 11; i < 18; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
         }
@@ -115,7 +147,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 18; i < 26; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
         
@@ -127,7 +160,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 26; i < 35; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
         }
@@ -138,7 +172,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 35; i < 43; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
         }
@@ -149,7 +184,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 43; i < 50; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
         }
@@ -160,7 +196,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 50; i < 56; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
         }
@@ -171,13 +208,17 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 56; i < 61; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BROWN);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BROWN);
             board[i] = c;
             getChildren().add(c);
         }
        
     }
     
+    //
+    //Builds a standard playout for the game pieces
+    //
     public void standardLayout() {
         //Group standard = new Group();
         
@@ -189,10 +230,10 @@ public class GameBoard extends Group {
         int tileshift = posx;
         for (int i = 0; i < 5; i++)
         {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.WHITE);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.WHITE);
             pieces[i] = c;
             getChildren().add(c);
-            //add(c, tileshift+=41, posy);
         }
         
         //second row
@@ -201,7 +242,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 5; i < 11; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.WHITE);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.WHITE);
             pieces[i] = c;
             getChildren().add(c);
         }
@@ -212,7 +254,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx + 40;
         for (int i = 13; i < 16; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.WHITE);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.WHITE);
             pieces[i] = c;
             getChildren().add(c);
         }
@@ -224,7 +267,8 @@ public class GameBoard extends Group {
         posy = posy + 160;
         tileshift = posx + 40;
         for (int i = 45; i < 48; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BLACK);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BLACK);
             pieces[i] = c;
             getChildren().add(c);
         }
@@ -235,7 +279,8 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 50; i < 56; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BLACK);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BLACK);
             pieces[i] = c;
             getChildren().add(c);
         }
@@ -246,12 +291,11 @@ public class GameBoard extends Group {
         posy = posy + 40;
         tileshift = posx;
         for (int i = 56; i < 61; i++) {
-            Circle c = new Circle(tileshift+=40, posy, rad, Color.BLACK);
+            Piece c = new Piece(tileshift+=40, posy, rad, i);
+            c.setFill(Color.BLACK);
             pieces[i] = c;
             getChildren().add(c);
         }
-        
-     
     }
 
   
