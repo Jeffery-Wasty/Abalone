@@ -5,6 +5,7 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
 
 
 /**
@@ -26,10 +27,9 @@ public class GUI extends Application {
     //Displays them both as one.
     @Override
     public void start(Stage primaryStage) throws Exception {
- 
         GameBoard abalone = new GameBoard();
-        FXTimer timer = new FXTimer();
-        abalone.getChildren().add(timer);
+        //removed timer and put it into gameboard
+//        abalone.getChildren().add(timer);
         Scene myScene = new Scene(abalone, SCENEBARRIER, SCENEBARRIER);
         
         primaryStage.setTitle("Abalone");

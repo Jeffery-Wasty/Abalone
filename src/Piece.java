@@ -11,7 +11,6 @@ import javafx.scene.shape.Circle;
 public class Piece extends Circle {
 
     private int position;
-    
     //Giving the circles a 'position' so that they can link with the internal positioning logic
     public Piece(int x, int y, int radius, int position) {
         super(x,y,radius);

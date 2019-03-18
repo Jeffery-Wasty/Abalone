@@ -131,7 +131,7 @@ public class FXTimer extends Group
         buttonPause.setTranslateX(400);
         buttonPause.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                pause();
+                //pause();
             }
         });
         
