@@ -4,8 +4,10 @@
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.paint.Color;
 
 
 /**
@@ -18,6 +20,7 @@ import javafx.scene.control.MenuBar;
  */
 public class GUI extends Application {
 
+	public static Group root;
     /**
      * The dimensions of my scene.
      */
@@ -27,10 +30,12 @@ public class GUI extends Application {
     //Displays them both as one.
     @Override
     public void start(Stage primaryStage) throws Exception {
+    	root = new Group();
         GameBoard abalone = new GameBoard();
+        root.getChildren().add(abalone);
         //removed timer and put it into gameboard
 //        abalone.getChildren().add(timer);
-        Scene myScene = new Scene(abalone, SCENEBARRIER, SCENEBARRIER);
+        Scene myScene = new Scene(root, SCENEBARRIER, SCENEBARRIER-150, Color.LIGHTGREY);
         
         primaryStage.setTitle("Abalone");
         primaryStage.setScene(myScene);

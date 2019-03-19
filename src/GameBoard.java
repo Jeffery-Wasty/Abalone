@@ -5,12 +5,17 @@
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.paint.Color;
+import java.util.ArrayList;
+
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.event.ActionEvent;
 
 
 
@@ -21,17 +26,6 @@ import javafx.scene.input.MouseEvent;
  * @version 1.0
  */
 public class GameBoard extends Group {
-    //
-    // Unsure how we want handle clicks
-    //
-    private Piece firstClick;
-    //
-    private Piece secondClick;
-    //
-    private Piece thirdClick;
-    
-    //first click flag
-    private boolean first = true;
     
     //Size of the pane
     static final int SCENEBARRIER = 1000;
@@ -46,9 +40,6 @@ public class GameBoard extends Group {
     static final int BOARD_START_POSY = 110;
     
     private Piece[] board;
-    
-    private Piece[] pieces;
-    
     private Label layoutButtons;
     private Button standardButton;
     private Button germanButton;
@@ -57,46 +48,52 @@ public class GameBoard extends Group {
     private Label mode;
     private Button human;
     private Button humanvsCPU;
+    private String modeChoice;
     
     private Label color;
     private Button white;
     private Button black;
+    private String colorChoice;
     
     private Label moves;
     private TextField moveLimitInput;
+    private int moveLimitValue;
     
     private Label time;
     private TextField timeLimitInput;
-    
+    private int timeLimitValue;
     protected FXTimer timer;
+    
+    public AbaloneGame abaloneGame;
+    
+    protected ArrayList<Integer> selectedPieces;
     //
     //builds the board
     //Is a group that is used in the GUI class
     //
     public GameBoard() {
+    	abaloneGame = new AbaloneGame();
+    	selectedPieces = new ArrayList<>();
+    	board = new Piece[BOARDSIZE];
+    	
     	setLayout();
     	setGameMode(); 
     	setColor();
     	setLimit();
     	
-    	
-        board = new Piece[BOARDSIZE];
-        pieces = new Piece[BOARDSIZE];
-        buildBoard();
-        
         standardButton.setOnAction(event -> {
+        	abaloneGame.standardLayout();
         	buildBoard();
-        	standardLayout();
         });
         
         germanButton.setOnAction(event -> {
+        	abaloneGame.germanDaisy();
         	buildBoard();
-        	germanDaisy();
         });
         
         belgianButton.setOnAction(event -> {
+        	abaloneGame.belgianDaisy();
         	buildBoard();
-        	belgianDaisy();
         });
         
         setOnMousePressed(this::processMousePressed);
@@ -127,6 +124,19 @@ public class GameBoard extends Group {
     	
     	getChildren().add(time);
     	getChildren().add(timeLimitInput);
+    	
+    	moveLimitInput.setOnKeyPressed(e -> {
+    		if(e.getCode().toString().equals( "ENTER")) {
+    			moveLimitValue = Integer.valueOf(moveLimitInput.getText());
+    			System.out.println(moveLimitValue);
+    		}
+    	});
+    	timeLimitInput.setOnKeyPressed(e -> {
+		if(e.getCode().toString().equals( "ENTER")) {
+			timeLimitValue = Integer.valueOf(timeLimitInput.getText());
+			System.out.println(timeLimitValue);
+		}
+    	});
     }
 
     public void setColor() {
@@ -145,7 +155,16 @@ public class GameBoard extends Group {
     	getChildren().add(color);
     	getChildren().add(white);
     	getChildren().add(black);
+    	white.setOnAction(event -> {
+    		colorChoice = "white";
+        });
+    	
+    	white.setOnAction(event -> {
+    		colorChoice = "black";
+        });
+    	
     }
+    
     public void setGameMode() {
     	mode = new Label("Mode: ");
     	mode.setTranslateY(550);
@@ -162,6 +181,13 @@ public class GameBoard extends Group {
     	getChildren().add(mode);
     	getChildren().add(human);
     	getChildren().add(humanvsCPU);
+    	
+    	human.setOnAction(event -> {
+        	modeChoice = "human";
+        });
+    	human.setOnAction(event -> {
+        	modeChoice = "cpu";
+        });
     }
     
     public void setLayout(){
@@ -186,496 +212,187 @@ public class GameBoard extends Group {
     	getChildren().add(belgianButton);
     	getChildren().add(layoutButtons);
     }
-    //
-    //Unsure how we want to handle clicks and movement
-    //
+
     public void processMousePressed(MouseEvent event) {
         Object target = event.getTarget();
         Piece p = (Piece) target;
-       
-        if (first && p.getFill() != Color.BROWN) {
-            firstClick = p;
-            first = !first;
-            highlight();
-            System.out.println(p.getPos());
-        } else if (!first && p.getFill() == Color.BROWN) {
-            secondClick = p;
-            firstClick.setCenterX(secondClick.getCenterX());
-            firstClick.setCenterY(secondClick.getCenterY());
-            firstClick.setPos(secondClick.getPos()); //set the new location of the piece
-            unhighlight();
-            secondClick = null;
-            firstClick = null;
-            first = !first;
-        }
-    }
+        
+        selectedPieces.add(p.getPos());
+        //variable = validation function()
+        //if valid click
+        p.setFill(Color.GREEN);
+        //if not valid redraw board
+        //if its a move, create the move object , redraw board
+        
+    } 
    
-   //
-   //Used to highlight the current tile selected
-   //
-   public void highlight() {
-       firstClick.setStrokeWidth(5);
-       firstClick.setStrokeType(StrokeType.OUTSIDE);
-       firstClick.setStroke(Color.GREEN);
-   }
-   
-   //
-   //Unhighlight the selected piece after it has been moved.
-   //
-   public void unhighlight() {
-       firstClick.setStrokeWidth(0);
-   }
-    
-   //
-   //Builds the board (The brown underlay for the pieces)
-   //Creates Board Pieces and sets a position identical to the internal logic
-   //
-    public void buildBoard () {
-        //Initiating board
-        
-        //first (top) row
-        // 0 - 4
-        int rad = 20;
-        int posx = BOARD_START_POSX;
-        int posy = BOARD_START_POSY;
-        int tileshift = posx;
-        for (int i = 0; i < 5; i++)
-        {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        }
-        
-        //second row
-        // 5 - 10
-        posx = posx - 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 5; i < 11; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c); 
-        }
-        
-        //third row
-        // 11 - 17
-        posx = posx - 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 11; i < 18; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        }
-        
-        //fourth row
-        // 18 - 25
-        posx = posx - 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 18; i < 26; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        
-        }
-        
-        //fifth row
-        // 26 - 34
-        posx = posx - 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 26; i < 35; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        }
-        
-        //sixth row
-        //35 - 42
-        posx = posx + 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 35; i < 43; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        }
-        
-        //seventh row
-        // 43 - 49
-        posx = posx + 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 43; i < 50; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        }
-        
-        //eighth row
-        // 50 - 55
-        posx = posx + 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 50; i < 56; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        }
-        
-        //ninth row
-        // 56 - 60
-        posx = posx + 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 56; i < 61; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BROWN);
-            board[i] = c;
-            getChildren().add(c);
-        }
+   public void buildBoard() {
+	   for(int i = 0; i < board.length; i ++) {
+   			getChildren().remove(board[i]);
+   		} 
+	   
+	   int rad = 20;
+       int posx = BOARD_START_POSX;
+       int posy = BOARD_START_POSY;
+       int tileshift = posx;
        
-    }
-    
-    public void belgianDaisy() {
-    	int rad = 15;
-        int posx = BOARD_START_POSX;
-        int posy = BOARD_START_POSY;
-        int tileshift = posx ;
-        
-        //white r1
-        for(int i = 0; i < 2 ; i++) {
-        	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-             c.setFill(Color.WHITE);
-             pieces[i] = c;
-             getChildren().add(c);
-        }
-        
-        //black r1
-        tileshift += 40;
-        for(int i = 3; i < 5 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-       }
-        
-        posx -=20;
-        posy += 40;
-        tileshift = posx;
-        
-        //white r2
-        for(int i = 5; i < 8 ; i++) {
-          	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-               c.setFill(Color.WHITE);
-               pieces[i] = c;
-               getChildren().add(c);
-          }
-
-        //blackr2
-        for(int i = 8; i < 11 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.BLACK);
-              pieces[i] = c;
-              getChildren().add(c);
-         }
-        
-        posx -= 20;
-        posy += 40;
-        tileshift = posx + 40;
-        //white r3
-        for(int i = 12; i < 14 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.WHITE);
-              pieces[i] = c;
-              getChildren().add(c);
-         }
-        
-        //black r3
-        tileshift += 40;
-        for(int i = 15; i < 17 ; i++) {
-        	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-             c.setFill(Color.BLACK);
-             pieces[i] = c;
-             getChildren().add(c);
-        }
-        
-        //black r7
-        tileshift = posx + 40;
-        posy += 160;
-        for(int i = 44; i < 46 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-       }
-        
-       //white r7
-       tileshift += 40;
-       for(int i = 47; i < 49 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.WHITE);
-              pieces[i] = c;
-              getChildren().add(c);
-         }
-       
-       posx += 20;
-       posy += 40;
-       tileshift = posx;
-       
-       //black r8
-       for(int i = 50; i < 53 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.BLACK);
-              pieces[i] = c;
-              getChildren().add(c);
-         }
-       
-       //white r8
-       for(int i = 53; i < 56 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.WHITE);
-            pieces[i] = c;
-            getChildren().add(c);
-       }
-       
-       posx += 20;
-       posy += 40;
-       tileshift = posx;
-       
-       //black r9
-       for(int i = 56; i < 58 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-       }
-       
-       tileshift += 40;
-       for(int i = 59; i < 61 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.WHITE);
-              pieces[i] = c;
-              getChildren().add(c);
-         }
-       
-    }
-    
-    public void germanDaisy() {
-    	int rad = 15;
-        int posx = BOARD_START_POSX;
-        int posy = BOARD_START_POSY;
-        int tileshift = posx - 20;
-        posy = posy + 40;
-        
-        //white r2
-        for(int i = 5; i < 7 ; i++) {
-        	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-             c.setFill(Color.WHITE);
-             pieces[i] = c;
-             getChildren().add(c);
-        }
-        
-        //black r2
-        tileshift = posx + 140;
-        for(int i = 9; i <11 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-       }
-        
-       //white r3
-        posx -= 40;
-        posy += 40 ;
-        tileshift = posx;
-        for(int i = 11; i <14 ; i++) {
-          	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-               c.setFill(Color.WHITE);
-               pieces[i] = c;
-               getChildren().add(c);
-          }
-        
-        //black r3
-        tileshift += 40;
-        for(int i = 15; i <18 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.BLACK);
-              pieces[i] = c;
-              getChildren().add(c);
-         }
-        
-        //white r4
-        posx -= 40;
-        posy += 40;
-        tileshift = posx + 60;
-        for(int i = 19; i <21 ; i++) {
-        	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-             c.setFill(Color.WHITE);
-             pieces[i] = c;
-             getChildren().add(c);
-        }
-        
-        //black r4
-        tileshift += 80;
-        for(int i = 23; i <25 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-       }
-        
-       //black r6
-       posy += 80;
-       tileshift = posx + 60;
-       for(int i = 36; i <38 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.BLACK);
-              pieces[i] = c;
-              getChildren().add(c);
-         }
-       
-       //white r6
-       tileshift += 80;
-       for(int i = 40; i <42 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.WHITE);
-            pieces[i] = c;
-            getChildren().add(c);
-       }
-       
-       //black r7
-       posx += 40;
-       posy += 40;
-       tileshift = posx;
-       for(int i = 43; i <46 ; i++) {
-     	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-          c.setFill(Color.BLACK);
-          pieces[i] = c;
-          getChildren().add(c);
-       }
-       
-       //white r7
-       tileshift += 40;
-       for(int i = 47; i <50 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.WHITE);
-            pieces[i] = c;
-            getChildren().add(c);
-         }
-       
-       //black r8
-       posx += 20;
-       posy += 40;
-       tileshift = posx;
-       for(int i = 50; i <52 ; i++) {
-         	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-              c.setFill(Color.BLACK);
-              pieces[i] = c;
-              getChildren().add(c);
+       for (int i = 0; i < 5; i++)
+       {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
            }
+           board[i] = c;
+           getChildren().add(c);
+       }
        
-       //white r8
-       tileshift += 80;
-       for(int i = 54; i <56 ; i++) {
-       	 Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.WHITE);
-            pieces[i] = c;
-            getChildren().add(c);
-         }
-    }
-    
-    //
-    //Builds a standard playout for the game pieces
-    //
-    public void standardLayout() {
-        //Group standard = new Group();
-        
-        //white pieces
-        //top row
-        int rad = 15;
-        int posx = BOARD_START_POSX;
-        int posy = BOARD_START_POSY;
-        int tileshift = posx;
-        for (int i = 0; i < 5; i++)
-        {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.WHITE);
-            pieces[i] = c;
-            getChildren().add(c);
-        }
-        
-        //second row
-        // 5 - 10
-        posx = posx - 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 5; i < 11; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.WHITE);
-            pieces[i] = c;
-            getChildren().add(c);
-        }
-            
-        //third row
-        // 11 - 17
-        posx = posx + 20; //starting drawing in the middle of the row
-        posy = posy + 40;
-        tileshift = posx + 40;
-        for (int i = 13; i < 16; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.WHITE);
-            pieces[i] = c;
-            getChildren().add(c);
-        }
-        
-        //black
-        
-        //seventh row
-        // 43 - 49
-        posy = posy + 160;
-        tileshift = posx + 40;
-        for (int i = 45; i < 48; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-        }
-        
-        //eighth row
-        // 50 - 55
-        posx = posx - 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 50; i < 56; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-        }
-        
-        //ninth row
-        // 56 - 60
-        posx = posx + 20;
-        posy = posy + 40;
-        tileshift = posx;
-        for (int i = 56; i < 61; i++) {
-            Piece c = new Piece(tileshift+=40, posy, rad, i);
-            c.setFill(Color.BLACK);
-            pieces[i] = c;
-            getChildren().add(c);
-        }
-    }
-
-  
-
+       //second row
+       // 5 - 10
+       posx = posx - 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 5; i < 11; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c); 
+       }
+       
+       //third row
+       // 11 - 17
+       posx = posx - 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 11; i < 18; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c);
+       }
+       
+       //fourth row
+       // 18 - 25
+       posx = posx - 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 18; i < 26; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c);
+       
+       }
+       
+       //fifth row
+       // 26 - 34
+       posx = posx - 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 26; i < 35; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c);
+       }
+       
+       //sixth row
+       //35 - 42
+       posx = posx + 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 35; i < 43; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c);
+       }
+       
+       //seventh row
+       // 43 - 49
+       posx = posx + 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 43; i < 50; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c);
+       }
+       
+       //eighth row
+       // 50 - 55
+       posx = posx + 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 50; i < 56; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c);
+       }
+       
+       //ninth row
+       // 56 - 60
+       posx = posx + 20;
+       posy = posy + 40;
+       tileshift = posx;
+       for (int i = 56; i < 61; i++) {
+           Piece c = new Piece(tileshift+=40, posy, rad, i);
+           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+        	   c.setFill(Color.WHITE);
+           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+        	   c.setFill(Color.BROWN);
+           } else {
+        	   c.setFill(Color.BLACK);
+           }
+           board[i] = c;
+           getChildren().add(c);
+       }
+   }
 }
