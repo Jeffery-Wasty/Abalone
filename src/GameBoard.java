@@ -67,7 +67,6 @@ public class GameBoard extends Group {
     public AbaloneGame abaloneGame;
     
     protected ArrayList<Integer> selectedPieces;
-    protected String colorSide;
     //
     //builds the board
     //Is a group that is used in the GUI class
@@ -157,11 +156,11 @@ public class GameBoard extends Group {
     	getChildren().add(white);
     	getChildren().add(black);
     	white.setOnAction(event -> {
-        	colorSide = "white";
+    		colorChoice = "white";
         });
     	
     	white.setOnAction(event -> {
-        	colorSide = "black";
+    		colorChoice = "black";
         });
     	
     }
