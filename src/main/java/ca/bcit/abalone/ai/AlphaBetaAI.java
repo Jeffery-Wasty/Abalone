@@ -34,15 +34,19 @@ public abstract class AlphaBetaAI<P, S, A> {
         if (game.isTerminal) {
             return null;
         }
+        int i = 0;
         A action = null;
         int value = Integer.MAX_VALUE;
         for (A a : game.validActions) {
+            long time = System.currentTimeMillis();
             int result = maxValue(game.result(a), alpha, beta);
             if (result < value) {
                 value = result;
                 action = a;
             }
             beta = Math.min(beta, value);
+            time = System.currentTimeMillis() - time;
+            System.out.println(++i + "/" + game.validActions.length + " in " + time + "ms.");
         }
         return action;
     }

@@ -4,13 +4,16 @@ import ca.bcit.abalone.game.AbaloneAction;
 import ca.bcit.abalone.game.AbaloneGame;
 import org.junit.Test;
 
+import java.util.Arrays;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class AbaloneGameTest {
 
     @Test
     public void isValidAction() {
-        AbaloneGame game = new AbaloneGame();
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1);
         // Push 0,0
         assertEquals(false, null != game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.DOWN_LEFT))); // OO+
         assertEquals(false, null != game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[0][0], AbaloneAction.DOWN_RIGHT))); // OOO+
@@ -91,7 +94,7 @@ public class AbaloneGameTest {
 
     @Test
     public void execute() {
-        AbaloneGame game = new AbaloneGame();
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1);
         System.out.println(game);
         game = game.result(game.isValidAction(new AbaloneAction(1, 56, 2)));
         System.out.println(game);
@@ -116,7 +119,7 @@ public class AbaloneGameTest {
      */
     @Test
     public void actions() {
-        AbaloneGame game = new AbaloneGame();
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1);
         for (AbaloneGame.Action a : game.validActions) {
             System.out.println(a);
         }
@@ -137,5 +140,11 @@ public class AbaloneGameTest {
                 '@', '@', '@', '@', '@',
         }, 1), -1);
         assertEquals(true, null != game.isValidAction(new AbaloneAction(1, AbaloneGame.LINEAR_LOCATION[4][0], 2)));
+    }
+
+    @Test
+    public void UIActionTest() {
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
+        assertArrayEquals(new int[]{1, 50, 2}, game.isValidUIMove(Arrays.asList(50, 44, 37)));
     }
 }

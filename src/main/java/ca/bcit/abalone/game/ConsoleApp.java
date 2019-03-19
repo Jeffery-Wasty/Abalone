@@ -8,7 +8,7 @@ public class ConsoleApp {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.INITIAL_STATE, 1), 7);
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_INITIAL_STATE, 1), 7);
         AbaloneAI ai = new AbaloneAI();
         while (game.validActions != null && game.validActions.length != 0) {
             System.out.println(game);
