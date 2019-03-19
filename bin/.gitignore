@@ -6,3 +6,8 @@
 /FXTimer.class
 /GameBoard.class
 /Piece.class
+/AbaloneAction.class
+/AbaloneGame.class
+/AbaloneGame$Action.class
+/AbaloneGame$State.class
+/Game.class
