@@ -1,7 +1,11 @@
 package ca.bcit.abalone.network;
 
+import ca.bcit.abalone.game.Utility;
+
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class ClientSocket {
 
@@ -19,7 +23,7 @@ public abstract class ClientSocket {
         try {
             String line;
             while ((line = in.readLine()) != null) {
-                String response = handleInput(line);
+                String response = preProcessInput(line);
                 writeLine(response);
             }
         } catch (IOException e) {
@@ -48,6 +52,29 @@ public abstract class ClientSocket {
         }
     }
 
-    abstract String handleInput(String input);
+    private String preProcessInput(String line) {
+        String[] tokens = Utility.splitByFirstIndexOf(line, "?");
+        String endpoint = tokens[0];
+        String queryString = tokens[1];
+        Map<String, String> query = new HashMap<>();
+        if (queryString != null) {
+            for (String paramString : queryString.split("&")) {
+                String[] paramTokens = Utility.splitByFirstIndexOf(paramString, "=");
+                query.put(paramTokens[0], paramTokens[1]);
+            }
+        }
+        StringBuilder responseBuilder = new StringBuilder(endpoint + "?");
+        Map<String, String> response = handleInput(endpoint, query);
+        for (Map.Entry<String, String> entry : response.entrySet()) {
+            responseBuilder.append(entry.getKey());
+            responseBuilder.append("=");
+            responseBuilder.append(entry.getValue());
+            responseBuilder.append('&');
+        }
+        responseBuilder.deleteCharAt(responseBuilder.length() - 1);
+        return responseBuilder.toString();
+    }
+
+    abstract Map<String, String> handleInput(String endpoint, Map<String, String> query);
 
 }

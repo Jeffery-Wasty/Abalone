@@ -4,7 +4,8 @@ import ca.bcit.abalone.game.AbaloneGame;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AbaloneServer extends ServerHandler<AbaloneServer.AbaloneClient> {
 
@@ -25,16 +26,17 @@ public class AbaloneServer extends ServerHandler<AbaloneServer.AbaloneClient> {
             super(clientSocket);
         }
 
-        @Override
-        String handleInput(String input) {
-            String[] tokens = input.split(" ");
-            System.out.println("Received: " + Arrays.toString(tokens));
-            String endpoint = tokens[0];
+        Map<String, String> handleInput(String endpoint, Map<String, String> query) {
+            System.out.println(endpoint + ": " + query);
             switch (endpoint) {
                 case "game-state":
-                    return abaloneGame.toString();
+                    return new HashMap<String, String>() {{
+                        put("data", abaloneGame.toString());
+                    }};
                 default:
-                    return endpoint + " Not-Found";
+                    return new HashMap<String, String>() {{
+                        put("error", "Not Found");
+                    }};
             }
         }
 
