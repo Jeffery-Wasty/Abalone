@@ -4,10 +4,10 @@ import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
-    private static final char BLACK = '@';
-    private static final char WHITE = 'O';
-    private static final char EMPTY = '+';
-    private static final char OUT_OF_BOARD = '!';
+    public static final char BLACK = '@';
+    public static final char WHITE = 'O';
+    public static final char EMPTY = '+';
+    public static final char OUT_OF_BOARD = '!';
 
     static char[] INITIAL_STATE = new char[]{
             'O', 'O', 'O', 'O', 'O',
@@ -205,6 +205,14 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             this.board = board;
             this.turn = (byte) turn;
         }
+
+        public char[] getBoard() {
+            return board;
+        }
+
+        public byte getTurn() {
+            return turn;
+        }
     }
 
     public class Action {
@@ -234,7 +242,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
     18 * 28 marbles at most = 504 actions to validate at most
     */
-    private Action isValidAction(AbaloneAction action) {
+    public Action isValidAction(AbaloneAction action) {
 
         // in-line
         byte loc = action.location;
