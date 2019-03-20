@@ -8,8 +8,8 @@ public class AbaloneAction {
     static final byte DOWN_LEFT = 5;
 
     final byte numberOfMarbles; // if this number = 1, it is a push action. if 1 = n <= 3. it's the number of marbles to move diagonally
-    final byte location; // the position of the left most marble
-    final byte direction; // the direction the marbles move to.
+    final byte location;        // the position of the left most marble
+    final byte direction;       // the direction the marbles move to.
 
     AbaloneAction(int numberOfMarbles, int location, int direction) {
         this.numberOfMarbles = (byte) numberOfMarbles;

@@ -18,14 +18,9 @@ import javafx.scene.input.MouseEvent;
  */
 class GameBoard extends Group {
 
-    //Size of the board
-    private static final int BOARD_SIZE = 61;
-    
-    //IF YOU WANT TO MOVE THE BOARD -- this will shift the entire board on the x-axis
-    private static final int BOARD_START_POS_X = 370;
-    
-    //SHIFT THE WHOLE BOARD IN THE Y-AXIS
-    private static final int BOARD_START_POS_Y = 110;
+    private static final int BOARD_SIZE = 61;           // Size of the board
+    private static final int BOARD_START_POS_X = 370;   // IF YOU WANT TO MOVE THE BOARD -- this will shift the entire board on the x-axis
+    private static final int BOARD_START_POS_Y = 110;   // SHIFT THE WHOLE BOARD IN THE Y-AXIS
     
     private Piece[] board;
     private Button standardButton;
@@ -47,10 +42,13 @@ class GameBoard extends Group {
     
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private ArrayList<Integer> selectedPieces;
-    //
-    //builds the board
-    //Is a group that is used in the GUI class
-    //
+
+    /*
+
+    builds the board
+    Is a group that is used in the GUI class
+
+    */
     GameBoard() {
     	abaloneGame = new AbaloneGame();
     	selectedPieces = new ArrayList<>();
@@ -212,8 +210,10 @@ class GameBoard extends Group {
            tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //second row
-       // 5 - 10
+       /*
+       second row
+       5 - 10
+       */
        posx = posx - 20;
        posy = posy + 40;
        tileshift = posx;
@@ -221,8 +221,10 @@ class GameBoard extends Group {
            tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //third row
-       // 11 - 17
+       /*
+       third row
+       11 - 17
+       */
        posx = posx - 20;
        posy = posy + 40;
        tileshift = posx;
@@ -230,8 +232,10 @@ class GameBoard extends Group {
            tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //fourth row
-       // 18 - 25
+       /*
+       fourth row
+       18 - 25
+       */
        posx = posx - 20;
        posy = posy + 40;
        tileshift = posx;
@@ -249,8 +253,10 @@ class GameBoard extends Group {
            tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //sixth row
-       //35 - 42
+       /*
+       sixth row
+       35 - 42
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;
@@ -258,8 +264,10 @@ class GameBoard extends Group {
            tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //seventh row
-       // 43 - 49
+       /*
+       seventh row
+       43 - 49
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;
@@ -267,8 +275,10 @@ class GameBoard extends Group {
            tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //eighth row
-       // 50 - 55
+       /*
+       eighth row
+       50 - 55
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;
@@ -276,8 +286,10 @@ class GameBoard extends Group {
            tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //ninth row
-       // 56 - 60
+       /*
+       ninth row
+       56 - 60
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;

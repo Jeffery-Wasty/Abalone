@@ -8,37 +8,27 @@ import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 
-class FXTimer extends Group
-{
+class FXTimer extends Group {
     private Timeline time;
-    //used when time is kept running
+
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private ArrayList<Double> moveTimes = new ArrayList<>();
-    //Divisor for time calculations
-    private static final double DIVISOR = 1000.0;
-    //padding between times
-    private static final int TIME_SPACE_FACTOR = 20;
-    //y-axis location of black times
-    private static final int BLACK_COL = 100;
-    //y-axis location of white times
-    private static final int WHITE_COL = 700;
+    private ArrayList<Double> moveTimes = new ArrayList<>();    // used when time is kept running
+    private static final double DIVISOR = 1000.0;               // Divisor for time calculations
+    private static final int TIME_SPACE_FACTOR = 20;            // padding between times
+    private static final int BLACK_COL = 100;                   // y-axis location of black times
+    private static final int WHITE_COL = 700;                   // y-axis location of white times
+
+    private int currentRow = 50;                                // starting point for the calculated move times
+    private boolean blackMove = true;                           // on white and black sides on white and black sides
+    private Label lb;                                           // Main time label
     
-    //starting point for the calculated move times
-    private int currentRow = 50; 
-    
-    //variables used for time calculation
+    //#region Time Calculation
     private double startTime; 
     private double endTime;
     private double currentCounter = 0;
     private double storeTimeWhenPaused = 0;
     private boolean stopped = true;
-    
-    //used to toggle between displaying times
-    //on white and black sides
-    private boolean blackMove = true;
-
-    //Main time label
-    private Label lb;
+    //#endregion
 
     //#region Time Buttons
     private Button buttonStart;
@@ -47,22 +37,22 @@ class FXTimer extends Group
     private Button buttonReset;
     //#endregion
 
-    //Constructs a FXTimer that is a group, and can be displayed like a group
     FXTimer() {
         buildTimer();
     }
     
-    //
-    //Handles play for the button 'play'
-    //If you press play twice in a row, crash. Add bool to disallow pressing it twice.
-    //
-    private void doTime() 
-    {
+    /*
+
+    Handles play for the button 'play'
+    If you press play twice in a row, crash. Add bool to disallow pressing it twice.
+
+    */
+    private void doTime() {
         if (stopped) {
             stopped = false;
             startTime = System.currentTimeMillis();
 
-            time= new Timeline();
+            time = new Timeline();
             KeyFrame frame = new KeyFrame(Duration.seconds(0.01),
                     event -> {
                         endTime = System.currentTimeMillis();
@@ -76,9 +66,11 @@ class FXTimer extends Group
         }
     }
     
-    //
-    //handles the pause action for the buttons
-    //
+    /*
+
+    handles the pause action for the buttons
+
+    */
     private void stop() {
         time.stop();
         moveTimes.add(currentCounter);
@@ -87,7 +79,7 @@ class FXTimer extends Group
         int currentCol;
         if (blackMove) {
             currentCol = BLACK_COL;
-            currentRow+=TIME_SPACE_FACTOR;
+            currentRow += TIME_SPACE_FACTOR;
         } else
             currentCol = WHITE_COL;
         
@@ -116,17 +108,21 @@ class FXTimer extends Group
                 "Stops the timer and saves the time to the current user (black/white)."));
     }
    
-    //
-    //Builds the UI and button functionality for the FXTimer class.
-    //
+    /*
+
+    Builds the UI and button functionality for the FXTimer class.
+
+    */
     private void buildTimer() {
         
-        //The timer starts when the start button is pressed.
-        //The pause button signifies the end of a turn, and calculates the time taken for that 'move'.
-        //The next turn starts when the start button is pressed again.
-        //The stop button functions like the pause.
-        //The reset button can only be pressed AFTER the stop button is pressed, and once it is pressed the timer starts
-        //counting again at 0.
+        /*
+        The timer starts when the start button is pressed.
+        The pause button signifies the end of a turn, and calculates the time taken for that 'move'.
+        The next turn starts when the start button is pressed again.
+        The stop button functions like the pause.
+        The reset button can only be pressed AFTER the stop button is pressed, and once it is pressed the timer starts
+        counting again at 0.
+        */
         buttonStart = new Button("Start");
         buttonStart.setTranslateX(300);
         buttonStart.setOnAction(e -> doTime());
@@ -143,10 +139,8 @@ class FXTimer extends Group
         buttonStop = new Button("Stop");
         buttonStop.setTranslateX(500);
         buttonStop.setOnAction(e -> {
-            if (!stopped) {
-                stopped = true;
-                stop();
-            }
+            stopped = true;
+            stop();
         });
         
         buttonReset = new Button("Reset");
@@ -181,9 +175,7 @@ class FXTimer extends Group
                 blackMoveTimes,
                 whiteMoveTimes
         );
-
     }
-    
 }
 
 

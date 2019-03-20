@@ -14,8 +14,10 @@ import javafx.scene.paint.Color;
  */
 public class GUI extends Application {
 
-    //Takes the GameBoard and FXTimer components (Which are groups) and adds them together.
-    //Displays them both as one.
+    /*
+    Takes the GameBoard and FXTimer components (Which are groups) and adds them together.
+    Displays them both as one.
+    */
     @Override
     public void start(Stage primaryStage) {
         Group root = new Group();

@@ -153,6 +153,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     			
     	};
     }
+
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneGame.Action[] actions(AbaloneGame.State state) {
         ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
@@ -226,12 +227,15 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
     }
 
-    // diagonal: +++OOO, ++OO, +O, OOO+++, OO++, O+
-    // push:  {starting point, direction}
-    // diagonal:  {starting point, direction, number of marbles to move with} always counts from start to the right of the direction it moves to.
-    // [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
-    // 18 * 28 marbles at most = 504 actions to validate at most
+    /*
+    diagonal: +++OOO, ++OO, +O, OOO+++, OO++, O+
+    push:  {starting point, direction}
+    diagonal:  {starting point, direction, number of marbles to move with} always counts from start to the right of the direction it moves to.
+    [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
+    18 * 28 marbles at most = 504 actions to validate at most
+    */
     private Action isValidAction(AbaloneAction action) {
+
         // in-line
         byte loc = action.location;
         char firstMarble = getState(loc);
@@ -271,6 +275,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                 i++;
             }
         } else {
+
             // side-move
             byte[] friendDirections = SIDE_MOVE_DIRECTION[action.direction];
             if (getState(LOCATION_LOOKUP_TABLE[loc][friendDirections[0]]) == firstMarble) {
@@ -286,6 +291,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     private Action isValidSideMove(AbaloneAction action, int friendDirection) {
         byte loc = action.location;
         char firstMarble = getState(loc);
+
         // marbles has to be in a straight line
         byte thirdFriendLoc = LOCATION_LOOKUP_TABLE[LOCATION_LOOKUP_TABLE[loc][friendDirection]][friendDirection];
         if (action.numberOfMarbles == 3
@@ -294,6 +300,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
 
         List<byte[]> gameAction = new ArrayList<>();
+
         // check if the blocks they are moving to are empty
         byte moveInLoc = LOCATION_LOOKUP_TABLE[loc][action.direction];
         for (int i = 0; i < action.numberOfMarbles; i++) {
