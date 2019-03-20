@@ -1,27 +1,19 @@
 import java.util.ArrayList;
 
 import javafx.animation.KeyFrame; 
-import javafx.animation.Timeline; 
-import javafx.application.Application; 
-import javafx.event.ActionEvent; 
-import javafx.event.EventHandler; 
-import javafx.stage.Stage; 
-import javafx.util.Duration; 
+import javafx.animation.Timeline;
+import javafx.scene.control.Tooltip;
+import javafx.util.Duration;
 import javafx.scene.Group; 
-import javafx.scene.Scene; 
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox; 
-import javafx.scene.paint.Color; 
-import javafx.scene.text.Font; 
 import javafx.scene.control.Button;
 
-public class FXTimer extends Group 
-{ 
-    Timeline time; 
-    KeyFrame frame;
+class FXTimer extends Group
+{
+    private Timeline time;
     //used when time is kept running
-    ArrayList<Double> moveTimes = new ArrayList<Double>();
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private ArrayList<Double> moveTimes = new ArrayList<>();
     //Divisor for time calculations
     private static final double DIVISOR = 1000.0;
     //padding between times
@@ -39,23 +31,24 @@ public class FXTimer extends Group
     private double endTime;
     private double currentCounter = 0;
     private double storeTimeWhenPaused = 0;
-    private boolean stopped = false;
+    private boolean stopped = true;
     
     //used to toggle between displaying times
     //on white and black sides
     private boolean blackMove = true;
 
     //Main time label
-    private Label lb;   
+    private Label lb;
 
-    //Self explanatory :)
+    //#region Time Buttons
     private Button buttonStart;
     private Button buttonPause;
     private Button buttonStop;
     private Button buttonReset;
+    //#endregion
 
     //Constructs a FXTimer that is a group, and can be displayed like a group
-    public FXTimer() {
+    FXTimer() {
         buildTimer();
     }
     
@@ -65,29 +58,28 @@ public class FXTimer extends Group
     //
     private void doTime() 
     {
-        startTime = System.currentTimeMillis();
-        
-        time= new Timeline(); 
-        frame = new KeyFrame(Duration.seconds(0.01), 
-                new EventHandler<ActionEvent>()
-                { 
-                    @Override public void handle(ActionEvent event) 
-                    {  
+        if (stopped) {
+            stopped = false;
+            startTime = System.currentTimeMillis();
+
+            time= new Timeline();
+            KeyFrame frame = new KeyFrame(Duration.seconds(0.01),
+                    event -> {
                         endTime = System.currentTimeMillis();
                         currentCounter = endTime - startTime;
-                        lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");  
-                    } 
-                }); 
-        time.setCycleCount(Timeline.INDEFINITE); 
-        time.getKeyFrames().add(frame); 
-        
-        time.play(); 
+                        lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
+                    });
+            time.setCycleCount(Timeline.INDEFINITE);
+            time.getKeyFrames().add(frame);
+
+            time.play();
+        }
     }
     
     //
     //handles the pause action for the buttons
     //
-    public void pause() {
+    private void stop() {
         time.stop();
         moveTimes.add(currentCounter);
         storeTimeWhenPaused += currentCounter;
@@ -107,11 +99,27 @@ public class FXTimer extends Group
         blackMove = !blackMove;
         currentCounter = 0;
     }
+
+    private void pause() {
+        time.stop();
+        storeTimeWhenPaused += currentCounter;
+    }
+
+    private void initializeTooltips() {
+        buttonPause.setTooltip(new Tooltip(
+                "Pauses the timer, does not advance turns."));
+        buttonReset.setTooltip(new Tooltip(
+                "Resets the timer to zero."));
+        buttonStart.setTooltip(new Tooltip(
+                "Starts the timer from the currently displayed time."));
+        buttonStop.setTooltip(new Tooltip(
+                "Stops the timer and saves the time to the current user (black/white)."));
+    }
    
     //
     //Builds the UI and button functionality for the FXTimer class.
     //
-    public void buildTimer() {
+    private void buildTimer() {
         
         //The timer starts when the start button is pressed.
         //The pause button signifies the end of a turn, and calculates the time taken for that 'move'.
@@ -121,44 +129,39 @@ public class FXTimer extends Group
         //counting again at 0.
         buttonStart = new Button("Start");
         buttonStart.setTranslateX(300);
-        buttonStart.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                doTime();
-            }
-        });
+        buttonStart.setOnAction(e -> doTime());
         
         buttonPause = new Button("Pause");
         buttonPause.setTranslateX(400);
-        buttonPause.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                //pause();
-            }
-        });
-        
-        buttonStop = new Button("Stop");
-        buttonStop.setTranslateX(500);
-        buttonStop.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
+        buttonPause.setOnAction(e -> {
+            if (!stopped) {
                 stopped = true;
                 pause();
             }
         });
         
-        buttonReset = new Button("Reset");
-        buttonReset.setTranslateX(600);
-        buttonReset.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                if (stopped) 
-                {
-                    currentCounter = 0;
-                    storeTimeWhenPaused = 0;
-                    stopped = false;
-                    doTime();
-                } 
+        buttonStop = new Button("Stop");
+        buttonStop.setTranslateX(500);
+        buttonStop.setOnAction(e -> {
+            if (!stopped) {
+                stopped = true;
+                stop();
             }
         });
         
-        lb = new Label("Time: "); 
+        buttonReset = new Button("Reset");
+        buttonReset.setTranslateX(600);
+        buttonReset.setOnAction(e -> {
+            if (stopped) {
+                currentCounter = 0;
+                storeTimeWhenPaused = 0;
+                lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
+            }
+        });
+
+        initializeTooltips();
+
+        lb = new Label("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
         lb.setTranslateX(100);
         
         Label blackMoveTimes = new Label("Black:");
@@ -168,14 +171,16 @@ public class FXTimer extends Group
         whiteMoveTimes.setTranslateX(WHITE_COL);
         whiteMoveTimes.setTranslateY(currentRow);
          
-        
-        getChildren().add(lb);
-        getChildren().add(buttonStart);
-        getChildren().add(buttonPause);
-        getChildren().add(buttonStop);
-        getChildren().add(buttonReset);
-        getChildren().add(blackMoveTimes);
-        getChildren().add(whiteMoveTimes); 
+
+        getChildren().addAll(
+                lb,
+                buttonStart,
+                buttonPause,
+                buttonStop,
+                buttonReset,
+                blackMoveTimes,
+                whiteMoveTimes
+        );
 
     }
     
