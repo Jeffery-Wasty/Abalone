@@ -26,6 +26,7 @@ class GameBoard extends Group {
     private Button standardButton;
     private Button germanButton;
     private Button belgianButton;
+    private FXTimer timer;
 
     @SuppressWarnings("unused")
     private String modeChoice;
@@ -33,10 +34,10 @@ class GameBoard extends Group {
     private String colorChoice;
 
     private TextField moveLimitInput;
-    private int moveLimitValue;
+    private int moveLimitValue = 0;
 
     private TextField timeLimitInput;
-    private int timeLimitValue;
+    private int timeLimitValue = 0;
 
     private AbaloneGame abaloneGame;
     
@@ -78,7 +79,7 @@ class GameBoard extends Group {
     }
     
     private void setLimit() {
-        FXTimer timer = new FXTimer();
+        timer = new FXTimer();
 
         Label moves = new Label("Move Limit: ");
     	moves.setTranslateY(650);
@@ -109,12 +110,17 @@ class GameBoard extends Group {
     			System.out.println(moveLimitValue);
     		}
     	});
+    	moveLimitInput.setPromptText("Max number of turns");
     	timeLimitInput.setOnKeyPressed(e -> {
 		if(e.getCode().toString().equals( "ENTER")) {
 			timeLimitValue = Integer.valueOf(timeLimitInput.getText());
 			System.out.println(timeLimitValue);
+            if (timeLimitValue != 0) {
+                timer.setTimeLimit(timeLimitValue);
+            }
 		}
     	});
+        timeLimitInput.setPromptText("Max time per turn");
     }
 
     private void setColor() {

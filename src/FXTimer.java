@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javafx.animation.KeyFrame; 
@@ -28,6 +29,7 @@ class FXTimer extends Group {
     private double currentCounter = 0;
     private double storeTimeWhenPaused = 0;
     private boolean stopped = true;
+    private double timeLimit = 0;
     //#endregion
 
     //#region Time Buttons
@@ -55,9 +57,17 @@ class FXTimer extends Group {
             time = new Timeline();
             KeyFrame frame = new KeyFrame(Duration.seconds(0.01),
                     event -> {
+
                         endTime = System.currentTimeMillis();
                         currentCounter = endTime - startTime;
-                        lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
+                        if (timeLimit != 0 && (storeTimeWhenPaused + currentCounter) / DIVISOR >= timeLimit) {
+                            stopped = true;
+                            stop(true);
+                            lb.setText("Time: " + new DecimalFormat("0.000").format(timeLimit) + " seconds");
+                        } else {
+                            lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
+                        }
+
                     });
             time.setCycleCount(Timeline.INDEFINITE);
             time.getKeyFrames().add(frame);
@@ -71,10 +81,9 @@ class FXTimer extends Group {
     handles the pause action for the buttons
 
     */
-    private void stop() {
+    private void stop(boolean maxed) {
         time.stop();
-        moveTimes.add(currentCounter);
-        storeTimeWhenPaused += currentCounter;
+        moveTimes.add(maxed ? timeLimit * DIVISOR : currentCounter);
         Label l;
         int currentCol;
         if (blackMove) {
@@ -83,13 +92,14 @@ class FXTimer extends Group {
         } else
             currentCol = WHITE_COL;
         
-        l = new Label(currentCounter / DIVISOR + "");
+        l = new Label(new DecimalFormat("0.000").format(maxed ? timeLimit : currentCounter / DIVISOR) + "");
         l.setTranslateX(currentCol);
         l.setTranslateY(currentRow);
         getChildren().add(l);
         
         blackMove = !blackMove;
         currentCounter = 0;
+        storeTimeWhenPaused = 0;
     }
 
     private void pause() {
@@ -140,7 +150,7 @@ class FXTimer extends Group {
         buttonStop.setTranslateX(500);
         buttonStop.setOnAction(e -> {
             stopped = true;
-            stop();
+            stop(false);
         });
         
         buttonReset = new Button("Reset");
@@ -164,7 +174,6 @@ class FXTimer extends Group {
         Label whiteMoveTimes = new Label("White:");
         whiteMoveTimes.setTranslateX(WHITE_COL);
         whiteMoveTimes.setTranslateY(currentRow);
-         
 
         getChildren().addAll(
                 lb,
@@ -175,6 +184,15 @@ class FXTimer extends Group {
                 blackMoveTimes,
                 whiteMoveTimes
         );
+    }
+
+    @SuppressWarnings("unused")
+    public double getTimeLimit() {
+        return timeLimit;
+    }
+
+    void setTimeLimit(double timeLimit) {
+        this.timeLimit = timeLimit;
     }
 }
 
