@@ -4,10 +4,10 @@ import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
-    private static final char BLACK = '@';
-    private static final char WHITE = 'O';
-    private static final char EMPTY = '+';
-    private static final char OUT_OF_BOARD = '!';
+    public static final char BLACK = '@';
+    public static final char WHITE = 'O';
+    public static final char EMPTY = '+';
+    public static final char OUT_OF_BOARD = '!';
 
     static char[] INITIAL_STATE = new char[]{
             'O', 'O', 'O', 'O', 'O',
@@ -205,6 +205,14 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             this.board = board;
             this.turn = (byte) turn;
         }
+
+        public char[] getBoard() {
+            return board;
+        }
+
+        public byte getTurn() {
+            return turn;
+        }
     }
 
     public class Action {
@@ -234,7 +242,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
     18 * 28 marbles at most = 504 actions to validate at most
     */
-    private Action isValidAction(AbaloneAction action) {
+    public Action isValidAction(AbaloneAction action) {
 
         // in-line
         byte loc = action.location;
@@ -416,4 +424,73 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
         return sb.toString();
     }
+    
+    public int[] isValidUIMove(List<Integer> clicks) {
+        if (clicks.size() == 0 || clicks.size() > 4) {
+            return new int[]{-1};
+        }
+        // the first click
+        int firstIndex = clicks.get(0);
+        char firstMarble = getState(firstIndex);
+        // first click is at an empty location, illegal
+        if (firstMarble == EMPTY) {
+            return new int[]{-1};
+        }
+        // only one click and is not an empty location, stacking piece
+        if (clicks.size() == 1) {
+            return new int[]{0};
+        }
+        // the intermediate clicks (only 2 <= size <= 4 will reach here)
+        int direction = -1;
+        for (int i = 1; i < clicks.size() - 1; i++) {
+            int currentIndex = clicks.get(i);
+            int currentDirection = Utility.indexOf(LOCATION_LOOKUP_TABLE[clicks.get(i - 1)], (byte) currentIndex);
+            // not a neighbour, illegal move
+            if (currentDirection == -1) {
+                return new int[]{-1};
+            }
+            if (direction == -1) {
+                direction = currentDirection;
+            } else if (direction != currentDirection) {
+                // change in direction in a intermediate click, illegal move
+                return new int[]{-1};
+            }
+            // clicking a different marble comparing to the first marble, illegal move
+            if (getState(currentIndex) != firstMarble) {
+                return new int[]{-1};
+            }
+        }
+        // the last click
+        int lastIndex = clicks.get(clicks.size() - 1);
+        int lastDirection = Utility.indexOf(LOCATION_LOOKUP_TABLE[clicks.get(clicks.size() - 2)], (byte) lastIndex);
+        char lastMarble = getState(lastIndex);
+        // not a neighbour, illegal move
+        if (lastDirection == -1) {
+            return new int[]{-1};
+        }
+        // the last clicked marble is still the same color as the first marble
+        if (lastMarble == firstMarble) {
+            if (clicks.size() < 4) {
+                // stacking marbles only if the number of stacked marbles will be <= 3
+                return new int[]{0};
+            } else {
+                return new int[]{-1};
+            }
+        }
+        // if the last click will construct a valid action, returns the 3 action parameters
+        int numberOfMarbles = lastDirection == direction ? 1 : clicks.size() - 1;
+        return new int[]{numberOfMarbles, firstIndex, lastDirection};
+    }
+    
+    private char getState(int loc) {
+        if (isInvalidLocation(loc)) {
+            return OUT_OF_BOARD;
+        }
+        return state.board[loc];
+    }
+    
+    private boolean isInvalidLocation(int loc) {
+        return loc < 0 || loc >= 61;
+    }
+
 }
