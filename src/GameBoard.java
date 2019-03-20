@@ -6,6 +6,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -218,12 +219,21 @@ public class GameBoard extends Group {
         Piece p = (Piece) target;
         
         selectedPieces.add(p.getPos());
-        //variable = validation function()
-        //if valid click
-        p.setFill(Color.GREEN);
-        //if not valid redraw board
-        //if its a move, create the move object , redraw board
-        
+        int[] moveResult = abaloneGame.isValidUIMove(selectedPieces);
+        if(moveResult[0] == 0) {
+        	p.setFill(Color.GREEN);
+        } else if (moveResult[0] == -1) {
+        	buildBoard();
+        	selectedPieces.clear();
+        } else {
+        	AbaloneGame.Action action = abaloneGame.isValidAction(new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]));
+        	if(action != null) {
+        		abaloneGame = abaloneGame.result(action);
+            	buildBoard();
+            	selectedPieces.clear();
+        	}
+        	
+        }
     } 
    
    public void buildBoard() {
