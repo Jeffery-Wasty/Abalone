@@ -1,22 +1,13 @@
-/**
- * 
- */
 
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.event.ActionEvent;
 
 
 
@@ -26,56 +17,45 @@ import javafx.event.ActionEvent;
  * @author Sam
  * @version 1.0
  */
-public class GameBoard extends Group {
-    
-    //Size of the pane
-    static final int SCENEBARRIER = 1000;
-    
-    //Size of the board
-    static final int BOARDSIZE = 61;
-    
-    //IF YOU WANT TO MOVE THE BOARD -- this will shift the entire board on the x-axis
-    static final int BOARD_START_POSX = 370;
-    
-    //SHIFT THE WHOLE BOARD IN THE Y-AXIS
-    static final int BOARD_START_POSY = 110;
+class GameBoard extends Group {
+
+    private static final int BOARD_SIZE = 61;           // Size of the board
+    private static final int BOARD_START_POS_X = 370;   // IF YOU WANT TO MOVE THE BOARD -- this will shift the
+                                                        // entire board on the x-axis
+    private static final int BOARD_START_POS_Y = 110;   // SHIFT THE WHOLE BOARD IN THE Y-AXIS
     
     private Piece[] board;
-    private Label layoutButtons;
     private Button standardButton;
     private Button germanButton;
     private Button belgianButton;
-    
-    private Label mode;
-    private Button human;
-    private Button humanvsCPU;
+    private FXTimer timer;
+
+    @SuppressWarnings("unused")
     private String modeChoice;
-    
-    private Label color;
-    private Button white;
-    private Button black;
+    @SuppressWarnings("unused")
     private String colorChoice;
-    
-    private Label moves;
+
     private TextField moveLimitInput;
-    private int moveLimitValue;
-    
-    private Label time;
+    private int moveLimitValue = 0;
+
     private TextField timeLimitInput;
-    private int timeLimitValue;
-    protected FXTimer timer;
+    private int timeLimitValue = 0;
+
+    private AbaloneGame abaloneGame;
     
-    public AbaloneGame abaloneGame;
-    
-    protected ArrayList<Integer> selectedPieces;
-    //
-    //builds the board
-    //Is a group that is used in the GUI class
-    //
-    public GameBoard() {
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private ArrayList<Integer> selectedPieces;
+
+    /*
+
+    builds the board
+    Is a group that is used in the GUI class
+
+    */
+    GameBoard() {
     	abaloneGame = new AbaloneGame();
     	selectedPieces = new ArrayList<>();
-    	board = new Piece[BOARDSIZE];
+    	board = new Piece[BOARD_SIZE];
     	
     	setLayout();
     	setGameMode(); 
@@ -100,99 +80,99 @@ public class GameBoard extends Group {
         setOnMousePressed(this::processMousePressed);
     }
     
-    public void setLimit() {
-    	timer = new FXTimer();
-    	
-    	moves = new Label("Move Limit: ");
+    private void setLimit() {
+        timer = new FXTimer();
+
+        Label moves = new Label("Move Limit: ");
     	moves.setTranslateY(650);
     	moves.setTranslateX(200);
     	
     	moveLimitInput = new TextField();
     	moveLimitInput.setTranslateY(650);
     	moveLimitInput.setTranslateX(300);
-    	
-    	time = new Label("Time");
+
+        Label time = new Label("Time");
     	time.setTranslateY(650);
     	time.setTranslateX(500);
     	
     	timeLimitInput = new TextField();
     	timeLimitInput.setTranslateY(650);
     	timeLimitInput.setTranslateX(600);
-    	
-    	getChildren().add(timer);
-    	getChildren().add(moves);
-    	getChildren().add(moveLimitInput);
-    	
-    	getChildren().add(time);
-    	getChildren().add(timeLimitInput);
+
+    	getChildren().addAll(
+    	        timer,
+                moves,
+                moveLimitInput,
+                time,
+                timeLimitInput
+        );
     	
     	moveLimitInput.setOnKeyPressed(e -> {
     		if(e.getCode().toString().equals( "ENTER")) {
     			moveLimitValue = Integer.valueOf(moveLimitInput.getText());
-    			System.out.println(moveLimitValue);
+                if (moveLimitValue != 0) {
+                    timer.setMoveLimit(moveLimitValue); // Make the timer unable to start if move limit is passed
+                    // Add a line here to stop the players from interacting with board when move limit is reached.
+                }
     		}
     	});
+    	moveLimitInput.setPromptText("Max number of turns");
     	timeLimitInput.setOnKeyPressed(e -> {
-		if(e.getCode().toString().equals( "ENTER")) {
-			timeLimitValue = Integer.valueOf(timeLimitInput.getText());
-			System.out.println(timeLimitValue);
-		}
+            if(e.getCode().toString().equals( "ENTER")) {
+                timeLimitValue = Integer.valueOf(timeLimitInput.getText());
+                if (timeLimitValue != 0) {
+                    timer.setTimeLimit(timeLimitValue); // Make the timer unable to start if time limit is passed
+                    // Add a line here to stop the players from interacting with board when time limit is reached.
+                }
+            }
     	});
+        timeLimitInput.setPromptText("Max time per turn");
     }
 
-    public void setColor() {
-    	color = new Label("Color: ");
+    private void setColor() {
+        Label color = new Label("Color: ");
     	color.setTranslateY(600);
     	color.setTranslateX(200);
-    	
-    	white = new Button("White");
+
+        Button white = new Button("White");
     	white.setTranslateY(600);
     	white.setTranslateX(300);
-    	
-    	black = new Button("Black");
+
+        Button black = new Button("Black");
     	black.setTranslateY(600);
     	black.setTranslateX(400);
     	
     	getChildren().add(color);
     	getChildren().add(white);
     	getChildren().add(black);
-    	white.setOnAction(event -> {
-    		colorChoice = "white";
-        });
-    	
-    	white.setOnAction(event -> {
-    		colorChoice = "black";
-        });
+    	white.setOnAction(event -> colorChoice = "white");
+    	white.setOnAction(event -> colorChoice = "black");
     	
     }
     
-    public void setGameMode() {
-    	mode = new Label("Mode: ");
+    private void setGameMode() {
+        Label mode = new Label("Mode: ");
     	mode.setTranslateY(550);
     	mode.setTranslateX(200);
-    	
-    	human = new Button("Human Vs Human");
+
+        Button human = new Button("Human Vs Human");
     	human.setTranslateY(550);
     	human.setTranslateX(300);
-    	
-    	humanvsCPU = new Button("Human Vs CPU");
-    	humanvsCPU.setTranslateY(550);
-    	humanvsCPU.setTranslateX(500);
+
+        Button human_vs_CPU = new Button("Human Vs CPU");
+    	human_vs_CPU.setTranslateY(550);
+    	human_vs_CPU.setTranslateX(500);
     	
     	getChildren().add(mode);
     	getChildren().add(human);
-    	getChildren().add(humanvsCPU);
+    	getChildren().add(human_vs_CPU);
     	
-    	human.setOnAction(event -> {
-        	modeChoice = "human";
-        });
-    	human.setOnAction(event -> {
-        	modeChoice = "cpu";
-        });
+    	human.setOnAction(event -> modeChoice = "human");
+    	human.setOnAction(event -> modeChoice = "cpu");
     }
     
-    public void setLayout(){
-    	layoutButtons = new Label("Layout: "); 
+    private void setLayout(){
+        Label layoutButtons = new Label("Layout: ");
     	layoutButtons.setTranslateY(500);
     	layoutButtons.setTranslateX(200);
     	
@@ -214,7 +194,7 @@ public class GameBoard extends Group {
     	getChildren().add(layoutButtons);
     }
 
-    public void processMousePressed(MouseEvent event) {
+    private void processMousePressed(MouseEvent event) {
         Object target = event.getTarget();
         Piece p = (Piece) target;
         
@@ -236,83 +216,53 @@ public class GameBoard extends Group {
         }
     } 
    
-   public void buildBoard() {
-	   for(int i = 0; i < board.length; i ++) {
-   			getChildren().remove(board[i]);
-   		} 
+   private void buildBoard() {
+       for (Piece piece : board) {
+           getChildren().remove(piece);
+       }
 	   
 	   int rad = 20;
-       int posx = BOARD_START_POSX;
-       int posy = BOARD_START_POSY;
+       int posx = BOARD_START_POS_X;
+       int posy = BOARD_START_POS_Y;
        int tileshift = posx;
        
        for (int i = 0; i < 5; i++)
        {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //second row
-       // 5 - 10
+       /*
+       second row
+       5 - 10
+       */
        posx = posx - 20;
        posy = posy + 40;
        tileshift = posx;
        for (int i = 5; i < 11; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c); 
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //third row
-       // 11 - 17
+       /*
+       third row
+       11 - 17
+       */
        posx = posx - 20;
        posy = posy + 40;
        tileshift = posx;
        for (int i = 11; i < 18; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //fourth row
-       // 18 - 25
+       /*
+       fourth row
+       18 - 25
+       */
        posx = posx - 20;
        posy = posy + 40;
        tileshift = posx;
        for (int i = 18; i < 26; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
-       
+           tileshift = getTileShift(rad, posy, tileshift, i);
+
        }
        
        //fifth row
@@ -321,88 +271,65 @@ public class GameBoard extends Group {
        posy = posy + 40;
        tileshift = posx;
        for (int i = 26; i < 35; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //sixth row
-       //35 - 42
+       /*
+       sixth row
+       35 - 42
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;
        for (int i = 35; i < 43; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //seventh row
-       // 43 - 49
+       /*
+       seventh row
+       43 - 49
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;
        for (int i = 43; i < 50; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //eighth row
-       // 50 - 55
+       /*
+       eighth row
+       50 - 55
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;
        for (int i = 50; i < 56; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
        
-       //ninth row
-       // 56 - 60
+       /*
+       ninth row
+       56 - 60
+       */
        posx = posx + 20;
        posy = posy + 40;
        tileshift = posx;
        for (int i = 56; i < 61; i++) {
-           Piece c = new Piece(tileshift+=40, posy, rad, i);
-           if(AbaloneGame.INITIAL_STATE[i] == 'O') {
-        	   c.setFill(Color.WHITE);
-           } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
-        	   c.setFill(Color.BROWN);
-           } else {
-        	   c.setFill(Color.BLACK);
-           }
-           board[i] = c;
-           getChildren().add(c);
+           tileshift = getTileShift(rad, posy, tileshift, i);
        }
    }
+
+    private int getTileShift(int rad, int posy, int tile_shift, int i) {
+        Piece c = new Piece(tile_shift+=40, posy, rad, i);
+        if(AbaloneGame.INITIAL_STATE[i] == 'O') {
+            c.setFill(Color.WHITE);
+        } else if(AbaloneGame.INITIAL_STATE[i] == '+') {
+            c.setFill(Color.BROWN);
+        } else {
+            c.setFill(Color.BLACK);
+        }
+        board[i] = c;
+        getChildren().add(c);
+        return tile_shift;
+    }
 }
