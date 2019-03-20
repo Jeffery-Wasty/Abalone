@@ -1,6 +1,6 @@
 public class Utility {
 
-    public static int indexOf(byte[] arr, byte target) {
+    static int indexOf(byte[] arr, byte target) {
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] == target) {
                 return i;
@@ -9,6 +9,7 @@ public class Utility {
         return -1;
     }
 
+    @SuppressWarnings("unused")
     public static Integer[] toIntArray(String str) {
         String[] tokens = str.split(",");
         Integer[] arr = new Integer[tokens.length];
@@ -18,6 +19,7 @@ public class Utility {
         return arr;
     }
 
+    @SuppressWarnings("unused")
     public static String[] splitByFirstIndexOf(String str, String pattern) {
         int splitIndex = str.indexOf(pattern);
         String firstHalf;

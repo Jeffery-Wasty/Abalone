@@ -2,7 +2,6 @@
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javafx.scene.Group;
 import javafx.scene.control.Button;
