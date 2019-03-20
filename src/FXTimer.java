@@ -21,6 +21,8 @@ class FXTimer extends Group {
 
     private int currentRow = 50;                                // starting point for the calculated move times
     private boolean blackMove = true;                           // on white and black sides on white and black sides
+    private int turn = 1;                                       // Player turn, each player increments the turn
+    private int moveLimit = 0;                                  // Max number of 'stops' allowed (per player)
     private Label lb;                                           // Main time label
     
     //#region Time Calculation
@@ -50,7 +52,7 @@ class FXTimer extends Group {
 
     */
     private void doTime() {
-        if (stopped) {
+        if (stopped && canStillMove()) {
             stopped = false;
             startTime = System.currentTimeMillis();
 
@@ -100,11 +102,16 @@ class FXTimer extends Group {
         blackMove = !blackMove;
         currentCounter = 0;
         storeTimeWhenPaused = 0;
+        ++turn;
     }
 
     private void pause() {
         time.stop();
         storeTimeWhenPaused += currentCounter;
+    }
+
+    private boolean canStillMove() {
+        return (moveLimit == 0) || turn <= (moveLimit * 2);
     }
 
     private void initializeTooltips() {
@@ -140,7 +147,7 @@ class FXTimer extends Group {
         buttonPause = new Button("Pause");
         buttonPause.setTranslateX(400);
         buttonPause.setOnAction(e -> {
-            if (!stopped) {
+            if (!stopped && canStillMove()) {
                 stopped = true;
                 pause();
             }
@@ -149,14 +156,16 @@ class FXTimer extends Group {
         buttonStop = new Button("Stop");
         buttonStop.setTranslateX(500);
         buttonStop.setOnAction(e -> {
-            stopped = true;
-            stop(false);
+            if (canStillMove()) {
+                stopped = true;
+                stop(false);
+            }
         });
         
         buttonReset = new Button("Reset");
         buttonReset.setTranslateX(600);
         buttonReset.setOnAction(e -> {
-            if (stopped) {
+            if (stopped && canStillMove()) {
                 currentCounter = 0;
                 storeTimeWhenPaused = 0;
                 lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
@@ -193,6 +202,15 @@ class FXTimer extends Group {
 
     void setTimeLimit(double timeLimit) {
         this.timeLimit = timeLimit;
+    }
+
+    @SuppressWarnings("unused")
+    public int getMoveLimit() {
+        return moveLimit;
+    }
+
+    void setMoveLimit(int moveLimit) {
+        this.moveLimit = moveLimit;
     }
 }
 

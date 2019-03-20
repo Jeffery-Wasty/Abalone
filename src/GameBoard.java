@@ -19,7 +19,8 @@ import javafx.scene.input.MouseEvent;
 class GameBoard extends Group {
 
     private static final int BOARD_SIZE = 61;           // Size of the board
-    private static final int BOARD_START_POS_X = 370;   // IF YOU WANT TO MOVE THE BOARD -- this will shift the entire board on the x-axis
+    private static final int BOARD_START_POS_X = 370;   // IF YOU WANT TO MOVE THE BOARD -- this will shift the
+                                                        // entire board on the x-axis
     private static final int BOARD_START_POS_Y = 110;   // SHIFT THE WHOLE BOARD IN THE Y-AXIS
     
     private Piece[] board;
@@ -96,29 +97,33 @@ class GameBoard extends Group {
     	timeLimitInput = new TextField();
     	timeLimitInput.setTranslateY(650);
     	timeLimitInput.setTranslateX(600);
-    	
-    	getChildren().add(timer);
-    	getChildren().add(moves);
-    	getChildren().add(moveLimitInput);
-    	
-    	getChildren().add(time);
-    	getChildren().add(timeLimitInput);
+
+    	getChildren().addAll(
+    	        timer,
+                moves,
+                moveLimitInput,
+                time,
+                timeLimitInput
+        );
     	
     	moveLimitInput.setOnKeyPressed(e -> {
     		if(e.getCode().toString().equals( "ENTER")) {
     			moveLimitValue = Integer.valueOf(moveLimitInput.getText());
-    			System.out.println(moveLimitValue);
+                if (moveLimitValue != 0) {
+                    timer.setMoveLimit(moveLimitValue); // Make the timer unable to start if move limit is passed
+                    // Add a line here to stop the players from interacting with board when move limit is reached.
+                }
     		}
     	});
     	moveLimitInput.setPromptText("Max number of turns");
     	timeLimitInput.setOnKeyPressed(e -> {
-		if(e.getCode().toString().equals( "ENTER")) {
-			timeLimitValue = Integer.valueOf(timeLimitInput.getText());
-			System.out.println(timeLimitValue);
-            if (timeLimitValue != 0) {
-                timer.setTimeLimit(timeLimitValue);
+            if(e.getCode().toString().equals( "ENTER")) {
+                timeLimitValue = Integer.valueOf(timeLimitInput.getText());
+                if (timeLimitValue != 0) {
+                    timer.setTimeLimit(timeLimitValue); // Make the timer unable to start if time limit is passed
+                    // Add a line here to stop the players from interacting with board when time limit is reached.
+                }
             }
-		}
     	});
         timeLimitInput.setPromptText("Max time per turn");
     }
