@@ -11,6 +11,15 @@ public class Utility {
         return -1;
     }
 
+    public static Integer[] toIntArray(String str) {
+        String[] tokens = str.split(",");
+        Integer[] arr = new Integer[tokens.length];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = Integer.parseInt(tokens[i]);
+        }
+        return arr;
+    }
+
     public static String[] splitByFirstIndexOf(String str, String pattern) {
         int splitIndex = str.indexOf(pattern);
         String firstHalf;

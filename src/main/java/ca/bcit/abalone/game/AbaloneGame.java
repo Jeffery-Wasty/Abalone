@@ -182,6 +182,14 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             this.board = board;
             this.turn = (byte) turn;
         }
+
+        public char[] getBoard() {
+            return board;
+        }
+
+        public byte getTurn() {
+            return turn;
+        }
     }
 
     public class Action {

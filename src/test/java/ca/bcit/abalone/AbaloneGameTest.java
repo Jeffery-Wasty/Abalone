@@ -144,7 +144,8 @@ public class AbaloneGameTest {
 
     @Test
     public void UIActionTest() {
-        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
-        assertArrayEquals(new int[]{1, 50, 2}, game.isValidUIMove(Arrays.asList(50, 44, 37)));
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1);
+//        assertArrayEquals(new int[]{1, 50, 2}, game.isValidUIMove(Arrays.asList(50, 44, 37)));
+        assertArrayEquals(new int[]{3, 45, 1}, game.isValidUIMove(Arrays.asList(45, 46, 47, 39)));
     }
 }

@@ -23,8 +23,21 @@ public abstract class ClientSocket {
         try {
             String line;
             while ((line = in.readLine()) != null) {
-                String response = preProcessInput(line);
-                writeLine(response);
+                final String finalLine = line;
+                new Thread(() -> {
+                    String response;
+                    try {
+                        response = processInput(finalLine);
+                    } catch (Exception e) {
+                        String[] tokens = Utility.splitByFirstIndexOf(finalLine, "?");
+                        String endpoint = tokens[0];
+                        response = buildResponse(endpoint, new HashMap<String, String>() {{
+                            put("error", e.toString());
+                        }});
+                        e.printStackTrace();
+                    }
+                    writeLine(response);
+                }).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,6 +48,7 @@ public abstract class ClientSocket {
     }
 
     protected void writeLine(String line) {
+        System.out.println(line);
         try {
             out.write(line + '\n');
             out.flush();
@@ -52,7 +66,8 @@ public abstract class ClientSocket {
         }
     }
 
-    private String preProcessInput(String line) {
+    private String processInput(String line) {
+        /* build query params Map */
         String[] tokens = Utility.splitByFirstIndexOf(line, "?");
         String endpoint = tokens[0];
         String queryString = tokens[1];
@@ -63,8 +78,19 @@ public abstract class ClientSocket {
                 query.put(paramTokens[0], paramTokens[1]);
             }
         }
-        StringBuilder responseBuilder = new StringBuilder(endpoint + "?");
+        // get response
         Map<String, String> response = handleInput(endpoint, query);
+        // if the request is called with a request id
+        String request_id = query.get("request_id");
+        if (request_id != null) {
+            response.put("request_id", request_id);
+        }
+        // build response object
+        return buildResponse(endpoint, response);
+    }
+
+    public static String buildResponse(String endpoint, Map<String, String> response) {
+        StringBuilder responseBuilder = new StringBuilder(endpoint + "?");
         for (Map.Entry<String, String> entry : response.entrySet()) {
             responseBuilder.append(entry.getKey());
             responseBuilder.append("=");
