@@ -1,15 +1,13 @@
 
-import javafx.scene.paint.Color;
-
-import java.util.ArrayList;
-import java.util.Stack;
-
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * <p>This class plays with javafx and makes pretty shapes!.</p>
@@ -37,7 +35,7 @@ class GameBoard extends Group {
     private String colorChoice;
 
     private TextField moveLimitInput;
-    private int moveLimitValue = 0;
+    private int moveLimitValue = -1;
 
     private TextField timeLimitInput;
     private int timeLimitValue = 0;
@@ -58,7 +56,7 @@ class GameBoard extends Group {
         selectedPieces = new ArrayList<>();
         board = new Piece[BOARD_SIZE];
 
-        resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1));
+        resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue));
 
         setLayout();
         setGameMode();
@@ -66,15 +64,15 @@ class GameBoard extends Group {
         setLimit();
 
         standardButton.setOnAction(event -> {
-            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1));
+            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue));
         });
 
         germanButton.setOnAction(event -> {
-            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_STATE, 1), -1));
+            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_STATE, 1), moveLimitValue));
         });
 
         belgianButton.setOnAction(event -> {
-            resetAbaloneGame(abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_STATE, 1), -1));
+            resetAbaloneGame(abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_STATE, 1), moveLimitValue));
         });
 
         setOnMousePressed(this::processMousePressed);
@@ -223,7 +221,7 @@ class GameBoard extends Group {
 
     private void processMousePressed(MouseEvent event) {
         Object target = event.getTarget();
-        if (target instanceof  Piece) {
+        if (target instanceof Piece) {
             Piece p = (Piece) target;
 
             selectedPieces.add(p.getPos());
@@ -237,9 +235,9 @@ class GameBoard extends Group {
                 AbaloneGame.Action action = abaloneGame.isValidAction(new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]));
                 if (action != null) {
                     setAbaloneGame(abaloneGame.result(action));
-                    selectedPieces.clear();
                 }
-
+                selectedPieces.clear();
+                buildBoard();
             }
         }
     }
