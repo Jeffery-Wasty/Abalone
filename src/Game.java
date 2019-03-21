@@ -1,11 +1,11 @@
 
 public abstract class Game<P, S, A> {
 
-    public boolean isTerminal;
-    public A[] validActions;
-    public S state;
-    public P player;
-    public int utility;
+    protected boolean isTerminal;
+    protected A[] validActions;
+    protected S state;
+    protected P player;
+    protected int utility;
 
     Game(final S state) {
         this.state = makeStateCopy(state);
@@ -35,4 +35,23 @@ public abstract class Game<P, S, A> {
 
     protected abstract int getUtility(S state);
 
+    public boolean isTerminal() {
+        return isTerminal;
+    }
+
+    public A[] getValidActions() {
+        return validActions;
+    }
+
+    public S getState() {
+        return state;
+    }
+
+    public P getPlayer() {
+        return player;
+    }
+
+    public int getUtility() {
+        return utility;
+    }
 }
