@@ -81,6 +81,10 @@ class FXTimer extends Group {
     boolean getStopped() {
         return stopped;
     }
+
+    ArrayList<Double> getMoveTimes() {
+        return moveTimes;
+    }
     
     /*
 
@@ -113,6 +117,12 @@ class FXTimer extends Group {
     private void pause() {
         time.stop();
         storeTimeWhenPaused += currentCounter;
+    }
+
+    void reset() {
+        currentCounter = 0;
+        storeTimeWhenPaused = 0;
+        lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
     }
 
     private boolean canStillMove() {
@@ -170,9 +180,7 @@ class FXTimer extends Group {
         buttonReset.setTranslateX(600);
         buttonReset.setOnAction(e -> {
             if (stopped && canStillMove()) {
-                currentCounter = 0;
-                storeTimeWhenPaused = 0;
-                lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
+                reset();
             }
         });
 
@@ -197,6 +205,18 @@ class FXTimer extends Group {
                 blackMoveTimes,
                 whiteMoveTimes
         );
+    }
+
+    void undo() {
+        stopped = true;
+        time.stop();
+        moveTimes.remove(moveTimes.size() - 1);
+        getChildren().remove(getChildren().size() - 1);
+
+        blackMove = !blackMove;
+        currentCounter = 0;
+        storeTimeWhenPaused = 0;
+        --turn;
     }
 
     @SuppressWarnings("unused")

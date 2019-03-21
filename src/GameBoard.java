@@ -107,6 +107,10 @@ class GameBoard extends Group {
             this.abaloneGame = history.pop();
             buildBoard();
         }
+        if (!timer.getMoveTimes().isEmpty()) {
+            timer.undo();
+            timer.reset();
+        }
     }
 
     private void setLimit() {
