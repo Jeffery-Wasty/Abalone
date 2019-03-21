@@ -26,6 +26,9 @@ class GameBoard extends Group {
     private Button germanButton;
     private Button belgianButton;
     private FXTimer timer;
+    private Label blackScoreLabel = new Label();
+    private Label whiteScoreLabel = new Label();
+    private Label gameStatusLabel = new Label();
 
     @SuppressWarnings("unused")
     private String modeChoice;
@@ -54,35 +57,24 @@ class GameBoard extends Group {
         selectedPieces = new ArrayList<>();
         board = new Piece[BOARD_SIZE];
 
-        resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue));
+        resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue * 2));
 
         setLayout();
         setGameMode();
         setColor();
         setLimit();
+        setGameStatus();
 
         standardButton.setOnAction(event -> {
-            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue));
-            if (timer.getStopped()) {
-                timer.doTime();
-            }
-            checkInputTextFields();
+            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue * 2));
         });
 
         germanButton.setOnAction(event -> {
-            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_STATE, 1), moveLimitValue));
-            if (timer.getStopped()) {
-                timer.doTime();
-            }
-            checkInputTextFields();
+            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_STATE, 1), moveLimitValue * 2));
         });
 
         belgianButton.setOnAction(event -> {
-            resetAbaloneGame(abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_STATE, 1), moveLimitValue));
-            if (timer.getStopped()) {
-                timer.doTime();
-            }
-            checkInputTextFields();
+            resetAbaloneGame(abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_STATE, 1), moveLimitValue * 2));
         });
 
         setOnMousePressed(this::processMousePressed);
@@ -151,6 +143,7 @@ class GameBoard extends Group {
                 if (moveLimitValue != 0) {
                     timer.setMoveLimit(moveLimitValue); // Make the timer unable to start if move limit is passed
                 }
+                updateGameStatus();
             }
         });
         moveLimitInput.setPromptText("Max number of turns");
@@ -221,6 +214,23 @@ class GameBoard extends Group {
         human_vs_CPU.setOnAction(event -> modeChoice = "cpu");
     }
 
+    private void setGameStatus() {
+        blackScoreLabel.setTranslateX(320);
+        blackScoreLabel.setTranslateY(430);
+
+        whiteScoreLabel.setTranslateX(600);
+        whiteScoreLabel.setTranslateY(430);
+
+        gameStatusLabel.setTranslateX(440);
+        gameStatusLabel.setTranslateY(460);
+
+        getChildren().addAll(
+                blackScoreLabel,
+                whiteScoreLabel,
+                gameStatusLabel
+        );
+    }
+
     private void setLayout() {
         Label layoutButtons = new Label("Layout: ");
         layoutButtons.setTranslateY(500);
@@ -247,6 +257,9 @@ class GameBoard extends Group {
     private void processMousePressed(MouseEvent event) {
         Object target = event.getTarget();
         if (target instanceof Piece) {
+            if (abaloneGame.isTerminal) {
+                return;
+            }
             Piece p = (Piece) target;
 
             selectedPieces.add(p.getPos());
@@ -270,6 +283,8 @@ class GameBoard extends Group {
     }
 
     private void buildBoard() {
+        updateGameStatus();
+
         for (Piece piece : board) {
             getChildren().remove(piece);
         }
@@ -384,4 +399,18 @@ class GameBoard extends Group {
         getChildren().add(c);
         return tile_shift;
     }
+
+    private void updateGameStatus() {
+        blackScoreLabel.setText("Black: " + abaloneGame.pieceLost[0] + "/6");
+        whiteScoreLabel.setText("White: " + abaloneGame.pieceLost[1] + "/6");
+        String gameStatus;
+        if (abaloneGame.isTerminal) {
+            gameStatus = "Game Set!";
+        } else {
+            gameStatus = abaloneGame.player == '@' ? "Black's turn!" : "White's turn!";
+        }
+        gameStatus += " Turn: " + abaloneGame.state.getTurn() / 2 + "/" + (moveLimitValue > 0 ? moveLimitValue : "∞");
+        gameStatusLabel.setText(gameStatus);
+    }
+
 }
