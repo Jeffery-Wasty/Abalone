@@ -51,7 +51,7 @@ class FXTimer extends Group {
     If you press play twice in a row, crash. Add bool to disallow pressing it twice.
 
     */
-    private void doTime() {
+    void doTime() {
         if (stopped && canStillMove()) {
             stopped = false;
             startTime = System.currentTimeMillis();
@@ -77,13 +77,22 @@ class FXTimer extends Group {
             time.play();
         }
     }
+
+    boolean getStopped() {
+        return stopped;
+    }
+
+    ArrayList<Double> getMoveTimes() {
+        return moveTimes;
+    }
     
     /*
 
     handles the pause action for the buttons
 
     */
-    private void stop(boolean maxed) {
+    void stop(boolean maxed) {
+        stopped = true;
         time.stop();
         moveTimes.add(maxed ? timeLimit * DIVISOR : currentCounter);
         Label l;
@@ -108,6 +117,12 @@ class FXTimer extends Group {
     private void pause() {
         time.stop();
         storeTimeWhenPaused += currentCounter;
+    }
+
+    void reset() {
+        currentCounter = 0;
+        storeTimeWhenPaused = 0;
+        lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
     }
 
     private boolean canStillMove() {
@@ -157,7 +172,6 @@ class FXTimer extends Group {
         buttonStop.setTranslateX(500);
         buttonStop.setOnAction(e -> {
             if (canStillMove()) {
-                stopped = true;
                 stop(false);
             }
         });
@@ -166,9 +180,7 @@ class FXTimer extends Group {
         buttonReset.setTranslateX(600);
         buttonReset.setOnAction(e -> {
             if (stopped && canStillMove()) {
-                currentCounter = 0;
-                storeTimeWhenPaused = 0;
-                lb.setText("Time: " + (storeTimeWhenPaused + currentCounter) / DIVISOR + " seconds");
+                reset();
             }
         });
 
@@ -193,6 +205,18 @@ class FXTimer extends Group {
                 blackMoveTimes,
                 whiteMoveTimes
         );
+    }
+
+    void undo() {
+        stopped = true;
+        time.stop();
+        moveTimes.remove(moveTimes.size() - 1);
+        getChildren().remove(getChildren().size() - 1);
+
+        blackMove = !blackMove;
+        currentCounter = 0;
+        storeTimeWhenPaused = 0;
+        --turn;
     }
 
     @SuppressWarnings("unused")

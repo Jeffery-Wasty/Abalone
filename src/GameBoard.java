@@ -26,7 +26,6 @@ class GameBoard extends Group {
     private Button standardButton;
     private Button germanButton;
     private Button belgianButton;
-    private Button undoButton;
     private FXTimer timer;
     private Label blackScoreLabel = new Label();
     private Label whiteScoreLabel = new Label();
@@ -100,17 +99,19 @@ class GameBoard extends Group {
             this.abaloneGame = history.pop();
             buildBoard();
         }
+        if (!timer.getMoveTimes().isEmpty()) {
+            timer.undo();
+            timer.reset();
+        }
     }
 
     private void setLimit() {
         timer = new FXTimer();
 
-        undoButton = new Button("Undo");
+        Button undoButton = new Button("Undo");
         undoButton.setTranslateX(700);
         undoButton.setTranslateY(0);
-        undoButton.setOnAction((e) -> {
-            undoMove();
-        });
+        undoButton.setOnAction((e) -> undoMove());
 
         Label moves = new Label("Move Limit: ");
         moves.setTranslateY(650);
@@ -142,7 +143,6 @@ class GameBoard extends Group {
                 moveLimitValue = Integer.valueOf(moveLimitInput.getText());
                 if (moveLimitValue != 0) {
                     timer.setMoveLimit(moveLimitValue); // Make the timer unable to start if move limit is passed
-                    // Add a line here to stop the players from interacting with board when move limit is reached.
                 }
                 updateGameStatus();
             }
@@ -153,11 +153,25 @@ class GameBoard extends Group {
                 timeLimitValue = Integer.valueOf(timeLimitInput.getText());
                 if (timeLimitValue != 0) {
                     timer.setTimeLimit(timeLimitValue); // Make the timer unable to start if time limit is passed
-                    // Add a line here to stop the players from interacting with board when time limit is reached.
                 }
             }
         });
         timeLimitInput.setPromptText("Max time per turn");
+    }
+
+    private void checkInputTextFields() {
+        if (!moveLimitInput.getText().equals("")){
+            moveLimitValue = Integer.valueOf(moveLimitInput.getText());
+            if (moveLimitValue != 0) {
+                timer.setMoveLimit(moveLimitValue); // Make the timer unable to start if move limit is passed
+            }
+        }
+        if (!timeLimitInput.getText().equals("")){
+            timeLimitValue = Integer.valueOf(timeLimitInput.getText());
+            if (timeLimitValue != 0) {
+                timer.setMoveLimit(timeLimitValue); // Make the timer unable to start if move limit is passed
+            }
+        }
     }
 
     private void setColor() {
@@ -260,6 +274,8 @@ class GameBoard extends Group {
                 AbaloneGame.Action action = abaloneGame.isValidAction(new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]));
                 if (action != null) {
                     setAbaloneGame(abaloneGame.result(action));
+                    timer.stop(false);
+                    timer.doTime();
                 }
                 selectedPieces.clear();
                 buildBoard();
