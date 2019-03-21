@@ -67,6 +67,7 @@ class GameBoard extends Group {
             if (timer.getStopped()) {
                 timer.doTime();
             }
+            checkInputTextFields();
         });
 
         germanButton.setOnAction(event -> {
@@ -74,6 +75,7 @@ class GameBoard extends Group {
             if (timer.getStopped()) {
                 timer.doTime();
             }
+            checkInputTextFields();
         });
 
         belgianButton.setOnAction(event -> {
@@ -81,6 +83,7 @@ class GameBoard extends Group {
             if (timer.getStopped()) {
                 timer.doTime();
             }
+            checkInputTextFields();
         });
 
         setOnMousePressed(this::processMousePressed);
@@ -157,6 +160,21 @@ class GameBoard extends Group {
             }
         });
         timeLimitInput.setPromptText("Max time per turn");
+    }
+
+    private void checkInputTextFields() {
+        if (!moveLimitInput.getText().equals("")){
+            moveLimitValue = Integer.valueOf(moveLimitInput.getText());
+            if (moveLimitValue != 0) {
+                timer.setMoveLimit(moveLimitValue); // Make the timer unable to start if move limit is passed
+            }
+        }
+        if (!timeLimitInput.getText().equals("")){
+            timeLimitValue = Integer.valueOf(timeLimitInput.getText());
+            if (timeLimitValue != 0) {
+                timer.setMoveLimit(timeLimitValue); // Make the timer unable to start if move limit is passed
+            }
+        }
     }
 
     private void setColor() {
