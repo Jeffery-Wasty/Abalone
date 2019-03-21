@@ -4,12 +4,12 @@ import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
-    public static final char BLACK = '@';
-    public static final char WHITE = 'O';
-    public static final char EMPTY = '+';
-    public static final char OUT_OF_BOARD = '!';
+    private static final char BLACK = '@';
+    static final char WHITE = 'O';
+    static final char EMPTY = '+';
+    private static final char OUT_OF_BOARD = '!';
 
-    public static char[] STANDARD_INITIAL_STATE = new char[]{
+    static char[] STANDARD_INITIAL_STATE = new char[]{
             'O', 'O', 'O', 'O', 'O',
             'O', 'O', 'O', 'O', 'O', 'O',
             '+', '+', 'O', 'O', 'O', '+', '+',
@@ -21,7 +21,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             '@', '@', '@', '@', '@',
     };
 
-    public static char[] GERMAN_DAISY_STATE = new char[]{
+    static char[] GERMAN_DAISY_STATE = new char[]{
             '+', '+', '+', '+', '+',
             'O', 'O', '+', '+', '@', '@',
             'O', 'O', 'O', '+', '@', '@', '@',
@@ -33,7 +33,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             '+', '+', '+', '+', '+',
     };
 
-    public static char[] BELGIAN_DAISY_STATE = new char[]{
+    static char[] BELGIAN_DAISY_STATE = new char[]{
             'O', 'O', '+', '@', '@',
             'O', 'O', 'O', '@', '@', '@',
             '+', 'O', 'O', '+', '@', '@', '+',
@@ -45,9 +45,9 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             '@', '@', '+', 'O', 'O',
     };
 
-    private final int turnLimit;
+    private int turnLimit;
 
-    public AbaloneGame(AbaloneGame.State state, int turnLimit) {
+    AbaloneGame(AbaloneGame.State state, int turnLimit) {
         super(state);
         this.turnLimit = turnLimit;
         super.init();
@@ -198,7 +198,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
 
         @SuppressWarnings("unused")
-        public byte getTurn() {
+        byte getTurn() {
             return turn;
         }
     }
@@ -370,6 +370,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
 
         nextState.turn += 1;
+
         return new AbaloneGame(nextState, turnLimit);
     }
 
@@ -396,6 +397,14 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return loc < 0 || loc >= 61;
     }
 
+    int getTurnLimit() {
+        return turnLimit;
+    }
+
+    void setTurnLimit(int turnLimit) {
+        this.turnLimit = turnLimit;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -413,8 +422,12 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return sb.toString();
     }
 
-    public int[] isValidUIMove(List<Integer> clicks) {
-        if (clicks.size() == 0 || clicks.size() > 4) {
+    private boolean turnLimitReached() {
+        return turnLimit > 0 && this.state.getTurn() > 2 * turnLimit;
+    }
+
+    int[] isValidUIMove(List<Integer> clicks) {
+        if (clicks.size() == 0 || clicks.size() > 4 || turnLimitReached()) {
             return new int[]{-1};
         }
         // the first click
