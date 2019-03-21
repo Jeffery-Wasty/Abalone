@@ -53,7 +53,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         super.init();
     }
 
-    private static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
+    public static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
             {-1, -1, -1, 1, 6, 5,},
             {0, -1, -1, 2, 7, 6,},
             {1, -1, -1, 3, 8, 7,},
@@ -120,7 +120,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     /**
      * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
      */
-    private static final byte[][] SIDE_MOVE_DIRECTION = new byte[][]{
+    public static final byte[][] SIDE_MOVE_DIRECTION = new byte[][]{
             {AbaloneAction.UP_LEFT, AbaloneAction.UP_RIGHT}, // LEFT
             {AbaloneAction.UP_RIGHT, AbaloneAction.RIGHT},// UP_LEFT
             {AbaloneAction.RIGHT, AbaloneAction.DOWN_RIGHT}, // UP_RIGHT,
@@ -132,7 +132,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     /**
      * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
      */
-    private static final byte[][] CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION = new byte[][]{
+    public static final byte[][] CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION = new byte[][]{
             {AbaloneAction.DOWN_RIGHT, AbaloneAction.DOWN_LEFT}, // LEFT
             {AbaloneAction.DOWN_LEFT, AbaloneAction.LEFT},// UP_LEFT
             {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}, // UP_RIGHT,
@@ -220,6 +220,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                     "newPieces=" + Arrays.deepToString(newPieces) +
                     '}';
         }
+
+        public byte[][] getNewPieces() {
+            return newPieces;
+        }
+
     }
 
     /*

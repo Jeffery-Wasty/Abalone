@@ -44,6 +44,7 @@ class GameBoard extends Group {
 
     private AbaloneGame abaloneGame;
     private final Stack<AbaloneGame> history = new Stack<>();
+    private final MoveHistory moveHistory = new MoveHistory();
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private ArrayList<Integer> selectedPieces;
@@ -88,8 +89,9 @@ class GameBoard extends Group {
     }
 
     private void setAbaloneGame(AbaloneGame abaloneGame) {
-        if (this.abaloneGame != null)
+        if (this.abaloneGame != null) {
             history.push(this.abaloneGame);
+        }
         this.abaloneGame = abaloneGame;
         buildBoard();
     }
@@ -97,6 +99,7 @@ class GameBoard extends Group {
     private void undoMove() {
         if (!history.empty()) {
             this.abaloneGame = history.pop();
+            moveHistory.undo();
             buildBoard();
         }
         if (!timer.getMoveTimes().isEmpty()) {
@@ -225,10 +228,14 @@ class GameBoard extends Group {
         gameStatusLabel.setTranslateX(440);
         gameStatusLabel.setTranslateY(460);
 
+        moveHistory.setTranslateX(800);
+        moveHistory.setTranslateY(150);
+
         getChildren().addAll(
                 blackScoreLabel,
                 whiteScoreLabel,
-                gameStatusLabel
+                gameStatusLabel,
+                moveHistory
         );
     }
 
@@ -271,8 +278,10 @@ class GameBoard extends Group {
                 buildBoard();
                 selectedPieces.clear();
             } else {
-                AbaloneGame.Action action = abaloneGame.isValidAction(new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]));
+                AbaloneAction moveAction = new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]);
+                AbaloneGame.Action action = abaloneGame.isValidAction(moveAction);
                 if (action != null) {
+                    moveHistory.addHistory(moveAction, abaloneGame.state);
                     setAbaloneGame(abaloneGame.result(action));
                     timer.stop(false);
                     timer.doTime();
