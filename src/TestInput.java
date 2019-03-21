@@ -19,8 +19,11 @@ public class TestInput {
     private static void test(String inputFile, String boardFile) throws FileNotFoundException {
         AbaloneGame game = createStateFromInput(new File(inputFile));
         List<AbaloneGame> result = createStateFromBoard(new File(boardFile));
-        int count = 0;
+
         game.isTerminal = false;
+        System.out.println("Size: " + game.actions(game.state).length + "-" + result.size());
+
+        int count = 0;
         for (AbaloneGame.Action action : game.actions(game.state)) {
             char[] generatedState = game.result(action).state.getBoard();
             boolean found = false;
@@ -35,7 +38,7 @@ public class TestInput {
                 System.out.println("Cannot match state " + game.state);
             }
         }
-        System.out.println("Macthed: " + count + "/" + result.size());
+        System.out.println("Matched: " + count + "/" + result.size());
     }
 
     private static ArrayList<AbaloneGame> createStateFromBoard(File input) throws FileNotFoundException {
