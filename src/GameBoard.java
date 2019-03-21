@@ -64,14 +64,23 @@ class GameBoard extends Group {
 
         standardButton.setOnAction(event -> {
             resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue));
+            if (timer.getStopped()) {
+                timer.doTime();
+            }
         });
 
         germanButton.setOnAction(event -> {
             resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_STATE, 1), moveLimitValue));
+            if (timer.getStopped()) {
+                timer.doTime();
+            }
         });
 
         belgianButton.setOnAction(event -> {
             resetAbaloneGame(abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_STATE, 1), moveLimitValue));
+            if (timer.getStopped()) {
+                timer.doTime();
+            }
         });
 
         setOnMousePressed(this::processMousePressed);
@@ -230,6 +239,8 @@ class GameBoard extends Group {
                 AbaloneGame.Action action = abaloneGame.isValidAction(new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]));
                 if (action != null) {
                     setAbaloneGame(abaloneGame.result(action));
+                    timer.stop(false);
+                    timer.doTime();
                 }
                 selectedPieces.clear();
                 buildBoard();

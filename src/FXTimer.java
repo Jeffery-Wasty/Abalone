@@ -51,7 +51,7 @@ class FXTimer extends Group {
     If you press play twice in a row, crash. Add bool to disallow pressing it twice.
 
     */
-    private void doTime() {
+    void doTime() {
         if (stopped && canStillMove()) {
             stopped = false;
             startTime = System.currentTimeMillis();
@@ -77,13 +77,18 @@ class FXTimer extends Group {
             time.play();
         }
     }
+
+    boolean getStopped() {
+        return stopped;
+    }
     
     /*
 
     handles the pause action for the buttons
 
     */
-    private void stop(boolean maxed) {
+    void stop(boolean maxed) {
+        stopped = true;
         time.stop();
         moveTimes.add(maxed ? timeLimit * DIVISOR : currentCounter);
         Label l;
@@ -157,7 +162,6 @@ class FXTimer extends Group {
         buttonStop.setTranslateX(500);
         buttonStop.setOnAction(e -> {
             if (canStillMove()) {
-                stopped = true;
                 stop(false);
             }
         });
