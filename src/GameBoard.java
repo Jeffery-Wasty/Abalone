@@ -3,6 +3,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Stack;
 
 import javafx.scene.Group;
 import javafx.scene.control.Button;
@@ -28,6 +29,7 @@ class GameBoard extends Group {
     private Button standardButton;
     private Button germanButton;
     private Button belgianButton;
+    private Button undoButton;
     private FXTimer timer;
 
     @SuppressWarnings("unused")
@@ -42,6 +44,7 @@ class GameBoard extends Group {
     private int timeLimitValue = 0;
 
     private AbaloneGame abaloneGame;
+    private final Stack<AbaloneGame> history = new Stack<>();
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private ArrayList<Integer> selectedPieces;
@@ -53,9 +56,10 @@ class GameBoard extends Group {
 
     */
     GameBoard() {
-        abaloneGame = new AbaloneGame();
         selectedPieces = new ArrayList<>();
         board = new Piece[BOARD_SIZE];
+
+        resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1));
 
         setLayout();
         setGameMode();
@@ -63,25 +67,49 @@ class GameBoard extends Group {
         setLimit();
 
         standardButton.setOnAction(event -> {
-            abaloneGame.standardLayout();
-            buildBoard();
+            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1));
         });
 
         germanButton.setOnAction(event -> {
-            abaloneGame.germanDaisy();
-            buildBoard();
+            resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_STATE, 1), -1));
         });
 
         belgianButton.setOnAction(event -> {
-            abaloneGame.belgianDaisy();
-            buildBoard();
+            resetAbaloneGame(abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_STATE, 1), -1));
         });
 
         setOnMousePressed(this::processMousePressed);
     }
 
+    private void resetAbaloneGame(AbaloneGame abaloneGame) {
+        this.history.clear();
+        this.abaloneGame = abaloneGame;
+        buildBoard();
+    }
+
+    private void setAbaloneGame(AbaloneGame abaloneGame) {
+        if (this.abaloneGame != null)
+            history.push(this.abaloneGame);
+        this.abaloneGame = abaloneGame;
+        buildBoard();
+    }
+
+    private void undoMove() {
+        if (!history.empty()) {
+            this.abaloneGame = history.pop();
+            buildBoard();
+        }
+    }
+
     private void setLimit() {
         timer = new FXTimer();
+
+        undoButton = new Button("Undo");
+        undoButton.setTranslateX(700);
+        undoButton.setTranslateY(0);
+        undoButton.setOnAction((e) -> {
+            undoMove();
+        });
 
         Label moves = new Label("Move Limit: ");
         moves.setTranslateY(650);
@@ -101,6 +129,7 @@ class GameBoard extends Group {
 
         getChildren().addAll(
                 timer,
+                undoButton,
                 moves,
                 moveLimitInput,
                 time,
@@ -146,8 +175,7 @@ class GameBoard extends Group {
         getChildren().add(white);
         getChildren().add(black);
         white.setOnAction(event -> colorChoice = "white");
-        white.setOnAction(event -> colorChoice = "black");
-
+        black.setOnAction(event -> colorChoice = "black");
     }
 
     private void setGameMode() {
@@ -168,7 +196,7 @@ class GameBoard extends Group {
         getChildren().add(human_vs_CPU);
 
         human.setOnAction(event -> modeChoice = "human");
-        human.setOnAction(event -> modeChoice = "cpu");
+        human_vs_CPU.setOnAction(event -> modeChoice = "cpu");
     }
 
     private void setLayout() {
@@ -196,23 +224,24 @@ class GameBoard extends Group {
 
     private void processMousePressed(MouseEvent event) {
         Object target = event.getTarget();
-        Piece p = (Piece) target;
+        if (target instanceof  Piece) {
+            Piece p = (Piece) target;
 
-        selectedPieces.add(p.getPos());
-        int[] moveResult = abaloneGame.isValidUIMove(selectedPieces);
-        if (moveResult[0] == 0) {
-            p.setFill(Color.GREEN);
-        } else if (moveResult[0] == -1) {
-            buildBoard();
-            selectedPieces.clear();
-        } else {
-            AbaloneGame.Action action = abaloneGame.isValidAction(new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]));
-            if (action != null) {
-                abaloneGame = abaloneGame.result(action);
+            selectedPieces.add(p.getPos());
+            int[] moveResult = abaloneGame.isValidUIMove(selectedPieces);
+            if (moveResult[0] == 0) {
+                p.setFill(Color.GREEN);
+            } else if (moveResult[0] == -1) {
                 buildBoard();
                 selectedPieces.clear();
-            }
+            } else {
+                AbaloneGame.Action action = abaloneGame.isValidAction(new AbaloneAction(moveResult[0], moveResult[1], moveResult[2]));
+                if (action != null) {
+                    setAbaloneGame(abaloneGame.result(action));
+                    selectedPieces.clear();
+                }
 
+            }
         }
     }
 
