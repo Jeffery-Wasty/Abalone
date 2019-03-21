@@ -186,19 +186,18 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     static class State {
         private char[] board;
-        private byte turn;
+        private int turn;
 
         State(char[] board, int turn) {
             this.board = board;
-            this.turn = (byte) turn;
+            this.turn = turn;
         }
 
         char[] getBoard() {
             return board;
         }
 
-        @SuppressWarnings("unused")
-        public byte getTurn() {
+        public int getTurn() {
             return turn;
         }
     }
@@ -231,7 +230,9 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     18 * 28 marbles at most = 504 actions to validate at most
     */
     Action isValidAction(AbaloneAction action) {
-
+        if (isTerminal) {
+            return null;
+        }
         // in-line
         byte loc = action.location;
         char firstMarble = getState(loc);
@@ -322,7 +323,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return lost[0] >= 6 || lost[1] >= 6;
     }
 
-    private byte[] pieceLost = null;
+    public byte[] pieceLost = null;
 
     private byte[] getNumberOfLostPieces() {
         if (pieceLost != null) {
