@@ -8,16 +8,16 @@ import javafx.scene.shape.Circle;
  * be used to communicate with the game logic for legal moves.
  *
  */
-public class Piece extends Circle {
+class Piece extends Circle {
 
-    private int position;
-    //Giving the circles a 'position' so that they can link with the internal positioning logic
-    public Piece(int x, int y, int radius, int position) {
+    private int position;   //Giving the circles a 'position' so that they can link with the internal positioning logic
+
+    Piece(int x, int y, int radius, int position) {
         super(x,y,radius);
         this.position = position;
     }
     
-    public int getPos() { return position;}
+    int getPos() { return position;}
     
-    public void setPos(int pos) { position = pos;}
+    //public void setPos(int pos) { position = pos;}
 }

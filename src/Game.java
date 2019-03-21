@@ -1,24 +1,23 @@
 
 public abstract class Game<P, S, A> {
 
-    public boolean isTerminal;
-    public A[] validActions;
-    public S state;
-    public P player;
-    public int utility;
+    S state;
+    P player;
 
-    public Game(final S state) {
+    Game(final S state) {
         this.state = makeStateCopy(state);
     }
 
-    protected void init() {
-        this.isTerminal = isTerminal(state);
+    void init() {
+        boolean isTerminal = isTerminal(state);
         this.player = getPlayer(state);
-        if (this.isTerminal) {
+        int utility;
+        A[] validActions;
+        if (isTerminal) {
             utility = getUtility(state);
-            this.validActions = null;
+            validActions = null;
         } else {
-            this.validActions = actions(state);
+            validActions = actions(state);
             utility = 0;
         }
     }

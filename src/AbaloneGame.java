@@ -9,7 +9,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     public static final char EMPTY = '+';
     public static final char OUT_OF_BOARD = '!';
 
-    public static char[] INITIAL_STATE = new char[]{
+    static char[] INITIAL_STATE = new char[]{
             'O', 'O', 'O', 'O', 'O',
             'O', 'O', 'O', 'O', 'O', 'O',
             '+', '+', 'O', 'O', 'O', '+', '+',
@@ -23,17 +23,17 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     private final int turnLimit;
 
-    public AbaloneGame() {
+    AbaloneGame() {
         this(new AbaloneGame.State(AbaloneGame.INITIAL_STATE, 1), -1);
     }
 
-    public AbaloneGame(AbaloneGame.State state, int turnLimit) {
+    private AbaloneGame(AbaloneGame.State state, int turnLimit) {
         super(state);
         this.turnLimit = turnLimit;
         super.init();
     }
 
-    public static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
+    private static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
             {-1, -1, -1, 1, 6, 5,},
             {0, -1, -1, 2, 7, 6,},
             {1, -1, -1, 3, 8, 7,},
@@ -100,7 +100,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     /**
      * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
      */
-    public static final byte[][] SIDE_MOVE_DIRECTION = new byte[][]{
+    private static final byte[][] SIDE_MOVE_DIRECTION = new byte[][]{
             {AbaloneAction.UP_LEFT, AbaloneAction.UP_RIGHT}, // LEFT
             {AbaloneAction.UP_RIGHT, AbaloneAction.RIGHT},// UP_LEFT
             {AbaloneAction.RIGHT, AbaloneAction.DOWN_RIGHT}, // UP_RIGHT,
@@ -109,7 +109,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}   // DOWN_LEFT
     };
     
-    public void standardLayout() {
+    void standardLayout() {
     	INITIAL_STATE = new char[]{
                 'O', 'O', 'O', 'O', 'O',
                 'O', 'O', 'O', 'O', 'O', 'O',
@@ -123,7 +123,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         };
     }
     
-    public void germanDaisy() {
+    void germanDaisy() {
     	INITIAL_STATE = new char[]{
     			'+', '+', '+', '+', '+',
     			'O', 'O','+', '+','@', '@',
@@ -137,7 +137,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     	};
     }
     
-    public void belgianDaisy() {
+    void belgianDaisy() {
     	INITIAL_STATE = new char[]{
     			'O', 'O','+', '@', '@',
     			'O', 'O', 'O','@', '@', '@',
@@ -153,6 +153,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     			
     	};
     }
+
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneGame.Action[] actions(AbaloneGame.State state) {
         ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
@@ -175,7 +176,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return state.turn % 2 == 1 ? BLACK : WHITE;
     }
 
-    public static final String[][][] VALID_PUSHES = new String[][][]{
+    private static final String[][][] VALID_PUSHES = new String[][][]{
             { // white
                     {},
                     {"O+"},
@@ -194,21 +195,30 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             }
     };
 
-    public static final int LONGEST_PUSH = VALID_PUSHES[0].length;
+    private static final int LONGEST_PUSH = VALID_PUSHES[0].length;
 
-    public static class State {
+    static class State {
         private char[] board;
         private byte turn;
 
-        public State(char[] board, int turn) {
+        State(char[] board, int turn) {
             this.board = board;
             this.turn = (byte) turn;
+        }
+
+        public char[] getBoard() {
+            return board;
+        }
+
+        public byte getTurn() {
+            return turn;
         }
     }
 
     public class Action {
         private final byte[][] newPieces;
 
+        @SuppressWarnings("unused")
         private Action(byte[][] newPieces) {
             this.newPieces = newPieces;
         }
@@ -225,12 +235,15 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
     }
 
-    // diagonal: +++OOO, ++OO, +O, OOO+++, OO++, O+
-    // push:  {starting point, direction}
-    // diagonal:  {starting point, direction, number of marbles to move with} always counts from start to the right of the direction it moves to.
-    // [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
-    // 18 * 28 marbles at most = 504 actions to validate at most
+    /*
+    diagonal: +++OOO, ++OO, +O, OOO+++, OO++, O+
+    push:  {starting point, direction}
+    diagonal:  {starting point, direction, number of marbles to move with} always counts from start to the right of the direction it moves to.
+    [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
+    18 * 28 marbles at most = 504 actions to validate at most
+    */
     public Action isValidAction(AbaloneAction action) {
+
         // in-line
         byte loc = action.location;
         char firstMarble = getState(loc);
@@ -270,6 +283,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                 i++;
             }
         } else {
+
             // side-move
             byte[] friendDirections = SIDE_MOVE_DIRECTION[action.direction];
             if (getState(LOCATION_LOOKUP_TABLE[loc][friendDirections[0]]) == firstMarble) {
@@ -285,6 +299,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     private Action isValidSideMove(AbaloneAction action, int friendDirection) {
         byte loc = action.location;
         char firstMarble = getState(loc);
+
         // marbles has to be in a straight line
         byte thirdFriendLoc = LOCATION_LOOKUP_TABLE[LOCATION_LOOKUP_TABLE[loc][friendDirection]][friendDirection];
         if (action.numberOfMarbles == 3
@@ -293,6 +308,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
 
         List<byte[]> gameAction = new ArrayList<>();
+
         // check if the blocks they are moving to are empty
         byte moveInLoc = LOCATION_LOOKUP_TABLE[loc][action.direction];
         for (int i = 0; i < action.numberOfMarbles; i++) {
@@ -353,6 +369,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return new AbaloneGame.State(copy, state.turn);
     }
 
+    @Override
     public AbaloneGame result(AbaloneGame.Action action) {
         AbaloneGame.State nextState = makeStateCopy(state);
 
@@ -368,7 +385,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return new AbaloneGame(nextState, turnLimit);
     }
 
-    public static final byte[][] LINEAR_LOCATION = new byte[][]{
+    private static final byte[][] LINEAR_LOCATION = new byte[][]{
             {0, 1, 2, 3, 4},
             {5, 6, 7, 8, 9, 10},
             {11, 12, 13, 14, 15, 16, 17},

@@ -1,14 +1,8 @@
-/**
- * 
- */
-
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuBar;
 import javafx.scene.paint.Color;
-
 
 /**
  * 
@@ -16,33 +10,27 @@ import javafx.scene.paint.Color;
  * The GameBoard
  * The FXTimer
  * @author Sam
- * @version 1.0
+ * @version 1.1
  */
 public class GUI extends Application {
 
-	public static Group root;
-    /**
-     * The dimensions of my scene.
-     */
-    static final int SCENEBARRIER = 1000;
-
-    //Takes the GameBoard and FXTimer components (Which are groups) and adds them together.
-    //Displays them both as one.
+    /*
+    Takes the GameBoard and FXTimer components (Which are groups) and adds them together.
+    Displays them both as one.
+    */
     @Override
-    public void start(Stage primaryStage) throws Exception {
-    	root = new Group();
+    public void start(Stage primaryStage) {
+        Group root = new Group();
         GameBoard abalone = new GameBoard();
         root.getChildren().add(abalone);
-        //removed timer and put it into gameboard
-//        abalone.getChildren().add(timer);
-        Scene myScene = new Scene(root, SCENEBARRIER, SCENEBARRIER-150, Color.LIGHTGREY);
+
+        int SCENE_BARRIER = 1000;
+        Scene myScene = new Scene(root, SCENE_BARRIER, SCENE_BARRIER -150, Color.LIGHTGREY);
         
         primaryStage.setTitle("Abalone");
         primaryStage.setScene(myScene);
         primaryStage.show();
-
     }
-    
     
     /**
      * Drives the program.
@@ -51,5 +39,4 @@ public class GUI extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
 }
