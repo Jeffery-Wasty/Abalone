@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
@@ -397,10 +398,12 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return loc < 0 || loc >= 61;
     }
 
+    @SuppressWarnings("unused")
     int getTurnLimit() {
         return turnLimit;
     }
 
+    @SuppressWarnings("unused")
     void setTurnLimit(int turnLimit) {
         this.turnLimit = turnLimit;
     }
@@ -426,12 +429,25 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return turnLimit > 0 && this.state.getTurn() > 2 * turnLimit;
     }
 
+    private void highlightRandom(int index) {
+        Random rand = new Random();
+        int i = rand.nextInt(6);
+
+        if (LOCATION_LOOKUP_TABLE[index][i] != -1) {
+            char c = getState(LOCATION_LOOKUP_TABLE[index][i]);
+            if (c == '+') {
+
+            }
+        }
+    }
+
     int[] isValidUIMove(List<Integer> clicks) {
         if (clicks.size() == 0 || clicks.size() > 4 || turnLimitReached()) {
             return new int[]{-1};
         }
         // the first click
         int firstIndex = clicks.get(0);
+        highlightRandom(firstIndex);
         char firstMarble = getState(firstIndex);
         // first click is not belong to current player, illegal
         if (firstMarble != player) {
