@@ -16,13 +16,8 @@ class Piece extends Circle {
         super(x,y,radius);
         this.position = position;
     }
-
-    Piece(Piece p) {
-        super(p.getCenterX(), p.getCenterY(), p.getRadius());
-        this.position = p.getPos();
-    }
     
     int getPos() { return position;}
     
-    void setPos(int pos) { position = pos;}
+    //void setPos(int pos) { position = pos;}
 }

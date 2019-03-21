@@ -1,14 +1,13 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
-    public static final char BLACK = '@';
-    public static final char WHITE = 'O';
-    public static final char EMPTY = '+';
-    public static final char OUT_OF_BOARD = '!';
+    static final char BLACK = '@';
+    static final char WHITE = 'O';
+    static final char EMPTY = '+';
+    private static final char OUT_OF_BOARD = '!';
 
     static char[] STANDARD_INITIAL_STATE = new char[]{
             'O', 'O', 'O', 'O', 'O',
@@ -54,7 +53,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         super.init();
     }
 
-    public static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
+    static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
             {-1, -1, -1, 1, 6, 5,},
             {0, -1, -1, 2, 7, 6,},
             {1, -1, -1, 3, 8, 7,},
@@ -121,7 +120,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     /**
      * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
      */
-    public static final byte[][] SIDE_MOVE_DIRECTION = new byte[][]{
+    static final byte[][] SIDE_MOVE_DIRECTION = new byte[][]{
             {AbaloneAction.UP_LEFT, AbaloneAction.UP_RIGHT}, // LEFT
             {AbaloneAction.UP_RIGHT, AbaloneAction.RIGHT},// UP_LEFT
             {AbaloneAction.RIGHT, AbaloneAction.DOWN_RIGHT}, // UP_RIGHT,
@@ -133,7 +132,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     /**
      * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
      */
-    public static final byte[][] CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION = new byte[][]{
+    private static final byte[][] CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION = new byte[][]{
             {AbaloneAction.DOWN_RIGHT, AbaloneAction.DOWN_LEFT}, // LEFT
             {AbaloneAction.DOWN_LEFT, AbaloneAction.LEFT},// UP_LEFT
             {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}, // UP_RIGHT,
@@ -198,7 +197,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             return board;
         }
 
-        public int getTurn() {
+        int getTurn() {
             return turn;
         }
     }
@@ -222,6 +221,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                     '}';
         }
 
+        @SuppressWarnings("unused")
         public byte[][] getNewPieces() {
             return newPieces;
         }
@@ -329,7 +329,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return lost[0] >= 6 || lost[1] >= 6;
     }
 
-    public byte[] pieceLost = null;
+    byte[] pieceLost = null;
 
     private byte[] getNumberOfLostPieces() {
         if (pieceLost != null) {
@@ -435,25 +435,12 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return turnLimit > 0 && this.state.getTurn() > 2 * turnLimit;
     }
 
-    private void highlightRandom(int index) {
-        Random rand = new Random();
-        int i = rand.nextInt(6);
-
-        if (LOCATION_LOOKUP_TABLE[index][i] != -1) {
-            char c = getState(LOCATION_LOOKUP_TABLE[index][i]);
-            if (c == '+') {
-
-            }
-        }
-    }
-
     int[] isValidUIMove(List<Integer> clicks) {
         if (clicks.size() == 0 || clicks.size() > 4 || turnLimitReached()) {
             return new int[]{-1};
         }
         // the first click
         int firstIndex = clicks.get(0);
-        highlightRandom(firstIndex);
         char firstMarble = getState(firstIndex);
         // first click is not belong to current player, illegal
         if (firstMarble != player) {

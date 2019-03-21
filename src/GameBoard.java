@@ -68,14 +68,23 @@ class GameBoard extends Group {
 
         standardButton.setOnAction(event -> {
             resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), moveLimitValue * 2));
+            if (timer.getStopped()) {
+                timer.doTime();
+            }
         });
 
         germanButton.setOnAction(event -> {
             resetAbaloneGame(new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_STATE, 1), moveLimitValue * 2));
+            if (timer.getStopped()) {
+                timer.doTime();
+            }
         });
 
         belgianButton.setOnAction(event -> {
             resetAbaloneGame(abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_STATE, 1), moveLimitValue * 2));
+            if (timer.getStopped()) {
+                timer.doTime();
+            }
         });
 
         setOnMousePressed(this::processMousePressed);
@@ -161,6 +170,7 @@ class GameBoard extends Group {
         timeLimitInput.setPromptText("Max time per turn");
     }
 
+    @SuppressWarnings("unused")
     private void checkInputTextFields() {
         if (!moveLimitInput.getText().equals("")){
             moveLimitValue = Integer.valueOf(moveLimitInput.getText());
