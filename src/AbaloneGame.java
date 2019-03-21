@@ -4,12 +4,12 @@ import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
-    public static final char BLACK = '@';
-    public static final char WHITE = 'O';
-    public static final char EMPTY = '+';
-    public static final char OUT_OF_BOARD = '!';
+    private static final char BLACK = '@';
+    static final char WHITE = 'O';
+    static final char EMPTY = '+';
+    private static final char OUT_OF_BOARD = '!';
 
-    static char[] INITIAL_STATE = new char[]{
+    public static char[] STANDARD_INITIAL_STATE = new char[]{
             'O', 'O', 'O', 'O', 'O',
             'O', 'O', 'O', 'O', 'O', 'O',
             '+', '+', 'O', 'O', 'O', '+', '+',
@@ -21,13 +21,33 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             '@', '@', '@', '@', '@',
     };
 
+    public static char[] GERMAN_DAISY_STATE = new char[]{
+            '+', '+', '+', '+', '+',
+            'O', 'O', '+', '+', '@', '@',
+            'O', 'O', 'O', '+', '@', '@', '@',
+            '+', 'O', 'O', '+', '+', '@', '@', '+',
+            '+', '+', '+', '+', '+', '+', '+', '+', '+',
+            '+', '@', '@', '+', '+', 'O', 'O', '+',
+            '@', '@', '@', '+', 'O', 'O', 'O',
+            '@', '@', '+', '+', 'O', 'O',
+            '+', '+', '+', '+', '+',
+    };
+
+    public static char[] BELGIAN_DAISY_STATE = new char[]{
+            'O', 'O', '+', '@', '@',
+            'O', 'O', 'O', '@', '@', '@',
+            '+', 'O', 'O', '+', '@', '@', '+',
+            '+', '+', '+', '+', '+', '+', '+', '+',
+            '+', '+', '+', '+', '+', '+', '+', '+', '+',
+            '+', '+', '+', '+', '+', '+', '+', '+',
+            '+', '@', '@', '+', 'O', 'O', '+',
+            '@', '@', '@', 'O', 'O', 'O',
+            '@', '@', '+', 'O', 'O',
+    };
+
     private final int turnLimit;
 
-    AbaloneGame() {
-        this(new AbaloneGame.State(AbaloneGame.INITIAL_STATE, 1), -1);
-    }
-
-    private AbaloneGame(AbaloneGame.State state, int turnLimit) {
+    public AbaloneGame(AbaloneGame.State state, int turnLimit) {
         super(state);
         this.turnLimit = turnLimit;
         super.init();
@@ -108,51 +128,18 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             {AbaloneAction.DOWN_LEFT, AbaloneAction.LEFT},  // DOWN_RIGHT
             {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}   // DOWN_LEFT
     };
-    
-    void standardLayout() {
-    	INITIAL_STATE = new char[]{
-                'O', 'O', 'O', 'O', 'O',
-                'O', 'O', 'O', 'O', 'O', 'O',
-                '+', '+', 'O', 'O', 'O', '+', '+',
-                '+', '+', '+', '+', '+', '+', '+', '+',
-                '+', '+', '+', '+', '+', '+', '+', '+', '+',
-                '+', '+', '+', '+', '+', '+', '+', '+',
-                '+', '+', '@', '@', '@', '+', '+',
-                '@', '@', '@', '@', '@', '@',
-                '@', '@', '@', '@', '@',
-        };
-    }
-    
-    void germanDaisy() {
-    	INITIAL_STATE = new char[]{
-    			'+', '+', '+', '+', '+',
-    			'O', 'O','+', '+','@', '@',
-    			'O', 'O', 'O','+','@', '@', '@',
-    			'+','O', 'O','+', '+','@', '@','+',
-    			'+', '+', '+', '+', '+', '+', '+', '+', '+',
-    			'+','@', '@','+','+','O', 'O','+',
-    			'@', '@', '@','+','O', 'O', 'O',
-    			'@', '@','+','+','O', 'O',
-    			'+', '+', '+', '+', '+',
-    	};
-    }
-    
-    void belgianDaisy() {
-    	INITIAL_STATE = new char[]{
-    			'O', 'O','+', '@', '@',
-    			'O', 'O', 'O','@', '@', '@',
-    			'+','O', 'O','+','@', '@','+',
-    			'+', '+', '+', '+', '+', '+', '+', '+', 
-    			'+', '+', '+', '+', '+', '+', '+', '+', '+',
-    			'+', '+', '+', '+', '+', '+', '+', '+',
-    			'+','@', '@','+','O', 'O','+',
-    			'@', '@', '@','O', 'O', 'O',
-    			'@', '@','+','O', 'O',
-    			
-    			
-    			
-    	};
-    }
+
+    /**
+     * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
+     */
+    private static final byte[][] CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION = new byte[][]{
+            {AbaloneAction.DOWN_RIGHT, AbaloneAction.DOWN_LEFT}, // LEFT
+            {AbaloneAction.DOWN_LEFT, AbaloneAction.LEFT},// UP_LEFT
+            {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}, // UP_RIGHT,
+            {AbaloneAction.UP_LEFT, AbaloneAction.UP_RIGHT}, // RIGHT
+            {AbaloneAction.UP_RIGHT, AbaloneAction.RIGHT},  // DOWN_RIGHT
+            {AbaloneAction.RIGHT, AbaloneAction.DOWN_RIGHT}   // DOWN_LEFT
+    };
 
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneGame.Action[] actions(AbaloneGame.State state) {
@@ -206,10 +193,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             this.turn = (byte) turn;
         }
 
-        public char[] getBoard() {
+        char[] getBoard() {
             return board;
         }
 
+        @SuppressWarnings("unused")
         public byte getTurn() {
             return turn;
         }
@@ -242,7 +230,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     [1,2,3].length * directions.length => 3 * 6 = 18 potential action for one marble.
     18 * 28 marbles at most = 504 actions to validate at most
     */
-    public Action isValidAction(AbaloneAction action) {
+    Action isValidAction(AbaloneAction action) {
 
         // in-line
         byte loc = action.location;
@@ -424,7 +412,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
         return sb.toString();
     }
-    
+
     public int[] isValidUIMove(List<Integer> clicks) {
         if (clicks.size() == 0 || clicks.size() > 4) {
             return new int[]{-1};
@@ -432,8 +420,8 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         // the first click
         int firstIndex = clicks.get(0);
         char firstMarble = getState(firstIndex);
-        // first click is at an empty location, illegal
-        if (firstMarble == EMPTY) {
+        // first click is not belong to current player, illegal
+        if (firstMarble != player) {
             return new int[]{-1};
         }
         // only one click and is not an empty location, stacking piece
@@ -477,18 +465,22 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                 return new int[]{-1};
             }
         }
+        if (direction != -1 && lastDirection != direction
+                && Utility.indexOf(CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION[direction], (byte) lastDirection) == -1) {
+            return new int[]{-1};
+        }
         // if the last click will construct a valid action, returns the 3 action parameters
         int numberOfMarbles = lastDirection == direction ? 1 : clicks.size() - 1;
         return new int[]{numberOfMarbles, firstIndex, lastDirection};
     }
-    
+
     private char getState(int loc) {
         if (isInvalidLocation(loc)) {
             return OUT_OF_BOARD;
         }
         return state.board[loc];
     }
-    
+
     private boolean isInvalidLocation(int loc) {
         return loc < 0 || loc >= 61;
     }
