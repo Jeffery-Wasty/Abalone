@@ -4,10 +4,10 @@ import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
-    private static final char BLACK = '@';
-    static final char WHITE = 'O';
-    static final char EMPTY = '+';
-    private static final char OUT_OF_BOARD = '!';
+    public static final char BLACK = '@';
+    public static final char WHITE = 'O';
+    public static final char EMPTY = '+';
+    public static final char OUT_OF_BOARD = '!';
 
     public static char[] STANDARD_INITIAL_STATE = new char[]{
             'O', 'O', 'O', 'O', 'O',
@@ -471,6 +471,14 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
         // if the last click will construct a valid action, returns the 3 action parameters
         int numberOfMarbles = lastDirection == direction ? 1 : clicks.size() - 1;
+        // side-move that not moving to empty spaces => illegal
+        if (numberOfMarbles != 1) {
+            for (int i = 0; i < clicks.size() - 1; i++) {
+                if (getState(LOCATION_LOOKUP_TABLE[clicks.get(i)][lastDirection]) != EMPTY) {
+                    return new int[]{-1};
+                }
+            }
+        }
         return new int[]{numberOfMarbles, firstIndex, lastDirection};
     }
 
