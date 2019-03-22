@@ -2,7 +2,6 @@ package ca.bcit.abalone.game;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -40,7 +39,6 @@ public class AbaloneNotationProcessor {
         List<AbaloneGame> result = createStateFromBoard(new File(boardFile));
         System.out.println(game);
 
-        game.isTerminal = false;
         System.out.println("Size: " + game.actions(game.state).length + "-" + result.size());
 
         int count = 0;
@@ -126,7 +124,7 @@ public class AbaloneNotationProcessor {
     public static void createTestInputFile(AbaloneGame game, String name) throws IOException {
         Files.write(Paths.get(name + ".input"),
                 Arrays.asList(
-                        getPlayer(game.player),
+                        getPlayer(game.getPlayer()),
                         createStringFromGame(game)
                 ),
                 Charset.forName("UTF-8")
@@ -134,7 +132,6 @@ public class AbaloneNotationProcessor {
     }
 
     public static void createTestBoardFile(AbaloneGame game, String name) throws IOException {
-        game.isTerminal = false;
         AbaloneGame.Action[] actions = game.actions(game.state);
         ArrayList<String> boards = new ArrayList<>(actions.length);
         for (AbaloneGame.Action action : actions) {
@@ -159,8 +156,8 @@ public class AbaloneNotationProcessor {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
         int level = rnd.nextInt(150) + 100;
         for (int i = 0; i < level; i++) {
-            int rndIndex = rnd.nextInt(game.validActions.length);
-            AbaloneGame.Action action = game.validActions[rndIndex];
+            int rndIndex = rnd.nextInt(game.actions().length);
+            AbaloneGame.Action action = game.actions()[rndIndex];
             game = game.result(action);
         }
         return game;

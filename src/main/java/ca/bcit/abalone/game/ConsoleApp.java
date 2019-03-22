@@ -1,6 +1,6 @@
 package ca.bcit.abalone.game;
 
-import ca.bcit.abalone.ai.AbaloneAI;
+import ca.bcit.abalone.ai.AlphaBetaAI;
 
 import java.util.Scanner;
 
@@ -9,10 +9,10 @@ public class ConsoleApp {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.GERMAN_DAISY_INITIAL_STATE, 1), 7);
-        AbaloneAI ai = new AbaloneAI();
-        while (game.validActions != null && game.validActions.length != 0) {
+        AlphaBetaAI<Character, AbaloneGame.State, AbaloneGame.Action> ai = new AlphaBetaAI<>();
+        while (game.actions() != null && game.actions().length != 0) {
             System.out.println(game);
-            System.out.println(game.player + "'s turn. Input your action: {n, location, direction}");
+            System.out.println(game.getPlayer() + "'s turn. Input your action: {n, location, direction}");
             String line = scanner.nextLine();
             String[] paramsStr = line.split(" ");
             if (paramsStr.length != 3) {

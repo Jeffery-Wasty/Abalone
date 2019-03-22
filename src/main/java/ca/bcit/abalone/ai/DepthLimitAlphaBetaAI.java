@@ -2,23 +2,22 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.Game;
 
-public class AlphaBetaAI<P, S, A> {
+public class DepthLimitAlphaBetaAI<P, S, A> {
 
-    public A play(Game<P, S, A> game) {
+    public A play(Game<P, S, A> game, int maxLevel) {
         return game.isPlayerMax(game.getPlayer())
-                ? maxAction(game, Integer.MIN_VALUE, Integer.MAX_VALUE)
-                : minAction(game, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                ? maxAction(game, Integer.MIN_VALUE, Integer.MAX_VALUE, maxLevel)
+                : minAction(game, Integer.MIN_VALUE, Integer.MAX_VALUE, maxLevel);
     }
 
-    private A maxAction(Game<P, S, A> game, int alpha, int beta) {
+    private A maxAction(Game<P, S, A> game, int alpha, int beta, int maxLevel) {
         if (game.isTerminal()) {
             return null;
         }
         A action = null;
         int value = Integer.MIN_VALUE;
-        int s = (int) (Math.random() * game.actions().length);
         for (A a : game.actions()) {
-            int result = minValue(game.result(a), alpha, beta);
+            int result = minValue(game.result(a), alpha, beta, maxLevel, 1);
             if (result > value) {
                 value = result;
                 action = a;
@@ -28,7 +27,7 @@ public class AlphaBetaAI<P, S, A> {
         return action;
     }
 
-    private A minAction(Game<P, S, A> game, int alpha, int beta) {
+    private A minAction(Game<P, S, A> game, int alpha, int beta, int maxLevel) {
         if (game.isTerminal()) {
             return null;
         }
@@ -37,7 +36,7 @@ public class AlphaBetaAI<P, S, A> {
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
             long time = System.currentTimeMillis();
-            int result = maxValue(game.result(a), alpha, beta);
+            int result = maxValue(game.result(a), alpha, beta, maxLevel, 1);
             if (result < value) {
                 value = result;
                 action = a;
@@ -49,13 +48,13 @@ public class AlphaBetaAI<P, S, A> {
         return action;
     }
 
-    private int maxValue(Game<P, S, A> game, int alpha, int beta) {
-        if (game.isTerminal()) {
+    private int maxValue(Game<P, S, A> game, int alpha, int beta, int maxLevel, int level) {
+        if (level >= maxLevel || game.isTerminal()) {
             return game.getUtility();
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
-            int result = minValue(game.result(a), alpha, beta);
+            int result = minValue(game.result(a), alpha, beta, maxLevel, level + 1);
             if (result > value) {
                 value = result;
             }
@@ -67,13 +66,13 @@ public class AlphaBetaAI<P, S, A> {
         return value;
     }
 
-    private int minValue(Game<P, S, A> game, int alpha, int beta) {
-        if (game.isTerminal()) {
+    private int minValue(Game<P, S, A> game, int alpha, int beta, int maxLevel, int level) {
+        if (level >= maxLevel || game.isTerminal()) {
             return game.getUtility();
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
-            int result = maxValue(game.result(a), alpha, beta);
+            int result = maxValue(game.result(a), alpha, beta, maxLevel, level + 1);
             if (result < value) {
                 value = result;
             }

@@ -52,7 +52,6 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     public AbaloneGame(AbaloneGame.State state, int turnLimit) {
         super(state);
         this.turnLimit = turnLimit;
-        super.init();
     }
 
     public static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
@@ -212,7 +211,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
 
         private Action(List<byte[]> gameAction) {
-            newPieces = gameAction.toArray(new byte[0][0]);
+            this(gameAction.toArray(new byte[0][0]));
         }
 
         @Override
@@ -237,7 +236,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         // in-line
         byte loc = action.location;
         char firstMarble = getState(loc);
-        if (firstMarble != player) {
+        if (firstMarble != getPlayer()) {
             return null;
         }
         if (action.numberOfMarbles == 1) {
@@ -370,6 +369,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return new AbaloneGame(nextState, turnLimit);
     }
 
+    @Override
+    public boolean isPlayerMax(Character player) {
+        return player == AbaloneGame.BLACK;
+    }
+
     public int[] isValidUIMove(List<Integer> clicks) {
         if (clicks.size() == 0 || clicks.size() > 4) {
             return new int[]{-1};
@@ -378,7 +382,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         int firstIndex = clicks.get(0);
         char firstMarble = getState(firstIndex);
         // first click is not belong to current player, illegal
-        if (firstMarble != player) {
+        if (firstMarble != getPlayer()) {
             return new int[]{-1};
         }
         // only one click and is not an empty location, stacking piece

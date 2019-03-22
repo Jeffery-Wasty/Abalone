@@ -1,6 +1,6 @@
 package ca.bcit.abalone.network;
 
-import ca.bcit.abalone.ai.AbaloneAI;
+import ca.bcit.abalone.ai.AlphaBetaAI;
 import ca.bcit.abalone.game.AbaloneAction;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class AbaloneServer extends ServerHandler<AbaloneServer.AbaloneClient> {
 
     private AbaloneGame abaloneGame = new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1);
-    AbaloneAI ai = new AbaloneAI();
+    private AlphaBetaAI<Character, AbaloneGame.State, AbaloneGame.Action> ai = new AlphaBetaAI<>();
     private char[] initialState = AbaloneGame.STANDARD_INITIAL_STATE;
     private int timeLimit = -1;
     private int turnLimit = -1;
@@ -27,7 +27,7 @@ public class AbaloneServer extends ServerHandler<AbaloneServer.AbaloneClient> {
 
     private String playerNext(AbaloneAction action) {
 
-        if (playerColor.equals(abaloneGame.player)) {
+        if (playerColor.equals(abaloneGame.getPlayer())) {
             String result = next(action);
             if (this.gameMode.equals("pve")) {
                 new Thread(() -> {
