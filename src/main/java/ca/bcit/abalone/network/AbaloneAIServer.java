@@ -16,7 +16,6 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
-        // TODO: add time limit to AI search
         AbaloneGame.Action action = ai.search(game, timeLimit * 1000 - 1000, 5, 1);
 
         byte[][] result = action.getNewPieces();
@@ -76,8 +75,14 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
                     int timeLimit = Integer.parseInt(query.get("timeLimit"));
                     int turnLimit = Integer.parseInt(query.get("turnLimit"));
                     int turn = Integer.parseInt(query.get("turn"));
+
                     return new HashMap<String, String>() {{
-                        put("action", getNextStateByAI(state, turnLimit, timeLimit, turn));
+                        try {
+                            String result = getNextStateByAI(state, turnLimit, timeLimit, turn);
+                            put("action", result);
+                        } catch (NullPointerException e) {
+                            put("error", "No Action generated, either spent too much time on first search or the game has reached terminal");
+                        }
                     }};
                 default:
                     return new HashMap<String, String>() {{

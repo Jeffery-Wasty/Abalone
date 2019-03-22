@@ -31,9 +31,22 @@ public abstract class ClientSocket {
                     } catch (Exception e) {
                         String[] tokens = Utility.splitByFirstIndexOf(finalLine, "?");
                         String endpoint = tokens[0];
-                        response = buildResponse(endpoint, new HashMap<String, String>() {{
+                        String queryString = tokens[1];
+                        Map<String, String> query = new HashMap<>();
+                        if (queryString != null) {
+                            for (String paramString : queryString.split("&")) {
+                                String[] paramTokens = Utility.splitByFirstIndexOf(paramString, "=");
+                                query.put(paramTokens[0], paramTokens[1]);
+                            }
+                        }
+                        String request_id = query.get("request_id");
+                        Map<String, String> resData = new HashMap<String, String>() {{
                             put("error", e.toString());
-                        }});
+                        }};
+                        if (request_id != null) {
+                            resData.put("request_id", request_id);
+                        }
+                        response = buildResponse(endpoint, resData);
                         e.printStackTrace();
                     }
                     writeLine(response);
