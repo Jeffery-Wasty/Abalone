@@ -2,6 +2,7 @@ package ca.bcit.abalone.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
@@ -156,6 +157,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                 }
             }
         }
+        Collections.shuffle(validActions);
         return validActions.toArray(new AbaloneGame.Action[0]);
     }
 
