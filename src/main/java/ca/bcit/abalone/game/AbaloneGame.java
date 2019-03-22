@@ -131,6 +131,18 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}   // DOWN_LEFT
     };
 
+    /**
+     * [first_check, second_check] = SIDE_MOVE_DIRECTION[MOVE_DIRECTION]
+     */
+    private static final byte[][] CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION = new byte[][]{
+            {AbaloneAction.DOWN_RIGHT, AbaloneAction.DOWN_LEFT}, // LEFT
+            {AbaloneAction.DOWN_LEFT, AbaloneAction.LEFT},// UP_LEFT
+            {AbaloneAction.LEFT, AbaloneAction.UP_LEFT}, // UP_RIGHT,
+            {AbaloneAction.UP_LEFT, AbaloneAction.UP_RIGHT}, // RIGHT
+            {AbaloneAction.UP_RIGHT, AbaloneAction.RIGHT},  // DOWN_RIGHT
+            {AbaloneAction.RIGHT, AbaloneAction.DOWN_RIGHT}   // DOWN_LEFT
+    };
+
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneGame.Action[] actions(AbaloneGame.State state) {
         ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
@@ -360,8 +372,8 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         // the first click
         int firstIndex = clicks.get(0);
         char firstMarble = getState(firstIndex);
-        // first click is at an empty location, illegal
-        if (firstMarble == EMPTY) {
+        // first click is not belong to current player, illegal
+        if (firstMarble != player) {
             return new int[]{-1};
         }
         // only one click and is not an empty location, stacking piece
@@ -405,8 +417,20 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                 return new int[]{-1};
             }
         }
+        if (direction != -1 && lastDirection != direction
+                && Utility.indexOf(CLICK_DIRECTION_ALLOWED_SIDE_MOVE_DIRECTION[direction], (byte) lastDirection) == -1) {
+            return new int[]{-1};
+        }
         // if the last click will construct a valid action, returns the 3 action parameters
         int numberOfMarbles = lastDirection == direction ? 1 : clicks.size() - 1;
+        // side-move that not moving to empty spaces => illegal
+        if (numberOfMarbles != 1) {
+            for (int i = 0; i < clicks.size() - 1; i++) {
+                if (getState(LOCATION_LOOKUP_TABLE[clicks.get(i)][lastDirection]) != EMPTY) {
+                    return new int[]{-1};
+                }
+            }
+        }
         return new int[]{numberOfMarbles, firstIndex, lastDirection};
     }
 
