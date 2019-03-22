@@ -2,59 +2,116 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.Game;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 public class DepthLimitAlphaBetaAI<P, S, A> {
 
-    public A play(Game<P, S, A> game, int maxLevel) {
-        return game.isPlayerMax(game.getPlayer())
-                ? maxAction(game, Integer.MIN_VALUE, Integer.MAX_VALUE, maxLevel)
-                : minAction(game, Integer.MIN_VALUE, Integer.MAX_VALUE, maxLevel);
+    private ExecutorService threadPoolExecutor;
+
+    private int alpha;
+    private int beta;
+    private int value;
+    private A action;
+
+    private int maxLevel;
+
+    private int numberOfDone;
+
+    public synchronized A play(Game<P, S, A> game, int initialLevel, int step, long timeLimit) {
+        this.maxLevel = initialLevel;
+
+        long endTime = System.currentTimeMillis() + timeLimit - 1000;
+
+        Thread thread = new Thread(() -> {
+            while (System.currentTimeMillis() < endTime) {
+                alpha = Integer.MIN_VALUE;
+                beta = Integer.MAX_VALUE;
+                numberOfDone = 0;
+                threadPoolExecutor = Executors.newFixedThreadPool(8);
+                maxLevel += step;
+                if (game.isPlayerMax(game.getPlayer())) {
+                    maxAction(game);
+                } else {
+                    minAction(game);
+                }
+            }
+        });
+        thread.start();
+
+        while (System.currentTimeMillis() < endTime) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        thread.interrupt();
+
+        return action;
     }
 
-    private A maxAction(Game<P, S, A> game, int alpha, int beta, int maxLevel) {
+    private A maxAction(Game<P, S, A> game) {
         if (game.isTerminal()) {
             return null;
         }
-        A action = null;
-        int value = Integer.MIN_VALUE;
+        value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
-            int result = minValue(game.result(a), alpha, beta, maxLevel, 1);
-            if (result > value) {
-                value = result;
-                action = a;
-            }
-            alpha = Math.max(alpha, value);
+            threadPoolExecutor.execute(() -> {
+                int result = minValue(game.result(a), 1);
+                if (result > value) {
+                    value = result;
+                    action = a;
+                }
+                alpha = Math.max(alpha, value);
+            });
+        }
+        threadPoolExecutor.shutdown();
+        try {
+            threadPoolExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return action;
     }
 
-    private A minAction(Game<P, S, A> game, int alpha, int beta, int maxLevel) {
+    private A minAction(Game<P, S, A> game) {
         if (game.isTerminal()) {
             return null;
         }
-        int i = 0;
-        A action = null;
-        int value = Integer.MAX_VALUE;
+        value = Integer.MAX_VALUE;
+        long time = System.currentTimeMillis();
         for (A a : game.actions()) {
-            long time = System.currentTimeMillis();
-            int result = maxValue(game.result(a), alpha, beta, maxLevel, 1);
-            if (result < value) {
-                value = result;
-                action = a;
-            }
-            beta = Math.min(beta, value);
-            time = System.currentTimeMillis() - time;
-            System.out.println(++i + "/" + game.actions().length + " in " + time + "ms.");
+            threadPoolExecutor.execute(() -> {
+                int result = maxValue(game.result(a), 1);
+                if (result < value) {
+                    value = result;
+                    action = a;
+                }
+                beta = Math.min(beta, value);
+                System.out.println(++numberOfDone + "/" + game.actions().length);
+            });
         }
+        threadPoolExecutor.shutdown();
+        try {
+            threadPoolExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        time = System.currentTimeMillis() - time;
+        System.out.println("Search completed in " + time + " ms");
         return action;
     }
 
-    private int maxValue(Game<P, S, A> game, int alpha, int beta, int maxLevel, int level) {
+    private int maxValue(Game<P, S, A> game, int level) {
         if (level >= maxLevel || game.isTerminal()) {
             return game.getUtility();
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
-            int result = minValue(game.result(a), alpha, beta, maxLevel, level + 1);
+            int result = minValue(game.result(a), level + 1);
             if (result > value) {
                 value = result;
             }
@@ -66,13 +123,13 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
         return value;
     }
 
-    private int minValue(Game<P, S, A> game, int alpha, int beta, int maxLevel, int level) {
+    private int minValue(Game<P, S, A> game, int level) {
         if (level >= maxLevel || game.isTerminal()) {
             return game.getUtility();
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
-            int result = maxValue(game.result(a), alpha, beta, maxLevel, level + 1);
+            int result = maxValue(game.result(a), level + 1);
             if (result < value) {
                 value = result;
             }
