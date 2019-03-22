@@ -19,38 +19,16 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
 
     private int numberOfDone;
 
-    public synchronized A play(Game<P, S, A> game, int initialLevel, int step, long timeLimit) {
-        this.maxLevel = initialLevel;
+    public synchronized A play(Game<P, S, A> game, int initialLevel) {
+        maxLevel = initialLevel;
+        alpha = Integer.MIN_VALUE;
+        beta = Integer.MAX_VALUE;
+        numberOfDone = 0;
+        threadPoolExecutor = Executors.newFixedThreadPool(8);
 
-        long endTime = System.currentTimeMillis() + timeLimit - 1000;
-
-        Thread thread = new Thread(() -> {
-            while (System.currentTimeMillis() < endTime) {
-                alpha = Integer.MIN_VALUE;
-                beta = Integer.MAX_VALUE;
-                numberOfDone = 0;
-                threadPoolExecutor = Executors.newFixedThreadPool(8);
-                maxLevel += step;
-                if (game.isPlayerMax(game.getPlayer())) {
-                    maxAction(game);
-                } else {
-                    minAction(game);
-                }
-            }
-        });
-        thread.start();
-
-        while (System.currentTimeMillis() < endTime) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        thread.interrupt();
-
-        return action;
+        return game.isPlayerMax(game.getPlayer())
+                ? maxAction(game)
+                : minAction(game);
     }
 
     private A maxAction(Game<P, S, A> game) {

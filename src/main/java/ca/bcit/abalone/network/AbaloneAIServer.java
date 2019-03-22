@@ -17,7 +17,7 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         // TODO: add time limit to AI search
-        AbaloneGame.Action action = ai.play(game, 5, 2, timeLimit * 1000);
+        AbaloneGame.Action action = ai.play(game, 6);
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {
             switch ((char) move[1]) {
