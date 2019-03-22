@@ -221,6 +221,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                     "newPieces=" + Arrays.deepToString(newPieces) +
                     '}';
         }
+
+        public byte[][] getNewPieces() {
+            return newPieces;
+        }
+
     }
 
     // diagonal: +++OOO, ++OO, +O, OOO+++, OO++, O+

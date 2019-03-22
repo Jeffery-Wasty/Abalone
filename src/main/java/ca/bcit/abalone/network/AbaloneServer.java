@@ -19,13 +19,14 @@ public class AbaloneServer extends ServerHandler<AbaloneServer.AbaloneClient> {
     private int timeLimit = -1;
     private int turnLimit = -1;
     private String gameMode = "pve";
-    private String playerColor = "@";
+    private Character playerColor = '@';
 
     public AbaloneServer(int port) throws IOException {
         super(port);
     }
 
     private String playerNext(AbaloneAction action) {
+
         if (playerColor.equals(abaloneGame.player)) {
             String result = next(action);
             if (this.gameMode.equals("pve")) {
@@ -123,9 +124,9 @@ public class AbaloneServer extends ServerHandler<AbaloneServer.AbaloneClient> {
 
     private void setPlayerColor(String playerColor) {
         if (playerColor.equals("black")) {
-            this.playerColor = "@";
+            this.playerColor = '@';
         } else if (playerColor.equals("white")) {
-            this.playerColor = "O";
+            this.playerColor = 'O';
         }
     }
 
@@ -149,7 +150,7 @@ public class AbaloneServer extends ServerHandler<AbaloneServer.AbaloneClient> {
                     int[] result = abaloneGame.isValidUIMove(Arrays.asList(moves));
 
                     if (result[0] > 0) {
-                        succeed = next(new AbaloneAction(result[0], result[1], result[2]));
+                        succeed = playerNext(new AbaloneAction(result[0], result[1], result[2]));
                     }
                     String finalStatus = succeed;
                     return new HashMap<String, String>() {{
