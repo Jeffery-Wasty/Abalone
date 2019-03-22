@@ -50,12 +50,17 @@ public class TimeLimitSearchAI<P, S, A> {
         action = possibleAction;
         timeSpent = System.currentTimeMillis() - timeSpent;
         System.out.println("level " + level + ": " + timeSpent + "ms");
-        level += step;
+        if (!depthLimitAI.isEarlyTermination()) {
+            System.out.println("Reached terminal-test, end further searches.");
+            depthLimitAI.setTerminate(true);
+            return;
+        }
         if (System.currentTimeMillis() + 2 * step * timeSpent > endTime) {
             System.out.println("Terminate search since the remaining time is less the spent time at this level");
             depthLimitAI.setTerminate(true);
             return;
         }
+        level += step;
         searchNextLevel(game);
     }
 

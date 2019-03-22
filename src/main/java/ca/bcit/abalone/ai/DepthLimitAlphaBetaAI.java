@@ -15,10 +15,12 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
     private int beta;
     private int value;
     private A action;
+    private boolean earlyTermination;
 
     public A play(Game<P, S, A> game, int maxLevel) {
         this.maxLevel = maxLevel;
         threadPoolExecutor = Executors.newFixedThreadPool(8);
+        earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
         action = null;
@@ -85,6 +87,9 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
 
     private int maxValue(Game<P, S, A> game, int alpha, int beta, int level) {
         if (terminate || level >= maxLevel || game.isTerminal()) {
+            if (level >= maxLevel) {
+                earlyTermination = true;
+            }
             return game.getUtility();
         }
         int value = Integer.MIN_VALUE;
@@ -103,6 +108,9 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
 
     private int minValue(Game<P, S, A> game, int alpha, int beta, int level) {
         if (terminate || level >= maxLevel || game.isTerminal()) {
+            if (level >= maxLevel) {
+                earlyTermination = true;
+            }
             return game.getUtility();
         }
         int value = Integer.MAX_VALUE;
@@ -117,6 +125,10 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
             beta = Math.min(beta, value);
         }
         return value;
+    }
+
+    public boolean isEarlyTermination() {
+        return earlyTermination;
     }
 
     public boolean isTerminate() {
