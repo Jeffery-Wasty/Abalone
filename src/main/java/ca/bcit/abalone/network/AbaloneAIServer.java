@@ -1,6 +1,6 @@
 package ca.bcit.abalone.network;
 
-import ca.bcit.abalone.ai.TimeLimitAlphaBetaAI;
+import ca.bcit.abalone.ai.DepthLimitAlphaBetaAI;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
 
@@ -12,12 +12,12 @@ import java.util.Map;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
-    private TimeLimitAlphaBetaAI<Character, AbaloneGame.State, AbaloneGame.Action> ai = new TimeLimitAlphaBetaAI<>();
+    private DepthLimitAlphaBetaAI<Character, AbaloneGame.State, AbaloneGame.Action> ai = new DepthLimitAlphaBetaAI<>();
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         // TODO: add time limit to AI search
-        AbaloneGame.Action action = ai.play(game, timeLimit * 1000);
+        AbaloneGame.Action action = ai.play(game, 5, 2, timeLimit * 1000);
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {
             switch ((char) move[1]) {
