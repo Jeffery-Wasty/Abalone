@@ -24,12 +24,19 @@ public class AbaloneHeuristic {
             char marble = state[i];
             switch (marble) {
                 case AbaloneGame.BLACK:
-                    heuristic += POSITION_WEIGHT_MAP[i] + 15;
+                    heuristic += (POSITION_WEIGHT_MAP[i] + 50);
+                    break;
                 case AbaloneGame.WHITE:
-                    heuristic -= POSITION_WEIGHT_MAP[i] + 15;
+                    heuristic -= (POSITION_WEIGHT_MAP[i] + 50);
+                    break;
             }
         }
         return heuristic;
     };
+
+    public static void main(String[] args) {
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
+        System.out.println(simplePositionWeightedHeuristic.getHeuristic(game));
+    }
 
 }
