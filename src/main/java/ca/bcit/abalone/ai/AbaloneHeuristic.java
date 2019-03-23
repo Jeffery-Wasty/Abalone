@@ -24,9 +24,9 @@ public class AbaloneHeuristic {
             char marble = state[i];
             switch (marble) {
                 case AbaloneGame.BLACK:
-                    heuristic += POSITION_WEIGHT_MAP[i];
+                    heuristic += POSITION_WEIGHT_MAP[i] + 15;
                 case AbaloneGame.WHITE:
-                    heuristic -= POSITION_WEIGHT_MAP[i];
+                    heuristic -= POSITION_WEIGHT_MAP[i] + 15;
             }
         }
         return heuristic;
