@@ -1,7 +1,6 @@
 package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.AbaloneGame;
-import ca.bcit.abalone.game.Game;
 
 public class AbaloneHeuristic {
 
@@ -17,7 +16,7 @@ public class AbaloneHeuristic {
             1, 1, 1, 1, 1,
     };
 
-    public static HeuristicCalculator<Game<Character, AbaloneGame.State, AbaloneGame.Action>> simplePositionWeightedHeuristic = (game) -> {
+    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristic = (game) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {

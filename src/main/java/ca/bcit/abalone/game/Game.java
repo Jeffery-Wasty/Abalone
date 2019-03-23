@@ -19,7 +19,7 @@ public abstract class Game<P, S, A> {
 
     public abstract S makeStateCopy(S state);
 
-    public abstract Game<P, S, A> result(A action);
+    public abstract <T extends Game<P, S, A>> T result(A action);
 
     protected abstract A[] actions(S state);
 

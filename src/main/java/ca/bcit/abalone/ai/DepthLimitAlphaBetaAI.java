@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class DepthLimitAlphaBetaAI<P, S, A> {
+public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
 
     private ExecutorService threadPoolExecutor;
     private int maxLevel;
@@ -16,13 +16,13 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
     private int value;
     private A action;
     private boolean earlyTermination;
-    private HeuristicCalculator<Game<P, S, A>> heuristicCalculator;
+    private HeuristicCalculator<G> heuristicCalculator;
 
-    public DepthLimitAlphaBetaAI(HeuristicCalculator<Game<P, S, A>> heuristicCalculator) {
+    public DepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator) {
         this.heuristicCalculator = heuristicCalculator;
     }
 
-    public A play(Game<P, S, A> game, int maxLevel) {
+    public A play(G game, int maxLevel) {
         this.maxLevel = maxLevel;
         threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
@@ -35,7 +35,7 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
                 : minAction(game);
     }
 
-    private A maxAction(Game<P, S, A> game) {
+    private A maxAction(G game) {
         if (game.isTerminal()) {
             return null;
         }
@@ -62,7 +62,7 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
         return action;
     }
 
-    private A minAction(Game<P, S, A> game) {
+    private A minAction(G game) {
         if (game.isTerminal()) {
             return null;
         }
@@ -90,7 +90,7 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
         return action;
     }
 
-    private int maxValue(Game<P, S, A> game, int alpha, int beta, int level) {
+    private int maxValue(G game, int alpha, int beta, int level) {
         if (terminate || level >= maxLevel || game.isTerminal()) {
             if (level >= maxLevel) {
                 earlyTermination = true;
@@ -111,7 +111,7 @@ public class DepthLimitAlphaBetaAI<P, S, A> {
         return value;
     }
 
-    private int minValue(Game<P, S, A> game, int alpha, int beta, int level) {
+    private int minValue(G game, int alpha, int beta, int level) {
         if (terminate || level >= maxLevel || game.isTerminal()) {
             if (level >= maxLevel) {
                 earlyTermination = true;

@@ -2,19 +2,19 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.Game;
 
-public class TimeLimitSearchAI<P, S, A> {
+public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
-    private DepthLimitAlphaBetaAI<P, S, A> depthLimitAI;
+    private DepthLimitAlphaBetaAI<P, S, A, G> depthLimitAI;
     private A action;
     private int level;
     private long endTime;
     private int step;
 
-    public TimeLimitSearchAI(HeuristicCalculator<Game<P, S, A>> heuristicCalculator) {
+    public TimeLimitSearchAI(HeuristicCalculator<G> heuristicCalculator) {
         this.depthLimitAI = new DepthLimitAlphaBetaAI<>(heuristicCalculator);
     }
 
-    public A search(Game<P, S, A> game, long timeLimit, int initialLevel, int step) {
+    public A search(G game, long timeLimit, int initialLevel, int step) {
         depthLimitAI.setTerminate(false);
         action = null;
         level = initialLevel;
@@ -40,7 +40,7 @@ public class TimeLimitSearchAI<P, S, A> {
         return action;
     }
 
-    private void searchNextLevel(Game<P, S, A> game) {
+    private void searchNextLevel(G game) {
         if (System.currentTimeMillis() > endTime) {
             return;
         }
