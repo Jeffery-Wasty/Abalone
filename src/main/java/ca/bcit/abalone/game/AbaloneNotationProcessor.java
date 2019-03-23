@@ -53,7 +53,7 @@ public class AbaloneNotationProcessor {
                 }
             }
             if (!found) {
-                System.out.println("Cannot match state " + Arrays.toString(game.state.getBoard()));
+                System.out.println("Cannot match action " + Arrays.deepToString(action.getNewPieces()));
             }
         }
         System.out.println("Matched: " + count + "/" + result.size());

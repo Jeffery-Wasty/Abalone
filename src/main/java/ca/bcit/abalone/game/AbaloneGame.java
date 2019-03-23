@@ -1,9 +1,6 @@
 package ca.bcit.abalone.game;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
@@ -166,26 +163,49 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return state.turn % 2 == 1 ? BLACK : WHITE;
     }
 
-    public static final String[][][] VALID_PUSHES = new String[][][]{
-            { // white
-                    {},
-                    {"O+"},
-                    {"OO+"},
-                    {"OO@+", "OO@!", "OOO+"},
-                    {"OOO@+", "OOO@!"},
-                    {"OOO@@+", "OOO@@!"}
-            },
-            { // black
-                    {},
-                    {"@+"},
-                    {"@@+"},
-                    {"@@O+", "@@O!", "@@@+"},
-                    {"@@@O+", "@@@O!"},
-                    {"@@@OO+", "@@@OO!"}
-            }
-    };
+    public static final HashSet<String> VALID_INLINE_MOVES = new HashSet<String>() {{
+        add("O+");
+        add("OO+");
+        add("OO@+");
+        add("OO@!");
+        add("OOO+");
+        add("OOO@+");
+        add("OOO@!");
+        add("OOO@@+");
+        add("OOO@@!");
+        add("@+");
+        add("@@+");
+        add("@@O+");
+        add("@@O!");
+        add("@@@+");
+        add("@@@O+");
+        add("@@@O!");
+        add("@@@OO+");
+        add("@@@OO!");
+    }};
 
-    public static final int LONGEST_PUSH = VALID_PUSHES[0].length;
+    public static final HashSet<Long> VALID_INLINE_MOVES2 = new HashSet<Long>() {{
+        add(726614080L);
+        add(557862735L);
+        add(185762533199L);
+        add(2838351L);
+        add(11072L);
+        add(2834496L);
+        add(558841920L);
+        add(725634895L);
+        add(142812860239L);
+        add(47554956840783L);
+        add(143063531584L);
+        add(47619632021568L);
+        add(725631040L);
+        add(726617935L);
+        add(36624515743808L);
+        add(11087L);
+        add(36559840563023L);
+        add(186013204544L);
+    }};
+
+    public static final int LONGEST_PUSH = 6;
 
     public static class State {
         private char[] board;
@@ -244,15 +264,15 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         if (action.numberOfMarbles == 1) {
             int player = firstMarble == BLACK ? 1 : 0;
             int i = 0;
-            String currentMove = "";
+//            String currentMove = "";
+            long currentMove = 0;
             List<byte[]> gameAction = new ArrayList<>(6);
             gameAction.add(new byte[]{loc, EMPTY});
 
             while (i < LONGEST_PUSH) {
                 char piece = getState(loc);
-                currentMove += piece;
-
-                String[] validMoves = VALID_PUSHES[player][i];
+//                currentMove += piece;
+                currentMove |= ((long) piece) << (8 * i);
 
                 if (piece != OUT_OF_BOARD && piece != EMPTY) {
                     loc = LOCATION_LOOKUP_TABLE[loc][action.direction];
@@ -261,10 +281,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
                     }
                 }
 
-                for (String validMove : validMoves) {
-                    if (validMove.equals(currentMove)) {
-                        return new Action(gameAction);
-                    }
+//                if (VALID_INLINE_MOVES.contains(currentMove)) {
+//                    return new Action(gameAction);
+//                }
+                if (VALID_INLINE_MOVES2.contains(currentMove)) {
+                    return new Action(gameAction);
                 }
 
                 if (piece == OUT_OF_BOARD || piece == EMPTY) {
