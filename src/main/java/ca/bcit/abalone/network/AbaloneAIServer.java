@@ -1,5 +1,6 @@
 package ca.bcit.abalone.network;
 
+import ca.bcit.abalone.ai.AbaloneHeuristic;
 import ca.bcit.abalone.ai.TimeLimitSearchAI;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action> ai = new TimeLimitSearchAI<>();
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action> ai = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
@@ -78,7 +79,7 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 
                     return new HashMap<String, String>() {{
                         try {
-                            String result = getNextStateByAI(state, turnLimit, timeLimit, turn);
+                            String result = getNextStateByAI(state, turnLimit * 2, timeLimit, turn);
                             put("action", result);
                         } catch (NullPointerException e) {
                             put("error", "No Action generated, either spent too much time on first search or the game has reached terminal");

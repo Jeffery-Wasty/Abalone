@@ -4,11 +4,15 @@ import ca.bcit.abalone.game.Game;
 
 public class TimeLimitSearchAI<P, S, A> {
 
-    private DepthLimitAlphaBetaAI<P, S, A> depthLimitAI = new DepthLimitAlphaBetaAI<>();
+    private DepthLimitAlphaBetaAI<P, S, A> depthLimitAI;
     private A action;
     private int level;
     private long endTime;
     private int step;
+
+    public TimeLimitSearchAI(HeuristicCalculator<Game<P, S, A>> heuristicCalculator) {
+        this.depthLimitAI = new DepthLimitAlphaBetaAI<>(heuristicCalculator);
+    }
 
     public A search(Game<P, S, A> game, long timeLimit, int initialLevel, int step) {
         depthLimitAI.setTerminate(false);
