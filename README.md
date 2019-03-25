@@ -1,1 +1,0 @@
-Abalone game and game playing agent for BCIT - Introduction to Artificial Intelligence.
