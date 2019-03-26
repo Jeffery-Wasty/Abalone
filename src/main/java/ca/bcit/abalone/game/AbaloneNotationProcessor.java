@@ -34,14 +34,15 @@ public class AbaloneNotationProcessor {
             "A1", "A2", "A3", "A4", "A5"
     };
 
-    public static void test(String inputFile, String boardFile) throws FileNotFoundException {
-        AbaloneGame game = createStateFromInput(new File(inputFile));
-        List<AbaloneGame> result = createStateFromBoard(new File(boardFile));
+    public static void test(String filename) throws IOException {
+        AbaloneGame game = createStateFromInput(new File(filename + ".input"));
+        List<AbaloneGame> result = createStateFromBoard(new File(filename + ".board"));
         System.out.println(game);
 
         System.out.println("Size: " + game.actions(game.state).length + "-" + result.size());
 
         int count = 0;
+        List<String> moves = new ArrayList<>();
         for (AbaloneGame.Action action : game.actions(game.state)) {
             char[] generatedState = game.result(action).state.getBoard();
             boolean found = false;
@@ -54,9 +55,12 @@ public class AbaloneNotationProcessor {
             }
             if (!found) {
                 System.out.println("Cannot match action " + Arrays.deepToString(action.getNewPieces()));
+            } else {
+                moves.add(action.toString());
             }
         }
         System.out.println("Matched: " + count + "/" + result.size());
+        createMoveFile(moves, filename);
     }
 
     public static ArrayList<AbaloneGame> createStateFromBoard(File input) throws FileNotFoundException {
@@ -121,6 +125,13 @@ public class AbaloneNotationProcessor {
         createTestBoardFile(game, name);
     }
 
+    public static void createMoveFile(List<String> moves, String name) throws IOException {
+        Files.write(Paths.get(name + ".move"),
+                moves,
+                Charset.forName("UTF-8")
+        );
+    }
+
     public static void createTestInputFile(AbaloneGame game, String name) throws IOException {
         Files.write(Paths.get(name + ".input"),
                 Arrays.asList(
@@ -167,9 +178,9 @@ public class AbaloneNotationProcessor {
         return p == AbaloneGame.BLACK ? "b" : "w";
     }
 
-    public static void runTest(int from, int to) throws FileNotFoundException {
+    public static void runTest(int from, int to) throws IOException {
         for (int i = from; i <= to; i++) {
-            test("./test/Test" + i + ".input", "./test/Test" + i + ".board");
+            test("./test/Test" + i);
         }
     }
 

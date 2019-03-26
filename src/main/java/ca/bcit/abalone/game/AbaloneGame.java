@@ -143,19 +143,35 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneGame.Action[] actions(AbaloneGame.State state) {
         ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
+//        if (this.state.turn == 1) {
+//            for (byte[] row : LINEAR_LOCATION) {
+//                for (int i = 0; i < row.length / 2; i++) {
+//                    int loc = row[i];
+//                    addMarbleActions(loc, validActions);
+//                }
+//            }
+//        } else {
         for (int loc = 0; loc < state.board.length; loc++) {
-            for (int i = 1; i <= 3; i++) {
-                for (int j = 0; j < 6; j++) {
-                    AbaloneAction action = new AbaloneAction(i, loc, j);
-                    AbaloneGame.Action gameAction = isValidAction(action);
-                    if (gameAction != null) {
-                        validActions.add(gameAction);
-                    }
+            addMarbleActions(loc, validActions);
+        }
+//        }
+        Collections.shuffle(validActions);
+        return validActions.toArray(new AbaloneGame.Action[0]);
+    }
+
+    private void addMarbleActions(int loc, ArrayList<Action> validActions) {
+        if (loc < 0 || loc >= 61) {
+            return;
+        }
+        for (int i = 1; i <= 3; i++) {
+            for (int j = 0; j < 6; j++) {
+                AbaloneAction action = new AbaloneAction(i, loc, j);
+                AbaloneGame.Action gameAction = isValidAction(action);
+                if (gameAction != null) {
+                    validActions.add(gameAction);
                 }
             }
         }
-        Collections.shuffle(validActions);
-        return validActions.toArray(new AbaloneGame.Action[0]);
     }
 
     @Override
@@ -238,9 +254,27 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
         @Override
         public String toString() {
-            return "Action{" +
-                    "newPieces=" + Arrays.deepToString(newPieces) +
-                    '}';
+            StringBuilder sb = new StringBuilder();
+            sb.append("Action{newPieces=[");
+            for (byte[] marble : newPieces) {
+                sb.append(marble[0]);
+                sb.append("=");
+                switch (marble[1]) {
+                    case AbaloneGame.BLACK:
+                        sb.append(2);
+                        break;
+                    case AbaloneGame.WHITE:
+                        sb.append(1);
+                        break;
+                    case AbaloneGame.EMPTY:
+                        sb.append(0);
+                        break;
+                }
+                sb.append(", ");
+            }
+            sb.delete(sb.length() - 2, sb.length());
+            sb.append("]}");
+            return sb.toString();
         }
 
         public byte[][] getNewPieces() {
