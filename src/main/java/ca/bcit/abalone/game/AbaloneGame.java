@@ -254,9 +254,27 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
         @Override
         public String toString() {
-            return "Action{" +
-                    "newPieces=" + Arrays.deepToString(newPieces) +
-                    '}';
+            StringBuilder sb = new StringBuilder();
+            sb.append("Action{newPieces=[");
+            for (byte[] marble : newPieces) {
+                sb.append(marble[0]);
+                sb.append("=");
+                switch (marble[1]) {
+                    case AbaloneGame.BLACK:
+                        sb.append(2);
+                        break;
+                    case AbaloneGame.WHITE:
+                        sb.append(1);
+                        break;
+                    case AbaloneGame.EMPTY:
+                        sb.append(0);
+                        break;
+                }
+                sb.append(", ");
+            }
+            sb.delete(sb.length() - 2, sb.length());
+            sb.append("]}");
+            return sb.toString();
         }
 
         public byte[][] getNewPieces() {
