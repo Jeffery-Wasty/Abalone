@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai = new TimeLimitSearchAI<>(AbaloneHeuristic.positionAndEnemyOutsideHeuristic);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
