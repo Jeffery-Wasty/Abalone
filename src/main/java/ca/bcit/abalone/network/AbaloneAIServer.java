@@ -13,10 +13,13 @@ import java.util.Map;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic2);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
+        TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai
+                = turn % 2 == 1 ? ai1 : ai2;
         AbaloneGame.Action action = ai.search(game, timeLimit * 1000 - 100, 3, 1);
 
         byte[][] result = action.getNewPieces();
