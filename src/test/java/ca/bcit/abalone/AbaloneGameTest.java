@@ -120,10 +120,10 @@ public class AbaloneGameTest {
     @Test
     public void actions() {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1);
-        for (AbaloneGame.Action a : game.validActions) {
+        for (AbaloneGame.Action a : game.actions()) {
             System.out.println(a);
         }
-        assertEquals(44, game.validActions.length);
+        assertEquals(44, game.actions().length);
     }
 
     @Test
