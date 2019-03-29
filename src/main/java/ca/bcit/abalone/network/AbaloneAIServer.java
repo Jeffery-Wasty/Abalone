@@ -1,6 +1,7 @@
 package ca.bcit.abalone.network;
 
 import ca.bcit.abalone.ai.AbaloneHeuristic;
+import ca.bcit.abalone.ai.HistoryTable;
 import ca.bcit.abalone.ai.TimeLimitSearchAI;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
@@ -15,6 +16,7 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 
     private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
     private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic2);
+    private HistoryTable historyTable = new HistoryTable();
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
@@ -58,6 +60,8 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 
     public AbaloneAIServer(int port) throws IOException {
         super(port);
+        ai1.getDepthLimitAI().setHistoryTable(historyTable.getTable());
+        ai2.getDepthLimitAI().setHistoryTable(historyTable.getTable());
     }
 
     @Override

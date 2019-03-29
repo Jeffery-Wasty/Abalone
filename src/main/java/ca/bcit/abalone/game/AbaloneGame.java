@@ -407,6 +407,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     }
 
     @Override
+    public String serialize() {
+        return new String(state.getBoard());
+    }
+
+    @Override
     public AbaloneGame.State makeStateCopy(AbaloneGame.State state) {
         char[] copy = new char[state.board.length];
         System.arraycopy(state.board, 0, copy, 0, state.board.length);
@@ -521,6 +526,22 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     private boolean isInvalidLocation(int loc) {
         return loc < 0 || loc >= 61;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbaloneGame that = (AbaloneGame) o;
+
+        return (turnLimit - state.getTurn() == that.turnLimit - that.state.getTurn())
+                && Arrays.equals(state.getBoard(), that.state.getBoard());
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(state.getBoard()) + turnLimit - state.getTurn();
     }
 
     @Override

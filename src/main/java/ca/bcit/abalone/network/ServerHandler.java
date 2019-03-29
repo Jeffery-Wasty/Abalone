@@ -26,8 +26,10 @@ public abstract class ServerHandler<T extends ClientSocket> {
                 new Thread(client::startListening).start();
             } catch (IOException e) {
                 e.printStackTrace();
+                this.close();
             }
         }
+        this.close();
     }
 
     protected void forEachClient(Consumer<? super T> action) {
@@ -36,6 +38,10 @@ public abstract class ServerHandler<T extends ClientSocket> {
                 action.accept(client);
             }
         });
+    }
+
+    public void close() {
+        System.out.println("Server closed");
     }
 
     abstract T createClientSocket(Socket socket) throws IOException;
