@@ -1,6 +1,8 @@
 package ca.bcit.abalone.game;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
@@ -155,7 +157,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             addMarbleActions(loc, validActions);
         }
 //        }
-        Collections.shuffle(validActions);
+//        Collections.shuffle(validActions);
         return validActions.toArray(new AbaloneGame.Action[0]);
     }
 

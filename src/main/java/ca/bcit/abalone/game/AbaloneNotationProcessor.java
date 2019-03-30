@@ -42,7 +42,6 @@ public class AbaloneNotationProcessor {
         System.out.println("Size: " + game.actions(game.state).length + "-" + result.size());
 
         int count = 0;
-        List<String> moves = new ArrayList<>();
         for (AbaloneGame.Action action : game.actions(game.state)) {
             char[] generatedState = game.result(action).state.getBoard();
             boolean found = false;
@@ -55,12 +54,9 @@ public class AbaloneNotationProcessor {
             }
             if (!found) {
                 System.out.println("Cannot match action " + Arrays.deepToString(action.getNewPieces()));
-            } else {
-                moves.add(action.toString());
             }
         }
         System.out.println("Matched: " + count + "/" + result.size());
-        createMoveFile(moves, filename);
     }
 
     public static ArrayList<AbaloneGame> createStateFromBoard(File input) throws FileNotFoundException {
@@ -133,7 +129,11 @@ public class AbaloneNotationProcessor {
         createTestBoardFile(game, name);
     }
 
-    public static void createMoveFile(List<String> moves, String name) throws IOException {
+    public static void createMoveFile(AbaloneGame game, String name) throws IOException {
+        List<String> moves = new ArrayList<>();
+        for (AbaloneGame.Action action : game.actions(game.state)) {
+            moves.add(action.toString());
+        }
         Files.write(Paths.get(name + ".move"),
                 moves,
                 Charset.forName("UTF-8")
@@ -152,7 +152,7 @@ public class AbaloneNotationProcessor {
 
     public static void createTestBoardFile(AbaloneGame game, String name) throws IOException {
         AbaloneGame.Action[] actions = game.actions(game.state);
-        TreeSet<String> boards = new TreeSet<>();
+        ArrayList<String> boards = new ArrayList<>();
         for (AbaloneGame.Action action : actions) {
             AbaloneGame board = game.result(action);
             boards.add(createStringFromGame(board));
@@ -202,13 +202,9 @@ public class AbaloneNotationProcessor {
     public static void generateBoardAndMoveBaseOnInput(String filename) throws IOException {
         AbaloneGame game = createStateFromInput(new File(filename + ".input"));
 
-        List<String> moves = new ArrayList<>();
-        for (AbaloneGame.Action action : game.actions(game.state)) {
-            moves.add(action.toString());
-        }
         createTestBoardFile(game, filename);
-        createMoveFile(moves, filename);
-        System.out.println(String.format("Generated %s.board and %s.move files, %d legal moves generated", filename, filename, moves.size()));
+        createMoveFile(game, filename);
+        System.out.println(String.format("Generated %s.board and %s.move files, %d legal moves generated", filename, filename, game.actions(game.state).length));
     }
 
     public static void printMenu() {
