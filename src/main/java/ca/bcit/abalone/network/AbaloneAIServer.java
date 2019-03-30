@@ -10,11 +10,12 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
     private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic2);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
@@ -65,6 +66,12 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
         return new AbaloneClient(socket);
     }
 
+    @Override
+    public void close() throws IOException {
+        super.close();
+        System.out.println("Server closed");
+    }
+
     class AbaloneClient extends ClientSocket {
 
         private AbaloneClient(Socket clientSocket) throws IOException {
@@ -97,8 +104,30 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 
     }
 
+    public static int readOption(Scanner scanner) {
+        String line = scanner.nextLine().trim();
+        if (line.equals("q")) {
+            return -1;
+        }
+        return Integer.parseInt(line);
+    }
+
     public static void main(String[] args) throws IOException {
-        new AbaloneAIServer(1337).startListening();
+        AbaloneAIServer server = new AbaloneAIServer(1337);
+        new Thread(server::startListening).start();
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                int option = readOption(scanner);
+                if (option == -1) {
+                    break;
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        server.close();
+        System.out.println("Server exited");
     }
 
 }
