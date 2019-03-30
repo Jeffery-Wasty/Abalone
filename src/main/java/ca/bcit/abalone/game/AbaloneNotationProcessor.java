@@ -109,7 +109,15 @@ public class AbaloneNotationProcessor {
     }
 
     public static String createStringFromGame(AbaloneGame game) {
-        ArrayList<String> pieces = new ArrayList<>();
+        TreeSet<String> pieces = new TreeSet<>((a, b) -> {
+            if (a.charAt(2) != b.charAt(2)) {
+                return a.charAt(2) - b.charAt(2);
+            }
+            if (a.charAt(0) != b.charAt(0)) {
+                return a.charAt(0) - b.charAt(0);
+            }
+            return a.charAt(1) - b.charAt(1);
+        });
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
             char marble = state[i];
@@ -144,7 +152,7 @@ public class AbaloneNotationProcessor {
 
     public static void createTestBoardFile(AbaloneGame game, String name) throws IOException {
         AbaloneGame.Action[] actions = game.actions(game.state);
-        ArrayList<String> boards = new ArrayList<>(actions.length);
+        TreeSet<String> boards = new TreeSet<>();
         for (AbaloneGame.Action action : actions) {
             AbaloneGame board = game.result(action);
             boards.add(createStringFromGame(board));
@@ -159,6 +167,7 @@ public class AbaloneNotationProcessor {
         for (int i = 0; i < size; i++) {
             String name = "./test/Test" + (from + i);
             createTestFiles(randomAbaloneGame(), name);
+            System.out.println(String.format("Generated random game state and saved to %s.input and %s.board", name, name));
         }
     }
 
@@ -184,9 +193,78 @@ public class AbaloneNotationProcessor {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        runTest(1, 12);
-//        createRandomTests(3, 10);
+    public static void generateBoardAndMoveBaseOnInput(int from, int to) throws IOException {
+        for (int i = from; i <= to; i++) {
+            generateBoardAndMoveBaseOnInput("./test/Test" + i);
+        }
+    }
+
+    public static void generateBoardAndMoveBaseOnInput(String filename) throws IOException {
+        AbaloneGame game = createStateFromInput(new File(filename + ".input"));
+
+        List<String> moves = new ArrayList<>();
+        for (AbaloneGame.Action action : game.actions(game.state)) {
+            moves.add(action.toString());
+        }
+        createTestBoardFile(game, filename);
+        createMoveFile(moves, filename);
+        System.out.println(String.format("Generated %s.board and %s.move files, %d legal moves generated", filename, filename, moves.size()));
+    }
+
+    public static void printMenu() {
+        System.out.println("Choose one of the options: ");
+        System.out.println("1. Generate .board and .move files by taking .input files in the /test/ folder");
+        System.out.println("2. Compare and match the .input and .board files in the /test/ folder");
+        System.out.println("3. Create random game state and the corresponding .input/.board files into the /test/ folder, please note that the existing files will be replaced if the name is duplicated");
+        System.out.println("Enter q to exit");
+    }
+
+    public static int[] readParameters(Scanner scanner) {
+        System.out.println("Input the range of test files to be tested, the starting index and the end index separate by a space.\n(If running test files 5 to 12, input \"5 12\")");
+        String line = scanner.nextLine().trim();
+        String[] tokens = line.split(" ");
+        int from = Integer.parseInt(tokens[0]);
+        int to = Integer.parseInt(tokens[1]);
+        return new int[]{from, to};
+    }
+
+    public static int readOption(Scanner scanner) {
+        String line = scanner.nextLine().trim();
+        if (line.equals("q")) {
+            return -1;
+        }
+        return Integer.parseInt(line);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            printMenu();
+            try {
+                int option = readOption(scanner);
+                if (option == -1) {
+                    break;
+                }
+                if (option > 3 || option < 1) {
+                    throw new IllegalArgumentException("Invalid Input");
+                }
+                int[] params = readParameters(scanner);
+                switch (option) {
+                    case 1:
+                        generateBoardAndMoveBaseOnInput(params[0], params[1]);
+                        break;
+                    case 2:
+                        runTest(params[0], params[1]);
+                        break;
+                    case 3:
+                        createRandomTests(params[0], params[1]);
+                        break;
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        scanner.close();
     }
 
 }
