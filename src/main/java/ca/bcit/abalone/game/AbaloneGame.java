@@ -1,6 +1,9 @@
 package ca.bcit.abalone.game;
 
+import ca.bcit.abalone.ai.AbaloneZobrist;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -157,7 +160,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             addMarbleActions(loc, validActions);
         }
 //        }
-//        Collections.shuffle(validActions);
+        Collections.shuffle(validActions);
         return validActions.toArray(new AbaloneGame.Action[0]);
     }
 
@@ -523,6 +526,26 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     private boolean isInvalidLocation(int loc) {
         return loc < 0 || loc >= 61;
+    }
+
+    private Integer hashcode = null;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbaloneGame that = (AbaloneGame) o;
+
+        return hashCode() == that.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        if (hashcode == null) {
+            hashcode = AbaloneZobrist.getInstance().hashCode(this);
+        }
+        return hashcode;
     }
 
     @Override
