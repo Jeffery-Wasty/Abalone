@@ -102,7 +102,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             if (result > value) {
                 value = result;
             }
-            if (value > beta) {
+            if (value >= beta) {
                 return value;
             }
             alpha = Math.max(alpha, value);
@@ -123,7 +123,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             if (result < value) {
                 value = result;
             }
-            if (value < alpha) {
+            if (value <= alpha) {
                 return value;
             }
             beta = Math.min(beta, value);
