@@ -46,6 +46,18 @@ public class AbaloneHeuristic {
         return heuristic;
     };
 
+    private static int assessBoard(char[] board)
+    {
+        int pieceAdv = 0;
+        for (int i = 0; i < board.length; i++) {
+            if (board[i] == AbaloneGame.BLACK)
+                pieceAdv++;
+            else
+                pieceAdv--;
+        }
+        return pieceAdv;
+    }
+
     private static int countSurrounding(int index, char colour) {
 
         int surroundingAllyPieces = 0;
@@ -86,19 +98,24 @@ public class AbaloneHeuristic {
         return heuristic;
     };
 
+
     public static HeuristicCalculator<AbaloneGame> positionAndEnemyOutsideHeuristic = (game) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
+
+        int boardAdv = assessBoard(state);
+        heuristic += (boardAdv * 1000);
+
         for (int i = 0; i < state.length; i++) {
             char marble = state[i];
             switch (marble) {
                 case AbaloneGame.BLACK:
-                    heuristic += (POSITION_WEIGHT_MAP[i] + 50);
-                    heuristic -= (POSITION_PUSH_MAP[i] + 30);
+                    heuristic += (POSITION_WEIGHT_MAP[i] + 100);
+                    heuristic -= (POSITION_PUSH_MAP[i] + 50);
                     break;
                 case AbaloneGame.WHITE:
-                    heuristic -= (POSITION_WEIGHT_MAP[i] + 50);
-                    heuristic += (POSITION_PUSH_MAP[i] + 30);
+                    heuristic -= (POSITION_WEIGHT_MAP[i] + 100);
+                    heuristic += (POSITION_PUSH_MAP[i] + 50);
                     break;
             }
         }
