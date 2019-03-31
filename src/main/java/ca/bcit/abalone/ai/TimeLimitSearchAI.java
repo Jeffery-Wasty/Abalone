@@ -36,6 +36,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
         thread.interrupt();
         depthLimitAI.setTerminate(true);
+        depthLimitAI.resetTranspositionTable();
 
         return action;
     }

@@ -2,6 +2,7 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.Game;
 
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +18,8 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private A action;
     private boolean earlyTermination;
     private HeuristicCalculator<G> heuristicCalculator;
+    private final int capacity = 1 << 22;
+    private HashMap<G, History> transpositionTable = new HashMap<G, History>(capacity);
 
     public DepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator) {
         this.heuristicCalculator = heuristicCalculator;
@@ -24,7 +27,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
 
     public A play(G game, int maxLevel) {
         this.maxLevel = maxLevel;
-        threadPoolExecutor = Executors.newFixedThreadPool(4);
+        threadPoolExecutor = Executors.newFixedThreadPool(8);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
@@ -43,7 +46,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = minValue(game.result(a), alpha, beta, 1);
+                int result = minValue(game.result(a), alpha, beta, maxLevel);
                 if (result > value) {
                     value = result;
                     action = a;
@@ -70,7 +73,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = maxValue(game.result(a), alpha, beta, 1);
+                int result = maxValue(game.result(a), alpha, beta, maxLevel);
                 if (result < value) {
                     value = result;
                     action = a;
@@ -90,15 +93,19 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     }
 
     private int maxValue(G game, int alpha, int beta, int level) {
-        if (terminate || level >= maxLevel || game.isTerminal()) {
-            if (level >= maxLevel) {
+        History h = transpositionTable.get(game);
+        if (h != null && h.depth >= level) {
+            return h.value;
+        }
+        if (terminate || level == 0 || game.isTerminal()) {
+            if (level == 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
-            int result = minValue(game.result(a), alpha, beta, level + 1);
+            int result = minValue(game.result(a), alpha, beta, level - 1);
             if (result > value) {
                 value = result;
             }
@@ -107,19 +114,26 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             alpha = Math.max(alpha, value);
         }
+        if (h == null || h.depth < level) {
+            transpositionTable.put(game, new History(level, value));
+        }
         return value;
     }
 
     private int minValue(G game, int alpha, int beta, int level) {
-        if (terminate || level >= maxLevel || game.isTerminal()) {
-            if (level >= maxLevel) {
+        History h = transpositionTable.get(game);
+        if (h != null && h.depth >= level) {
+            return h.value;
+        }
+        if (terminate || level == 0 || game.isTerminal()) {
+            if (level == 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
-            int result = maxValue(game.result(a), alpha, beta, level + 1);
+            int result = maxValue(game.result(a), alpha, beta, level - 1);
             if (result < value) {
                 value = result;
             }
@@ -128,7 +142,14 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             beta = Math.min(beta, value);
         }
+        if (h == null || h.depth < level) {
+            transpositionTable.put(game, new History(level, value));
+        }
         return value;
+    }
+
+    public void resetTranspositionTable() {
+        transpositionTable = new HashMap<G, History>(capacity);
     }
 
     public boolean isEarlyTermination() {
@@ -142,4 +163,16 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     public void setTerminate(boolean terminate) {
         this.terminate = terminate;
     }
+
+    public static class History {
+
+        public final int depth;
+        public final int value;
+
+        public History(int depth, int value) {
+            this.depth = depth;
+            this.value = value;
+        }
+    }
+
 }

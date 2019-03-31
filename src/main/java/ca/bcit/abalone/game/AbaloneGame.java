@@ -3,7 +3,6 @@ package ca.bcit.abalone.game;
 import ca.bcit.abalone.ai.AbaloneZobrist;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -148,19 +147,10 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneGame.Action[] actions(AbaloneGame.State state) {
         ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
-//        if (this.state.turn == 1) {
-//            for (byte[] row : LINEAR_LOCATION) {
-//                for (int i = 0; i < row.length / 2; i++) {
-//                    int loc = row[i];
-//                    addMarbleActions(loc, validActions);
-//                }
-//            }
-//        } else {
         for (int loc = 0; loc < state.board.length; loc++) {
             addMarbleActions(loc, validActions);
         }
-//        }
-        Collections.shuffle(validActions);
+//        Collections.shuffle(validActions);
         return validActions.toArray(new AbaloneGame.Action[0]);
     }
 
