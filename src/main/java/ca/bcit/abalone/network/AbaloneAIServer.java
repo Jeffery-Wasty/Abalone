@@ -93,7 +93,6 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
                             put("action", result);
                         } catch (NullPointerException e) {
                             put("error", "No Action generated, either spent too much time on first search or the game has reached terminal");
-                            e.printStackTrace();
                         }
                     }};
                 default:

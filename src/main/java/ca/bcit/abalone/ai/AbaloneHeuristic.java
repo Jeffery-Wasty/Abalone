@@ -17,15 +17,6 @@ public class AbaloneHeuristic {
     };
 
     public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristic = (game) -> {
-        if (game.isTerminal()) {
-            if (game.getUtility() > 0) {
-                return Short.MAX_VALUE;
-            } else if (game.getUtility() < 0) {
-                return Short.MIN_VALUE;
-            } else {
-                return 0;
-            }
-        }
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
