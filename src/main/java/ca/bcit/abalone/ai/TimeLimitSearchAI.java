@@ -2,6 +2,8 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.Game;
 
+import java.util.concurrent.TimeUnit;
+
 public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
     private DepthLimitAlphaBetaAI<P, S, A, G> depthLimitAI;
@@ -10,8 +12,8 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
     private long endTime;
     private int step;
 
-    public TimeLimitSearchAI(HeuristicCalculator<G> heuristicCalculator) {
-        this.depthLimitAI = new DepthLimitAlphaBetaAI<>(heuristicCalculator);
+    public TimeLimitSearchAI(HeuristicCalculator<G> heuristicCalculator, QuiescenceSearch<G> quiescenceSearch) {
+        this.depthLimitAI = new DepthLimitAlphaBetaAI<>(heuristicCalculator, quiescenceSearch);
     }
 
     public A search(G game, long timeLimit, int initialLevel, int step) {
@@ -26,9 +28,16 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
         });
         thread.start();
 
+        long prevCheckTime = System.currentTimeMillis();
+
         while (!depthLimitAI.isTerminate() && System.currentTimeMillis() < endTime) {
             try {
-                Thread.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(10);
+                long waitTime = System.currentTimeMillis() - prevCheckTime;
+                if (waitTime > 100) {
+                    System.err.println("Waited " + waitTime + "ms");
+                }
+                prevCheckTime = System.currentTimeMillis();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

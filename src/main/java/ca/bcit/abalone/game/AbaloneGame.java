@@ -374,7 +374,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     private byte[] pieceLost = null;
 
-    private byte[] getNumberOfLostPieces() {
+    public byte[] getNumberOfLostPieces() {
         if (pieceLost != null) {
             return pieceLost;
         }
@@ -518,7 +518,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         return loc < 0 || loc >= 61;
     }
 
-    private Integer hashcode = null;
+    private Long hashcode = null;
 
     @Override
     public boolean equals(Object o) {
@@ -527,7 +527,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
         AbaloneGame that = (AbaloneGame) o;
 
-        return hashCode() == that.hashCode();
+        return hashCode() == that.hashCode() && hashcode.equals(that.hashcode);
     }
 
     @Override
@@ -535,7 +535,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         if (hashcode == null) {
             hashcode = AbaloneZobrist.getInstance().hashCode(this);
         }
-        return hashcode;
+        return Long.hashCode(hashcode);
     }
 
     @Override

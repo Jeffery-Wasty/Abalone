@@ -19,7 +19,7 @@ public class AbaloneZobrist extends Zobrist<Character, AbaloneGame.State, Abalon
     }
 
     @Override
-    public int hashCode(AbaloneGame game) {
+    public long hashCode(AbaloneGame game) {
         char[] state = game.state.getBoard();
         long hashValue = 0;
         for (int i = 0; i < state.length; i++) {
@@ -32,7 +32,7 @@ public class AbaloneZobrist extends Zobrist<Character, AbaloneGame.State, Abalon
                     break;
             }
         }
-        return Long.hashCode(hashValue);
+        return hashValue;
     }
 
     public static void main(String[] args) {

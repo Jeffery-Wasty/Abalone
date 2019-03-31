@@ -1,6 +1,8 @@
 package ca.bcit.abalone.network;
 
 import ca.bcit.abalone.ai.AbaloneHeuristic;
+import ca.bcit.abalone.ai.AbaloneQuiescenceSearch;
+import ca.bcit.abalone.ai.NonOptimizedTimeLimitSearchAI;
 import ca.bcit.abalone.ai.TimeLimitSearchAI;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
@@ -14,14 +16,21 @@ import java.util.Scanner;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 =
+            new TimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
+    private NonOptimizedTimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 =
+            new NonOptimizedTimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
-        TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai
-                = turn % 2 == 1 ? ai1 : ai2;
-        AbaloneGame.Action action = ai.search(game, timeLimit * 1000 - 100, 3, 1);
+//        TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai
+//                = turn % 2 == 1 ? ai1 : ai2;
+        AbaloneGame.Action action;
+        if (turn % 2 == 1) {
+            action = ai1.search(game, timeLimit * 1000 - 100, 2, 2);
+        } else {
+            action = ai2.search(game, timeLimit * 1000 - 100, 2, 2);
+        }
 
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {
