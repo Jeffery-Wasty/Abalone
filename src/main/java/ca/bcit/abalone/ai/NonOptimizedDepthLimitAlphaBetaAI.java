@@ -90,8 +90,8 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
     }
 
     private int maxValue(G game, int alpha, int beta, int level) {
-        if (terminate || level >= maxLevel || game.isTerminal()) {
-            if (level >= maxLevel) {
+        if (terminate || level > maxLevel || game.isTerminal()) {
+            if (level > maxLevel) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
@@ -102,7 +102,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
             if (result > value) {
                 value = result;
             }
-            if (value > beta) {
+            if (value >= beta) {
                 return value;
             }
             alpha = Math.max(alpha, value);
@@ -111,8 +111,8 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
     }
 
     private int minValue(G game, int alpha, int beta, int level) {
-        if (terminate || level >= maxLevel || game.isTerminal()) {
-            if (level >= maxLevel) {
+        if (terminate || level > maxLevel || game.isTerminal()) {
+            if (level > maxLevel) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
@@ -123,7 +123,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
             if (result < value) {
                 value = result;
             }
-            if (value < alpha) {
+            if (value <= alpha) {
                 return value;
             }
             beta = Math.min(beta, value);

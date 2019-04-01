@@ -20,9 +20,8 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private boolean earlyTermination;
     private HeuristicCalculator<G> heuristicCalculator;
     private QuiescenceSearch<G> quiescenceSearch;
-    private final int capacity = 1 << 22;
     private int quiescenceDepth = -2;
-    private HashMap<G, History> transpositionTable = new HashMap<G, History>(capacity);
+    private HashMap<G, History> transpositionTable = new HashMap<G, History>();
     private G rootGame;
 
     public DepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator, QuiescenceSearch<G> quiescenceSearch) {
@@ -33,7 +32,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     public A play(G game, int maxLevel) {
         rootGame = game;
         this.maxLevel = maxLevel;
-        threadPoolExecutor = Executors.newFixedThreadPool(8);
+        threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
@@ -102,8 +101,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        if (level <= quiescenceDepth
-                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
+        if (level <= 0
+//                level <= quiescenceDepth
+//                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
                 || game.isTerminal()) {
             if (level <= 0) {
                 earlyTermination = true;
@@ -135,8 +135,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        if (level <= quiescenceDepth
-                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
+        if (level <= 0
+//                level <= quiescenceDepth
+//                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
                 || game.isTerminal()) {
             if (level <= 0) {
                 earlyTermination = true;
@@ -165,7 +166,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     }
 
     public void resetTranspositionTable() {
-        transpositionTable = new HashMap<G, History>(capacity);
+        transpositionTable = new HashMap<G, History>();
     }
 
     public boolean isEarlyTermination() {

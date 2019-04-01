@@ -27,9 +27,9 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 //                = turn % 2 == 1 ? ai1 : ai2;
         AbaloneGame.Action action;
         if (turn % 2 == 1) {
-            action = ai1.search(game, timeLimit * 1000 - 100, 2, 2);
+            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
         } else {
-            action = ai2.search(game, timeLimit * 1000 - 100, 2, 2);
+            action = ai2.search(game, timeLimit * 1000 - 100, 3, 1);
         }
 
         byte[][] result = action.getNewPieces();
