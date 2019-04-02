@@ -70,7 +70,7 @@ public abstract class ClientSocket {
         }
     }
 
-    protected void close() {
+    public void close() {
         try {
             this.clientSocket.close();
             this.in.close();

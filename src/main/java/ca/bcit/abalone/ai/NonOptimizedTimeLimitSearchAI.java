@@ -4,16 +4,16 @@ import ca.bcit.abalone.game.Game;
 
 import java.util.concurrent.TimeUnit;
 
-public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
+public class NonOptimizedTimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
-    private DepthLimitAlphaBetaAI<P, S, A, G> depthLimitAI;
+    private NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G> depthLimitAI;
     private A action;
     private int level;
     private long endTime;
     private int step;
 
-    public TimeLimitSearchAI(HeuristicCalculator<G> heuristicCalculator, QuiescenceSearch<G> quiescenceSearch) {
-        this.depthLimitAI = new DepthLimitAlphaBetaAI<>(heuristicCalculator, quiescenceSearch);
+    public NonOptimizedTimeLimitSearchAI(HeuristicCalculator<G> heuristicCalculator) {
+        this.depthLimitAI = new NonOptimizedDepthLimitAlphaBetaAI<>(heuristicCalculator);
     }
 
     public A search(G game, long timeLimit, int initialLevel, int step) {
@@ -34,7 +34,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
             try {
                 TimeUnit.MILLISECONDS.sleep(10);
                 long waitTime = System.currentTimeMillis() - prevCheckTime;
-                if (waitTime > 100) {
+                if (waitTime > 20) {
                     System.err.println("Waited " + waitTime + "ms");
                 }
                 prevCheckTime = System.currentTimeMillis();
@@ -45,7 +45,6 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
         thread.interrupt();
         depthLimitAI.setTerminate(true);
-        depthLimitAI.resetTranspositionTable();
 
         return action;
     }

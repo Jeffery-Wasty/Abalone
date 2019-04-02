@@ -1,6 +1,8 @@
 package ca.bcit.abalone.network;
 
 import ca.bcit.abalone.ai.AbaloneHeuristic;
+import ca.bcit.abalone.ai.AbaloneQuiescenceSearch;
+import ca.bcit.abalone.ai.NonOptimizedTimeLimitSearchAI;
 import ca.bcit.abalone.ai.TimeLimitSearchAI;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
@@ -10,17 +12,25 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic2);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 =
+            new TimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
+    private NonOptimizedTimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 =
+            new NonOptimizedTimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
-        TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai
-                = turn % 2 == 1 ? ai1 : ai2;
-        AbaloneGame.Action action = ai.search(game, timeLimit * 1000 - 100, 3, 1);
+//        TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai
+//                = turn % 2 == 1 ? ai1 : ai2;
+        AbaloneGame.Action action;
+        if (turn % 2 == 1) {
+            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
+        } else {
+            action = ai2.search(game, timeLimit * 1000 - 100, 3, 1);
+        }
 
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {
@@ -65,6 +75,12 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
         return new AbaloneClient(socket);
     }
 
+    @Override
+    public void close() throws IOException {
+        super.close();
+        System.out.println("Server closed");
+    }
+
     class AbaloneClient extends ClientSocket {
 
         private AbaloneClient(Socket clientSocket) throws IOException {
@@ -86,6 +102,7 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
                             put("action", result);
                         } catch (NullPointerException e) {
                             put("error", "No Action generated, either spent too much time on first search or the game has reached terminal");
+                            e.printStackTrace();
                         }
                     }};
                 default:
@@ -97,8 +114,30 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 
     }
 
+    public static int readOption(Scanner scanner) {
+        String line = scanner.nextLine().trim();
+        if (line.equals("q")) {
+            return -1;
+        }
+        return Integer.parseInt(line);
+    }
+
     public static void main(String[] args) throws IOException {
-        new AbaloneAIServer(1337).startListening();
+        AbaloneAIServer server = new AbaloneAIServer(1337);
+        new Thread(server::startListening).start();
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                int option = readOption(scanner);
+                if (option == -1) {
+                    break;
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        server.close();
+        System.out.println("Server exited");
     }
 
 }
