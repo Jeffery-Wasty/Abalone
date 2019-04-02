@@ -15,7 +15,7 @@ import java.util.Map;
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
     private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristicDavid.simplePositionWeightedHeuristicDavid);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 = new TimeLimitSearchAI<>(AbaloneHeuristicDavid.positionWeightedHeuristicDavid);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
