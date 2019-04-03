@@ -21,6 +21,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private HeuristicCalculator<G> heuristicCalculator;
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
+    private int searchedCount = 0;
     private HashMap<G, History> transpositionTable = new HashMap<G, History>();
     private G rootGame;
 
@@ -30,6 +31,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     }
 
     public A play(G game, int maxLevel) {
+        searchedCount = 0;
         rootGame = game;
         this.maxLevel = maxLevel;
         threadPoolExecutor = Executors.newFixedThreadPool(4);
@@ -66,7 +68,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             System.out.println(LocalDateTime.now() + " Level " + maxLevel + " Search Terminated");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + "heuristic: " + value);
+        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
@@ -93,7 +95,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             System.out.println(LocalDateTime.now() + " Level " + maxLevel + " Search Terminated ");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + "heuristic: " + value);
+        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
@@ -101,19 +103,21 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        if (level <= 0
+        if (
+                level <= 0
 //                level <= quiescenceDepth
 //                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
                 || game.isTerminal()) {
+            searchedCount++;
             if (level <= 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
         }
-        History h = transpositionTable.get(game);
-        if (h != null && h.depth >= level) {
-            return h.value;
-        }
+//        History h = transpositionTable.get(game);
+//        if (h != null && h.depth >= level) {
+//            return h.value;
+//        }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
             int result = minValue(game.result(a), alpha, beta, level - 1);
@@ -125,9 +129,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             alpha = Math.max(alpha, value);
         }
-        if (h == null || h.depth < level) {
-            transpositionTable.put(game, new History(level - quiescenceDepth, value));
-        }
+//        if (h == null || h.depth < level) {
+//            transpositionTable.put(game, new History(level - quiescenceDepth, value));
+//        }
         return value;
     }
 
@@ -135,19 +139,21 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        if (level <= 0
+        if (
+                level <= 0
 //                level <= quiescenceDepth
 //                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
                 || game.isTerminal()) {
+            searchedCount++;
             if (level <= 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
         }
-        History h = transpositionTable.get(game);
-        if (h != null && h.depth >= level) {
-            return h.value;
-        }
+//        History h = transpositionTable.get(game);
+//        if (h != null && h.depth >= level) {
+//            return h.value;
+//        }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
             int result = maxValue(game.result(a), alpha, beta, level - 1);
@@ -159,9 +165,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             beta = Math.min(beta, value);
         }
-        if (h == null || h.depth < level) {
-            transpositionTable.put(game, new History(level - quiescenceDepth, value));
-        }
+//        if (h == null || h.depth < level) {
+//            transpositionTable.put(game, new History(level - quiescenceDepth, value));
+//        }
         return value;
     }
 

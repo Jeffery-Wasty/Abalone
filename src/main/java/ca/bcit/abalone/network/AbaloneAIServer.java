@@ -23,8 +23,6 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
-//        TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai
-//                = turn % 2 == 1 ? ai1 : ai2;
         AbaloneGame.Action action;
         if (turn % 2 == 1) {
             action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);

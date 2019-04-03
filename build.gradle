@@ -16,7 +16,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'ca.bcit.abalone.game.AbaloneNotationProcessor'
+        attributes 'Main-Class': 'ca.bcit.abalone.network.AbaloneAIServer'
     }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }

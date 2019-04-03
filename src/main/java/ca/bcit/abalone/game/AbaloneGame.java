@@ -2,10 +2,7 @@ package ca.bcit.abalone.game;
 
 import ca.bcit.abalone.ai.AbaloneZobrist;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
@@ -151,8 +148,10 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         for (int loc = 0; loc < state.board.length; loc++) {
             addMarbleActions(loc, validActions);
         }
-        Collections.shuffle(validActions);
-        return validActions.toArray(new AbaloneGame.Action[0]);
+//        Collections.shuffle(validActions);
+        AbaloneGame.Action[] actions = validActions.toArray(new AbaloneGame.Action[0]);
+        Arrays.sort(actions, Action::compareTo);
+        return actions;
     }
 
     private void addMarbleActions(int loc, ArrayList<Action> validActions) {
@@ -237,8 +236,9 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
     }
 
-    public class Action {
+    public class Action implements Comparable<Action> {
         private final byte[][] newPieces;
+        private int priority = -1;
 
         private Action(byte[][] newPieces) {
             this.newPieces = newPieces;
@@ -246,6 +246,23 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
         private Action(List<byte[]> gameAction) {
             this(gameAction.toArray(new byte[0][0]));
+        }
+
+        @Override
+        public int compareTo(Action o) {
+            return o.getPriority() - getPriority();
+        }
+
+        public int getPriority() {
+            if (priority == -1) {
+                priority = 0;
+                for (byte[] p : newPieces) {
+                    if (p[1] == getPlayer()) {
+                        priority++;
+                    }
+                }
+            }
+            return priority;
         }
 
         @Override
