@@ -30,21 +30,21 @@ public class AbaloneHeuristicJeff {
 
             switch (marble) {
                 case AbaloneGame.BLACK:
-                    heuristic += (CENTER + ADJACENT_WEIGHT * ADJ(state, i, AbaloneGame.BLACK) + BUMPED_WEIGHT);
+                    heuristic += (CENTER + ADJACENT_WEIGHT * ADJ(marble, state, i, AbaloneGame.BLACK) + BUMPED_WEIGHT);
                     break;
                 case AbaloneGame.WHITE:
-                    heuristic -= (CENTER + ADJACENT_WEIGHT * ADJ(state, i, AbaloneGame.WHITE) + BUMPED_WEIGHT);
+                    heuristic -= (CENTER + ADJACENT_WEIGHT * ADJ(marble, state, i, AbaloneGame.WHITE) + BUMPED_WEIGHT);
                     break;
             }
         }
         return heuristic;
     };
 
-    private static int ADJ(char[] state, int i, char c) {
+    private static int ADJ(char marble, char[] state, int i, char c) {
         int adjacent = 0;
         for (byte ba: AbaloneGame.LOCATION_LOOKUP_TABLE[i]) {
             if (ba != -1)
-                if (state[ba] == c)
+                if (state[ba] == c || marble == c)
                     ++adjacent;
         }
         return adjacent;

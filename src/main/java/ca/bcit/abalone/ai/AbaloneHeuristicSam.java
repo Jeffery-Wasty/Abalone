@@ -2,7 +2,7 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.AbaloneGame;
 
-public class AbaloneHeuristic {
+public class AbaloneHeuristicSam {
 
     public static final int[] POSITION_WEIGHT_MAP = new int[]{
             1, 2, 2, 2, 1,
