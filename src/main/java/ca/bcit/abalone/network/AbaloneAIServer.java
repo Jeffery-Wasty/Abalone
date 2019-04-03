@@ -1,6 +1,6 @@
 package ca.bcit.abalone.network;
 
-import ca.bcit.abalone.ai.AbaloneHeuristicJeff;
+import ca.bcit.abalone.ai.AbaloneHeuristic;
 import ca.bcit.abalone.ai.TimeLimitSearchAI;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
-    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai = new TimeLimitSearchAI<>(AbaloneHeuristicJeff.simplePositionWeightedHeuristic);
+    private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai = new TimeLimitSearchAI<>(AbaloneHeuristic.simplePositionWeightedHeuristic);
 
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
