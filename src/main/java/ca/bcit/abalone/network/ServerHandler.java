@@ -40,4 +40,9 @@ public abstract class ServerHandler<T extends ClientSocket> {
 
     abstract T createClientSocket(Socket socket) throws IOException;
 
+    public void close() throws IOException {
+        serverSocket.close();
+        clientList.forEach(T::close);
+    }
+
 }

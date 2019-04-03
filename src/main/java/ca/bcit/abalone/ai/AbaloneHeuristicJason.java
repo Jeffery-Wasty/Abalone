@@ -87,15 +87,18 @@ public class AbaloneHeuristicJason {
             char marble = state[i];
             switch (marble) {
                 case AbaloneGame.BLACK:
-                    heuristic += simpleHeuristicValue(state, i);
+                    heuristic += simpleHeuristicValue2(state, i);
+                    heuristic += 110;
                     break;
                 case AbaloneGame.WHITE:
-                    heuristic -= simpleHeuristicValue(state, i);
+                    heuristic -= simpleHeuristicValue2(state, i) * 1.2;
+                    heuristic -= 100;
                     break;
             }
         }
         return heuristic;
     };
+
 
     public static int simpleHeuristicValue(char[] state, int selectedPos) {
         int h = POSITION_WEIGHT_MAP[selectedPos] * 2;
@@ -132,6 +135,31 @@ public class AbaloneHeuristicJason {
 
         if(numOfAlly == 6 || numOfAlly == 0){
             h = h + 5;
+        }
+
+        return h;
+    }
+
+    public static int simpleHeuristicValue2(char[] state, int selectedPos) {
+        int h = POSITION_WEIGHT_MAP[selectedPos]*5;
+        byte[] destPos = LOCATION_LOOKUP_TABLE[selectedPos];
+        char playerState = state[selectedPos];
+        char opponentState = state[selectedPos] == '@'? 'O' : '@';
+        int numOfAlly = 0;
+        int numOfEnmiy = 0;
+
+        for (int i = 0; i < destPos.length; i++) {
+            int nextPos = destPos[i];
+            if (nextPos != -1 && state[nextPos] == playerState ) {
+                h++;
+                numOfAlly++;
+            } else if (nextPos != -1 && state[nextPos] == opponentState ) {
+                numOfEnmiy++;
+            }
+        }
+
+        if(numOfAlly == 6 || numOfEnmiy == 6){
+            h = h + 1;
         }
 
         return h;

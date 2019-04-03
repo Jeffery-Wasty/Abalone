@@ -16,7 +16,16 @@ public class AbaloneHeuristic {
             1, 1, 1, 1, 1,
     };
 
-    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristic = (game) -> {
+    public static final HeuristicCalculator<AbaloneGame> SIMPLE_POSITION_WEIGHTED_HEURISTIC = (game) -> {
+        if (game.isTerminal()) {
+            if (game.getUtility() > 0) {
+                return Short.MAX_VALUE;
+            } else if (game.getUtility() < 0) {
+                return Short.MIN_VALUE;
+            } else {
+                return 0;
+            }
+        }
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
@@ -33,7 +42,7 @@ public class AbaloneHeuristic {
         return heuristic;
     };
 
-    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristic2 = (game) -> {
+    public static final HeuristicCalculator<AbaloneGame> SIMPLE_POSITION_WEIGHTED_HEURISTIC_2 = (game) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
@@ -63,7 +72,7 @@ public class AbaloneHeuristic {
 
     public static void main(String[] args) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
-        System.out.println(simplePositionWeightedHeuristic.getHeuristic(game));
+        System.out.println(SIMPLE_POSITION_WEIGHTED_HEURISTIC.getHeuristic(game));
     }
 
 }

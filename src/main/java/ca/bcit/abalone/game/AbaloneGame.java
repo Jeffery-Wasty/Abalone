@@ -1,6 +1,9 @@
 package ca.bcit.abalone.game;
 
+import ca.bcit.abalone.ai.AbaloneZobrist;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -145,19 +148,10 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     // Enumerate all the 6 directions for each marbles on the board
     public AbaloneGame.Action[] actions(AbaloneGame.State state) {
         ArrayList<AbaloneGame.Action> validActions = new ArrayList<>();
-//        if (this.state.turn == 1) {
-//            for (byte[] row : LINEAR_LOCATION) {
-//                for (int i = 0; i < row.length / 2; i++) {
-//                    int loc = row[i];
-//                    addMarbleActions(loc, validActions);
-//                }
-//            }
-//        } else {
         for (int loc = 0; loc < state.board.length; loc++) {
             addMarbleActions(loc, validActions);
         }
-//        }
-//        Collections.shuffle(validActions);
+        Collections.shuffle(validActions);
         return validActions.toArray(new AbaloneGame.Action[0]);
     }
 
@@ -381,7 +375,7 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     private byte[] pieceLost = null;
 
-    private byte[] getNumberOfLostPieces() {
+    public byte[] getNumberOfLostPieces() {
         if (pieceLost != null) {
             return pieceLost;
         }
@@ -523,6 +517,26 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     private boolean isInvalidLocation(int loc) {
         return loc < 0 || loc >= 61;
+    }
+
+    private Long hashcode = null;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbaloneGame that = (AbaloneGame) o;
+
+        return hashCode() == that.hashCode() && hashcode.equals(that.hashcode);
+    }
+
+    @Override
+    public int hashCode() {
+        if (hashcode == null) {
+            hashcode = AbaloneZobrist.getInstance().hashCode(this);
+        }
+        return Long.hashCode(hashcode);
     }
 
     @Override
