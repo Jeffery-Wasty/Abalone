@@ -131,6 +131,10 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
         return value;
     }
 
+    public void setHeuristicCalculator(HeuristicCalculator<G> heuristicCalculator) {
+        this.heuristicCalculator = heuristicCalculator;
+    }
+
     public boolean isEarlyTermination() {
         return earlyTermination;
     }
