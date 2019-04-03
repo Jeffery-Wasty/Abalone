@@ -3,7 +3,6 @@ package ca.bcit.abalone.ai;
 import ca.bcit.abalone.game.Game;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private HeuristicCalculator<G> heuristicCalculator;
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
-    private HashMap<G, History> transpositionTable = new HashMap<G, History>();
+    private int searchedCount = 0;
+    //    private HashMap<G, History> transpositionTable = new HashMap<G, History>();
+    private TranspositionTable maxTranspositionTable = new TranspositionTable(28);
+    private TranspositionTable minTranspositionTable = new TranspositionTable(28);
+
     private G rootGame;
 
     public DepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator, QuiescenceSearch<G> quiescenceSearch) {
@@ -30,6 +33,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     }
 
     public A play(G game, int maxLevel) {
+        searchedCount = 0;
         rootGame = game;
         this.maxLevel = maxLevel;
         threadPoolExecutor = Executors.newFixedThreadPool(4);
@@ -66,7 +70,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             System.out.println(LocalDateTime.now() + " Level " + maxLevel + " Search Terminated");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + "heuristic: " + value);
+        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
@@ -93,7 +97,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             System.out.println(LocalDateTime.now() + " Level " + maxLevel + " Search Terminated ");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + "heuristic: " + value);
+        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
@@ -101,18 +105,21 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        if (level <= 0
+        TranspositionTable transpositionTable = getTable(game.isPlayerMax(game.getPlayer()));
+        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
+        if (h != null && h.depth >= level - quiescenceDepth) {
+            return h.value;
+        }
+        if (
+                level <= 0
 //                level <= quiescenceDepth
 //                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
-                || game.isTerminal()) {
+                        || game.isTerminal()) {
+            searchedCount++;
             if (level <= 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
-        }
-        History h = transpositionTable.get(game);
-        if (h != null && h.depth >= level) {
-            return h.value;
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
@@ -125,9 +132,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             alpha = Math.max(alpha, value);
         }
-        if (h == null || h.depth < level) {
-            transpositionTable.put(game, new History(level - quiescenceDepth, value));
-        }
+
+        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level - quiescenceDepth, value));
+
         return value;
     }
 
@@ -135,18 +142,21 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        if (level <= 0
+        TranspositionTable transpositionTable = getTable(game.isPlayerMax(game.getPlayer()));
+        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
+        if (h != null && h.depth >= level - quiescenceDepth) {
+            return h.value;
+        }
+        if (
+                level <= 0
 //                level <= quiescenceDepth
 //                || (level <= 0 && !quiescenceSearch.shouldSearchFurther(rootGame, game))
-                || game.isTerminal()) {
+                        || game.isTerminal()) {
+            searchedCount++;
             if (level <= 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game);
-        }
-        History h = transpositionTable.get(game);
-        if (h != null && h.depth >= level) {
-            return h.value;
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
@@ -159,14 +169,23 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             beta = Math.min(beta, value);
         }
-        if (h == null || h.depth < level) {
-            transpositionTable.put(game, new History(level - quiescenceDepth, value));
-        }
+
+        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level - quiescenceDepth, value));
+
         return value;
+
     }
 
-    public void resetTranspositionTable() {
-        transpositionTable = new HashMap<G, History>();
+//    public void resetTranspositionTable() {
+//        transpositionTable = new HashMap<G, History>();
+//    }
+
+    private TranspositionTable getTable(boolean isPlayerMax) {
+        if (isPlayerMax) {
+            return maxTranspositionTable;
+        } else {
+            return minTranspositionTable;
+        }
     }
 
     public boolean isEarlyTermination() {
@@ -179,17 +198,6 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
 
     public void setTerminate(boolean terminate) {
         this.terminate = terminate;
-    }
-
-    public static class History {
-
-        public final int depth;
-        public final int value;
-
-        public History(int depth, int value) {
-            this.depth = depth;
-            this.value = value;
-        }
     }
 
 }

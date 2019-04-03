@@ -63,4 +63,6 @@ public abstract class Game<P, S, A> {
         return utility;
     }
 
+    public abstract long zobristKey();
+
 }
