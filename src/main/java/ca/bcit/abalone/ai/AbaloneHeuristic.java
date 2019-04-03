@@ -30,13 +30,6 @@ public class AbaloneHeuristic {
                     break;
             }
         }
-        if (game.isTerminal()) {
-            if (game.getUtility() > 0) {
-                heuristic += Short.MAX_VALUE;
-            } else if (game.getUtility() < 0) {
-                heuristic += Short.MIN_VALUE;
-            }
-        }
         return heuristic;
     };
 

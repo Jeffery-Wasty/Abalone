@@ -2,7 +2,10 @@ package ca.bcit.abalone.game;
 
 import ca.bcit.abalone.ai.AbaloneZobrist;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
@@ -155,9 +158,6 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
     }
 
     private void addMarbleActions(int loc, ArrayList<Action> validActions) {
-        if (loc < 0 || loc >= 61) {
-            return;
-        }
         for (int i = 1; i <= 3; i++) {
             for (int j = 0; j < 6; j++) {
                 AbaloneAction action = new AbaloneAction(i, loc, j);
@@ -220,18 +220,18 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     public static class State {
         private char[] board;
-        private byte turn;
+        private int turn;
 
         public State(char[] board, int turn) {
             this.board = board;
-            this.turn = (byte) turn;
+            this.turn = turn;
         }
 
         public char[] getBoard() {
             return board;
         }
 
-        public byte getTurn() {
+        public int getTurn() {
             return turn;
         }
     }
@@ -550,10 +550,14 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     @Override
     public int hashCode() {
+        return Long.hashCode(zobristKey());
+    }
+
+    public long zobristKey() {
         if (hashcode == null) {
             hashcode = AbaloneZobrist.getInstance().hashCode(this);
         }
-        return Long.hashCode(hashcode);
+        return hashcode;
     }
 
     @Override
@@ -572,4 +576,10 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         }
         return sb.toString();
     }
+
+    public static void main(String[] args) {
+        // check if nodes are actually ordered
+        System.out.println(Arrays.toString(new AbaloneGame(new State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1).actions()));
+    }
+
 }
