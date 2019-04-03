@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
+class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
 
     private ExecutorService threadPoolExecutor;
     private int maxLevel;
@@ -18,11 +18,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private boolean earlyTermination;
     private HeuristicCalculator<G> heuristicCalculator;
 
-    public DepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator) {
+    DepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator) {
         this.heuristicCalculator = heuristicCalculator;
     }
 
-    public A play(G game, int maxLevel) {
+    A play(G game, int maxLevel) {
         this.maxLevel = maxLevel;
         threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
@@ -132,15 +132,15 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         return value;
     }
 
-    public boolean isEarlyTermination() {
+    boolean isEarlyTermination() {
         return earlyTermination;
     }
 
-    public boolean isTerminate() {
+    boolean isTerminate() {
         return terminate;
     }
 
-    public void setTerminate(boolean terminate) {
+    void setTerminate(boolean terminate) {
         this.terminate = terminate;
     }
 }

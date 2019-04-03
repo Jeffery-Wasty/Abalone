@@ -220,6 +220,10 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             return board;
         }
 
+//        public int getAdj(char c) {
+//
+//        }
+
         public byte getTurn() {
             return turn;
         }

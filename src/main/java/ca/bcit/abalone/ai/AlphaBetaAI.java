@@ -16,7 +16,6 @@ public class AlphaBetaAI<P, S, A> {
         }
         A action = null;
         int value = Integer.MIN_VALUE;
-        int s = (int) (Math.random() * game.actions().length);
         for (A a : game.actions()) {
             int result = minValue(game.result(a), alpha, beta);
             if (result > value) {
@@ -84,5 +83,4 @@ public class AlphaBetaAI<P, S, A> {
         }
         return value;
     }
-
 }

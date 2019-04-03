@@ -21,9 +21,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
         endTime = System.currentTimeMillis() + timeLimit;
         this.step = step;
 
-        Thread thread = new Thread(() -> {
-            searchNextLevel(game);
-        });
+        Thread thread = new Thread(() -> searchNextLevel(game));
         thread.start();
 
         while (!depthLimitAI.isTerminate() && System.currentTimeMillis() < endTime) {
