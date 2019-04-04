@@ -2,10 +2,7 @@ package ca.bcit.abalone.game;
 
 import ca.bcit.abalone.ai.AbaloneZobrist;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.Action> {
 
@@ -151,9 +148,12 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         for (int loc = 0; loc < state.board.length; loc++) {
             addMarbleActions(loc, validActions);
         }
-//        Collections.shuffle(validActions);
         AbaloneGame.Action[] actions = validActions.toArray(new AbaloneGame.Action[0]);
-        Arrays.sort(actions, Action::compareTo);
+        if (state.turn == 1) {
+            Collections.shuffle(validActions);
+        } else {
+            Arrays.sort(actions, Action::compareTo);
+        }
         return actions;
     }
 
