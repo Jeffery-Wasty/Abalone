@@ -148,10 +148,11 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
         for (int loc = 0; loc < state.board.length; loc++) {
             addMarbleActions(loc, validActions);
         }
-        AbaloneGame.Action[] actions = validActions.toArray(new AbaloneGame.Action[0]);
         if (state.turn == 1) {
             Collections.shuffle(validActions);
-        } else {
+        }
+        AbaloneGame.Action[] actions = validActions.toArray(new AbaloneGame.Action[0]);
+        if (state.turn != 1) {
             Arrays.sort(actions, Action::compareTo);
         }
         return actions;
