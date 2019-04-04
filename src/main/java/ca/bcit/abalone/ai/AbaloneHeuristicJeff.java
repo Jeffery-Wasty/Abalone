@@ -20,7 +20,7 @@ public class AbaloneHeuristicJeff {
             1, 1, 1, 1, 1,
     };
 
-    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristic = (game) -> {
+    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristic = (game, rootGame) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
 
@@ -52,7 +52,7 @@ public class AbaloneHeuristicJeff {
 
     public static void main(String[] args) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
-        System.out.println(simplePositionWeightedHeuristic.getHeuristic(game));
+//        System.out.println(simplePositionWeightedHeuristic.getHeuristic(game, game));
     }
 
 }

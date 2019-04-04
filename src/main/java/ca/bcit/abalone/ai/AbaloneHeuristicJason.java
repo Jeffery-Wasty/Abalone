@@ -80,19 +80,17 @@ public class AbaloneHeuristicJason {
             {59, 54, 55, -1, -1, -1},
     };
 
-    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristicJason = (game) -> {
+    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristicJason = (game, rootGame) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
             char marble = state[i];
             switch (marble) {
                 case AbaloneGame.BLACK:
-                    heuristic += simpleHeuristicValue2(state, i);
-                    heuristic += 110;
+                    heuristic += simpleHeuristicValue2(state, i, rootGame.getPlayer() == marble);
                     break;
                 case AbaloneGame.WHITE:
-                    heuristic -= simpleHeuristicValue2(state, i) * 1.2;
-                    heuristic -= 100;
+                    heuristic -= simpleHeuristicValue2(state, i, rootGame.getPlayer() == marble);
                     break;
             }
         }
@@ -140,7 +138,7 @@ public class AbaloneHeuristicJason {
         return h;
     }
 
-    public static int simpleHeuristicValue2(char[] state, int selectedPos) {
+    public static int simpleHeuristicValue2(char[] state, int selectedPos, boolean isPlayer) {
         int h = POSITION_WEIGHT_MAP[selectedPos]*5;
         byte[] destPos = LOCATION_LOOKUP_TABLE[selectedPos];
         char playerState = state[selectedPos];
@@ -162,12 +160,20 @@ public class AbaloneHeuristicJason {
             h = h + 1;
         }
 
+        if (!isPlayer) {
+            h *= 1.2;
+        } else {
+            h += 10;
+        }
+
+        h += 100;
+
         return h;
     }
 
     public static void main(String[] args) {
-        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
-        System.out.println(simplePositionWeightedHeuristicJason.getHeuristic(game));
+        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 2), -1);
+        System.out.println(simplePositionWeightedHeuristicJason.getHeuristic(game, game));
     }
 
 }

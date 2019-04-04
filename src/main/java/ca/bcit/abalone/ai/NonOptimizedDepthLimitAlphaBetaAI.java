@@ -17,6 +17,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
     private A action;
     private boolean earlyTermination;
     private HeuristicCalculator<G> heuristicCalculator;
+    private G rootGame;
 
     public NonOptimizedDepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator) {
         this.heuristicCalculator = heuristicCalculator;
@@ -24,6 +25,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
 
     public A play(G game, int maxLevel) {
         this.maxLevel = maxLevel;
+        rootGame = game;
         threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
@@ -94,7 +96,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
             if (level > maxLevel) {
                 earlyTermination = true;
             }
-            return heuristicCalculator.getHeuristic(game);
+            return heuristicCalculator.getHeuristic(game, rootGame);
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
@@ -115,7 +117,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
             if (level > maxLevel) {
                 earlyTermination = true;
             }
-            return heuristicCalculator.getHeuristic(game);
+            return heuristicCalculator.getHeuristic(game, rootGame);
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {

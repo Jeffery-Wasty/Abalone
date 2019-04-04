@@ -119,7 +119,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             if (level <= 0) {
                 earlyTermination = true;
             }
-            return heuristicCalculator.getHeuristic(game);
+            return heuristicCalculator.getHeuristic(game, rootGame);
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
@@ -157,7 +157,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             if (level <= 0) {
                 earlyTermination = true;
             }
-            return heuristicCalculator.getHeuristic(game);
+            return heuristicCalculator.getHeuristic(game, rootGame);
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {

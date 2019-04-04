@@ -16,8 +16,7 @@ public class AbaloneHeuristicDavid {
             1, 1, 1, 1, 1,
     };
 
-
-    public static HeuristicCalculator<AbaloneGame> positionWeightedHeuristicDavid = (game) -> {
+    public static HeuristicCalculator<AbaloneGame> positionWeightedHeuristicDavid = (game, rootGame) -> {
         if (game.isTerminal()) {
             if (game.getUtility() > 0) {
                 return Short.MAX_VALUE;
@@ -112,7 +111,7 @@ public class AbaloneHeuristicDavid {
 
     public static void main(String[] args) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
-        System.out.println(positionWeightedHeuristicDavid.getHeuristic(game));
+//        System.out.println(positionWeightedHeuristicDavid.getHeuristic(game, game));
     }
 
 }

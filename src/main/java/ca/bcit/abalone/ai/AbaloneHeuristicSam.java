@@ -95,7 +95,7 @@ public class AbaloneHeuristicSam {
         return surroundingAllyPieces;
     }
 
-    public static HeuristicCalculator<AbaloneGame> positionAndEnemyOutsideHeuristic = (game) -> {
+    public static HeuristicCalculator<AbaloneGame> positionAndEnemyOutsideHeuristic = (game, rootGame) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
 
@@ -118,7 +118,7 @@ public class AbaloneHeuristicSam {
         return heuristic;
     };
 
-    public static HeuristicCalculator<AbaloneGame> positionAndEnemyOutsideHeuristic2 = (game) -> {
+    public static HeuristicCalculator<AbaloneGame> positionAndEnemyOutsideHeuristic2 = (game, rootGame) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
 
@@ -141,7 +141,7 @@ public class AbaloneHeuristicSam {
         return heuristic;
     };
 
-    public static HeuristicCalculator<AbaloneGame> positionAndEnemyOutsideHeuristic2Point5 = (game) -> {
+    public static HeuristicCalculator<AbaloneGame> positionAndEnemyOutsideHeuristic2Point5 = (game, rootGame) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
 
