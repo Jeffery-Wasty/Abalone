@@ -21,14 +21,14 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         AbaloneGame.Action action;
-//        if (turn % 2 == 1) {
-//            ai2.setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
-//            action = ai2.search(game, timeLimit * 1000 - 100, 3, 1);
-//        } else {
-//            ai2.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
-//            action = ai2.search(game, timeLimit * 1000 - 100, 3, 1);
-//        }
+        if (turn % 2 == 1) {
+            ai1.setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
             action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
+        } else {
+            ai1.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
+            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
+        }
+//            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
 
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {
