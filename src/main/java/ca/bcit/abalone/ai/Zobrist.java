@@ -2,10 +2,10 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.Game;
 
-public abstract class Zobrist<P, S, A, G extends Game<P, S, A>> {
+public interface Zobrist<P, S, A, G extends Game<P, S, A>> {
 
-    protected long[][] zobrist;
+    long hashCode(G game);
 
-    abstract public long hashCode(G game);
+    long hashCode(G game, A action);
 
 }

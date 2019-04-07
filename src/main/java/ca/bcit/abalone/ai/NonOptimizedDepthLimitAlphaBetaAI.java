@@ -26,7 +26,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
     public A play(G game, int maxLevel) {
         this.maxLevel = maxLevel;
         rootGame = game;
-        threadPoolExecutor = Executors.newFixedThreadPool(4);
+        threadPoolExecutor = Executors.newFixedThreadPool(1);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
@@ -45,7 +45,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = minValue(game.result(a), alpha, beta, 1);
+                int result = minValue(game.result(a), alpha, beta, maxLevel - 1);
                 if (result > value) {
                     value = result;
                     action = a;
@@ -72,7 +72,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = maxValue(game.result(a), alpha, beta, 1);
+                int result = maxValue(game.result(a), alpha, beta, maxLevel - 1);
                 if (result < value) {
                     value = result;
                     action = a;
@@ -92,15 +92,15 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
     }
 
     private int maxValue(G game, int alpha, int beta, int level) {
-        if (terminate || level > maxLevel || game.isTerminal()) {
-            if (level > maxLevel) {
+        if (terminate || level <= 0 || game.isTerminal()) {
+            if (level <= 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game, rootGame);
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
-            int result = minValue(game.result(a), alpha, beta, level + 1);
+            int result = minValue(game.result(a), alpha, beta, level - 1);
             if (result > value) {
                 value = result;
             }
@@ -113,15 +113,15 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
     }
 
     private int minValue(G game, int alpha, int beta, int level) {
-        if (terminate || level > maxLevel || game.isTerminal()) {
-            if (level > maxLevel) {
+        if (terminate || level <= 0 || game.isTerminal()) {
+            if (level <= 0) {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game, rootGame);
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
-            int result = maxValue(game.result(a), alpha, beta, level + 1);
+            int result = maxValue(game.result(a), alpha, beta, level - 1);
             if (result < value) {
                 value = result;
             }

@@ -32,9 +32,9 @@ public class NonOptimizedTimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
         while (!depthLimitAI.isTerminate() && System.currentTimeMillis() < endTime) {
             try {
-                TimeUnit.MILLISECONDS.sleep(10);
+                TimeUnit.MILLISECONDS.sleep(100);
                 long waitTime = System.currentTimeMillis() - prevCheckTime;
-                if (waitTime > 20) {
+                if (waitTime > 110) {
                     System.err.println("Waited " + waitTime + "ms");
                 }
                 prevCheckTime = System.currentTimeMillis();

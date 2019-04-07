@@ -1,10 +1,9 @@
 package ca.bcit.abalone.ai;
 
-import ca.bcit.abalone.game.AbaloneGame;
-
 public class TranspositionTable {
 
     private final int capacity;
+    private final int bitMask;
     private int size = 0;
     private int collision = 0;
     private int hit = 0;
@@ -12,11 +11,12 @@ public class TranspositionTable {
 
     public TranspositionTable(int capacity) {
         this.capacity = 1 << capacity;
+        bitMask = (1 << capacity) - 1;
         transpositionTable = new History[this.capacity];
     }
 
     public History get(long key) {
-        int ndx = (int) (((key % capacity) + capacity) % capacity);
+        int ndx = (int) (key & bitMask);
         History history = transpositionTable[ndx];
         if (history != null && history.zobristKey == key) {
             return history;
@@ -25,18 +25,18 @@ public class TranspositionTable {
     }
 
     public void put(long key, History history) {
-        int ndx = (int) (((key % capacity) + capacity) % capacity);
+        int ndx = (int) (key & bitMask);
         History prev = transpositionTable[ndx];
         if (prev != null && prev.zobristKey == key && prev.depth > history.depth) {
             return;
         }
-//        if (prev == null) {
-//            size++;
-//        } else if (prev.zobristKey != key) {
-//            collision++;
-//        } else {
-//            hit++;
-//        }
+        if (prev == null) {
+            size++;
+        } else if (prev.zobristKey != key) {
+            collision++;
+        } else {
+            hit++;
+        }
         transpositionTable[ndx] = history;
     }
 
@@ -46,6 +46,18 @@ public class TranspositionTable {
 
     public int size() {
         return size;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getCollision() {
+        return collision;
+    }
+
+    public int getHit() {
+        return hit;
     }
 
     public static class History {
@@ -60,33 +72,6 @@ public class TranspositionTable {
             this.value = value;
         }
 
-    }
-
-    public static class Benchmark {
-
-        TranspositionTable table = new TranspositionTable(26);
-
-        public void benchmark(AbaloneGame game, int level) {
-            if (level == 0) {
-                return;
-            }
-            for (AbaloneGame.Action a : game.actions()) {
-                AbaloneGame next = game.result(a);
-                table.put(next.zobristKey(), new History(next.zobristKey(), 1, 1));
-                benchmark(next, level - 1);
-            }
-        }
-
-    }
-
-    public static void main(String[] args) {
-        AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 1), -1);
-        Benchmark benchmark = new Benchmark();
-        benchmark.benchmark(game, 4);
-        System.out.println("Capacity: " + benchmark.table.capacity);
-        System.out.println("Size: " + benchmark.table.size);
-        System.out.println("Hit: " + benchmark.table.hit);
-        System.out.println("Collisions: " + benchmark.table.collision);
     }
 
 }

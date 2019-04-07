@@ -32,9 +32,9 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
         while (!depthLimitAI.isTerminate() && System.currentTimeMillis() < endTime) {
             try {
-                TimeUnit.MILLISECONDS.sleep(10);
+                TimeUnit.MILLISECONDS.sleep(100);
                 long waitTime = System.currentTimeMillis() - prevCheckTime;
-                if (waitTime > 100) {
+                if (waitTime > 110) {
                     System.err.println("Waited " + waitTime + "ms");
                 }
                 prevCheckTime = System.currentTimeMillis();
@@ -45,7 +45,6 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
         thread.interrupt();
         depthLimitAI.setTerminate(true);
-//        depthLimitAI.resetTranspositionTable();
 
         return action;
     }
@@ -69,7 +68,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
             depthLimitAI.setTerminate(true);
             return;
         }
-        if (System.currentTimeMillis() + Math.pow(2, step) * timeSpent > endTime) {
+        if (System.currentTimeMillis() + Math.pow(10, step) * timeSpent > endTime) {
             System.out.println("Terminate search since the remaining time is less the spent time at this level");
             depthLimitAI.setTerminate(true);
             return;
