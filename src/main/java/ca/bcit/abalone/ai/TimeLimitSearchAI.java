@@ -16,7 +16,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
         this.depthLimitAI = new DepthLimitAlphaBetaAI<>(heuristicCalculator, quiescenceSearch);
     }
 
-    public A search(G game, long timeLimit, int initialLevel, int step) {
+    public A search(G game, AbaloneHeuristicJason.AdditionalInfo info, long timeLimit, int initialLevel, int step) {
         depthLimitAI.setTerminate(false);
         action = null;
         level = initialLevel;
@@ -24,7 +24,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
         this.step = step;
 
         Thread thread = new Thread(() -> {
-            searchNextLevel(game);
+            searchNextLevel(game, info);
         });
         thread.start();
 
@@ -49,13 +49,13 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
         return action;
     }
 
-    private void searchNextLevel(G game) {
+    private void searchNextLevel(G game, AbaloneHeuristicJason.AdditionalInfo info) {
         if (System.currentTimeMillis() > endTime) {
             return;
         }
         System.out.println("Start searching level " + level);
         long timeSpent = System.currentTimeMillis();
-        A possibleAction = depthLimitAI.play(game, level);
+        A possibleAction = depthLimitAI.play(game, info, level);
         if (depthLimitAI.isTerminate() || System.currentTimeMillis() > endTime) {
             System.out.println("Terminate current search, result discarded.");
             return;
@@ -74,7 +74,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
             return;
         }
         level += step;
-        searchNextLevel(game);
+        searchNextLevel(game, info);
     }
 
     public void setHeuristicCalculator(HeuristicCalculator<G> heuristicCalculator) {

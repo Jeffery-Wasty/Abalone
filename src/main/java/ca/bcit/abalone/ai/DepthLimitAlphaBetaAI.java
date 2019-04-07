@@ -18,6 +18,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private A action;
     private boolean earlyTermination;
     private HeuristicCalculator<G> heuristicCalculator;
+    private AbaloneHeuristicJason.AdditionalInfo info;
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
     private int searchedCount = 0;
@@ -30,8 +31,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         this.quiescenceSearch = quiescenceSearch;
     }
 
-    public A play(G game, int maxLevel) {
+    public A play(G game, AbaloneHeuristicJason.AdditionalInfo info, int maxLevel) {
         searchedCount = 0;
+        this.info = info;
         rootGame = game;
         this.maxLevel = maxLevel;
         threadPoolExecutor = Executors.newFixedThreadPool(1);
@@ -103,11 +105,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
-        if (h != null && h.depth >= level) {
-            earlyTermination = true;
-            return h.value;
-        }
+//        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
+//        if (h != null && h.depth >= level) {
+//            earlyTermination = true;
+//            return h.value;
+//        }
         if (
                 level <= 0
 //                level <= quiescenceDepth
@@ -117,7 +119,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             if (level <= 0) {
                 earlyTermination = true;
             }
-            return heuristicCalculator.getHeuristic(game, rootGame);
+            return heuristicCalculator.getHeuristic(game, rootGame, info);
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
@@ -131,7 +133,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             alpha = Math.max(alpha, value);
         }
 
-        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level, value));
+//        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level, value));
 
         return value;
     }
@@ -140,11 +142,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
-        if (h != null && h.depth >= level) {
-            earlyTermination = true;
-            return h.value;
-        }
+//        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
+//        if (h != null && h.depth >= level) {
+//            earlyTermination = true;
+//            return h.value;
+//        }
         if (
                 level <= 0
 //                level <= quiescenceDepth
@@ -154,7 +156,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             if (level <= 0) {
                 earlyTermination = true;
             }
-            return heuristicCalculator.getHeuristic(game, rootGame);
+            return heuristicCalculator.getHeuristic(game, rootGame, info);
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
@@ -168,7 +170,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             beta = Math.min(beta, value);
         }
 
-        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level, value));
+//        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level, value));
 
         return value;
 

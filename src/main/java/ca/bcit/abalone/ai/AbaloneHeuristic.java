@@ -16,7 +16,7 @@ public class AbaloneHeuristic {
             1, 1, 1, 1, 1,
     };
 
-    public static final HeuristicCalculator<AbaloneGame> SIMPLE_POSITION_WEIGHTED_HEURISTIC = (game, rootGame) -> {
+    public static final HeuristicCalculator<AbaloneGame> SIMPLE_POSITION_WEIGHTED_HEURISTIC = (game, rootGame, info) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
@@ -27,23 +27,6 @@ public class AbaloneHeuristic {
                     break;
                 case AbaloneGame.WHITE:
                     heuristic -= (POSITION_WEIGHT_MAP[i] + 50);
-                    break;
-            }
-        }
-        return heuristic;
-    };
-
-    public static final HeuristicCalculator<AbaloneGame> SIMPLE_POSITION_WEIGHTED_HEURISTIC_2 = (game, rootGame) -> {
-        int heuristic = 0;
-        char[] state = game.state.getBoard();
-        for (int i = 0; i < state.length; i++) {
-            char marble = state[i];
-            switch (marble) {
-                case AbaloneGame.BLACK:
-                    heuristic += simpleHeuristicValue(state, i);
-                    break;
-                case AbaloneGame.WHITE:
-                    heuristic -= simpleHeuristicValue(state, i);
                     break;
             }
         }

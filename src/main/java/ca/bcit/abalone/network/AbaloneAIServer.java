@@ -1,9 +1,6 @@
 package ca.bcit.abalone.network;
 
-import ca.bcit.abalone.ai.AbaloneHeuristic;
-import ca.bcit.abalone.ai.AbaloneQuiescenceSearch;
-import ca.bcit.abalone.ai.NonOptimizedTimeLimitSearchAI;
-import ca.bcit.abalone.ai.TimeLimitSearchAI;
+import ca.bcit.abalone.ai.*;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
 
@@ -17,19 +14,19 @@ import java.util.Scanner;
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
     private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 =
-            new TimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
+            new TimeLimitSearchAI<>(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
     private NonOptimizedTimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 =
             new NonOptimizedTimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
 
-    private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
+    private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn, AbaloneHeuristicJason.AdditionalInfo info) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         AbaloneGame.Action action;
         if (turn % 2 == 1) {
 //            ai1.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
-            action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
+            action = ai1.search(game, info, timeLimit * 1000 - 100, 1, 1);
         } else {
 //            ai1.setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
-            action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
+            action = ai1.search(game, info, timeLimit * 1000 - 100, 1, 1);
         }
 //            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
 
@@ -96,10 +93,11 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
                     int timeLimit = Integer.parseInt(query.get("timeLimit"));
                     int turnLimit = Integer.parseInt(query.get("turnLimit"));
                     int turn = Integer.parseInt(query.get("turn"));
+                    int layout = Integer.parseInt(query.get("layout"));
 
                     return new HashMap<String, String>() {{
                         try {
-                            String result = getNextStateByAI(state, turnLimit * 2, timeLimit, turn);
+                            String result = getNextStateByAI(state, turnLimit * 2, timeLimit, turn, new AbaloneHeuristicJason.AdditionalInfo(layout));
                             put("action", result);
                         } catch (NullPointerException e) {
                             put("error", "No Action generated, either spent too much time on first search or the game has reached terminal");

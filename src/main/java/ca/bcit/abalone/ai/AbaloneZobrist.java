@@ -40,6 +40,26 @@ public class AbaloneZobrist implements Zobrist<Character, AbaloneGame.State, Aba
         return hashValue;
     }
 
+    public long hashCode(AbaloneGame game, int rotation) {
+        char[] state = game.state.getBoard();
+        long hashValue = 0;
+        byte[] road = AbaloneGame.ROTATION_ABALONE[rotation];
+        for (byte i : road) {
+            switch (state[i]) {
+                case AbaloneGame.BLACK:
+                    hashValue ^= zobrist[1][i];
+                    break;
+                case AbaloneGame.WHITE:
+                    hashValue ^= zobrist[0][i];
+                    break;
+            }
+        }
+        if (game.getPlayer() == AbaloneGame.BLACK) {
+            hashValue ^= MAX_PLAYER_VALUE;
+        }
+        return hashValue;
+    }
+
     @Override
     public long hashCode(AbaloneGame game, AbaloneGame.Action action) {
         return hashCode(game);

@@ -715,7 +715,8 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
 
     public static void main(String[] args) {
         // check if nodes are actually ordered
-        System.out.println(Arrays.toString(new AbaloneGame(new State(AbaloneGame.STANDARD_INITIAL_STATE, 1), -1).actions()));
+        System.out.println(Arrays.toString(new AbaloneGame(new State(AbaloneGame.STANDARD_INITIAL_STATE, 3), -1).actions()));
+        System.out.println(Arrays.toString(new AbaloneGame(new State(AbaloneGame.STANDARD_INITIAL_STATE, 2), -1).actions()));
     }
 
 }

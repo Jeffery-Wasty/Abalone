@@ -4,6 +4,14 @@ import ca.bcit.abalone.game.AbaloneGame;
 
 public class AbaloneHeuristicJason {
 
+    public static class AdditionalInfo {
+        public final int layout;
+
+        public AdditionalInfo(int layout) {
+            this.layout = layout;
+        }
+    }
+
     public static final int[] POSITION_WEIGHT_MAP = new int[]{
             1, 1, 1, 1, 1,
             1, 2, 2, 2, 2, 1,
@@ -80,7 +88,7 @@ public class AbaloneHeuristicJason {
             {59, 54, 55, -1, -1, -1},
     };
 
-    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristicJason = (game, rootGame) -> {
+    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristicJason = (game, rootGame, info) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
@@ -94,6 +102,7 @@ public class AbaloneHeuristicJason {
                     break;
             }
         }
+//        info.layout
         return heuristic;
     };
 
@@ -173,7 +182,6 @@ public class AbaloneHeuristicJason {
 
     public static void main(String[] args) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 2), -1);
-        System.out.println(simplePositionWeightedHeuristicJason.getHeuristic(game, game));
     }
 
 }

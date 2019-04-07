@@ -19,6 +19,7 @@ public class TranspositionTable {
         int ndx = (int) (key & bitMask);
         History history = transpositionTable[ndx];
         if (history != null && history.zobristKey == key) {
+            hit++;
             return history;
         }
         return null;
@@ -34,8 +35,6 @@ public class TranspositionTable {
             size++;
         } else if (prev.zobristKey != key) {
             collision++;
-        } else {
-            hit++;
         }
         transpositionTable[ndx] = history;
     }
