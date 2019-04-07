@@ -24,6 +24,30 @@ public class AbaloneHeuristicJason {
             1, 1, 1, 1, 1,
     };
 
+    private static final int[] POSITION_WEIGHT_MAP2 = new int[]{
+            1, 1, 1, 1, 1,
+            1, 2, 2, 2, 2, 1,
+            1, 2, 5, 5, 5, 2, 1,
+            1, 2, 5, 8, 8, 5, 2, 1,
+            1, 2, 5, 8, 9, 8, 5, 2, 1,
+            1, 2, 5, 8, 8, 5, 2, 1,
+            1, 2, 5, 5, 5, 2, 1,
+            1, 2, 2, 2, 2, 1,
+            1, 1, 1, 1, 1,
+    };
+
+    private static final int[] POSITION_WEIGHT_MAP3 = new int[]{
+            1, 1, 1, 1, 1,
+            1, 2, 2, 2, 2, 1,
+            1, 2, 4, 4, 4, 2, 1,
+            1, 2, 4, 6, 6, 5, 2, 1,
+            1, 2, 4, 6, 7, 6, 5, 2, 1,
+            1, 2, 4, 6, 6, 6, 2, 1,
+            1, 2, 4, 4, 5, 2, 1,
+            1, 2, 2, 2, 2, 1,
+            1, 1, 1, 1, 1,
+    };
+
     public static final byte[][] LOCATION_LOOKUP_TABLE = new byte[][]{
             {-1, -1, -1, 5, 6, 1},
             {0, -1, -1, 6, 7, 2},
@@ -88,97 +112,132 @@ public class AbaloneHeuristicJason {
             {59, 54, 55, -1, -1, -1},
     };
 
-    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristicJason = (game, rootGame, info) -> {
+    public static HeuristicCalculator<AbaloneGame> simplePositionWeightedHeuristic = (game, rootGame, info) -> {
         int heuristic = 0;
         char[] state = game.state.getBoard();
         for (int i = 0; i < state.length; i++) {
-            char marble = state[i];
-            switch (marble) {
+            switch (state[i]) {
                 case AbaloneGame.BLACK:
-                    heuristic += simpleHeuristicValue2(state, i, rootGame.getPlayer() == marble);
+                    heuristic += simpleHeuristicValue(state, i, rootGame.getPlayer(), info.layout);
                     break;
                 case AbaloneGame.WHITE:
-                    heuristic -= simpleHeuristicValue2(state, i, rootGame.getPlayer() == marble);
+                    heuristic -= simpleHeuristicValue(state, i, rootGame.getPlayer(), info.layout);
                     break;
             }
         }
-//        info.layout
+
         return heuristic;
     };
 
+    public static int simpleHeuristicValue(char[] state, int pos, char playerMarble, int layout) {
+        final int MARBLE_POINT = 100;
+        final int PLAYER_BONUS = 10;
+        double factor = calculateFactor(playerMarble, layout);
+        int[] position_map = getPositionMap(playerMarble, layout);
 
-    public static int simpleHeuristicValue(char[] state, int selectedPos) {
-        int h = POSITION_WEIGHT_MAP[selectedPos] * 2;
-        byte[] destPos = LOCATION_LOOKUP_TABLE[selectedPos];
-        int numOfAlly = 0;
+        int h = position_map[pos] * 2;
+        byte[] destPos = LOCATION_LOOKUP_TABLE[pos];
 
-        //check diagonal direction
-        for (int i = 0; i < 3; i++) {
-            int nextPos = destPos[i];
-            int oppositeNextPos = destPos[5 - i];
-            //check if ally neighbour
-            if (nextPos != -1 && oppositeNextPos != -1 && state[nextPos] == state[selectedPos] && state[oppositeNextPos] == state[selectedPos]) {
-                h = h + 3;
-                numOfAlly = numOfAlly + 2;
-            } else if (nextPos != -1 && state[nextPos] == state[selectedPos]) {
-                h++;
-                numOfAlly++;
-
-                int nextTwoPos = LOCATION_LOOKUP_TABLE[nextPos][i];
-                if (nextTwoPos != -1 && state[nextTwoPos] == state[selectedPos]) {
-                    h++;
-                }
-
-            } else if ((oppositeNextPos != -1 && state[oppositeNextPos] == state[selectedPos])) {
-                h++;
-                numOfAlly++;
-
-                int nextTwoPos = LOCATION_LOOKUP_TABLE[oppositeNextPos][5 - i];
-                if (nextTwoPos != -1 && state[nextTwoPos] == state[selectedPos]) {
-                    h++;
-                }
-            }
-        }
-
-        if(numOfAlly == 6 || numOfAlly == 0){
-            h = h + 5;
-        }
-
-        return h;
-    }
-
-    public static int simpleHeuristicValue2(char[] state, int selectedPos, boolean isPlayer) {
-        int h = POSITION_WEIGHT_MAP[selectedPos]*5;
-        byte[] destPos = LOCATION_LOOKUP_TABLE[selectedPos];
-        char playerState = state[selectedPos];
-        char opponentState = state[selectedPos] == '@'? 'O' : '@';
-        int numOfAlly = 0;
-        int numOfEnmiy = 0;
+        char allyMarble = state[pos];
+        boolean isPlayer = (playerMarble == allyMarble);
+        boolean sixStar = true;
 
         for (int i = 0; i < destPos.length; i++) {
             int nextPos = destPos[i];
-            if (nextPos != -1 && state[nextPos] == playerState ) {
+            if (nextPos != -1 && state[nextPos] == allyMarble) {
                 h++;
-                numOfAlly++;
-            } else if (nextPos != -1 && state[nextPos] == opponentState ) {
-                numOfEnmiy++;
+            } else {
+                sixStar = false;
             }
         }
 
-        if(numOfAlly == 6 || numOfEnmiy == 6){
-            h = h + 1;
+        if (sixStar) {
+            h++;
         }
 
         if (!isPlayer) {
-            h *= 1.2;
+            h *= factor;
         } else {
-            h += 10;
+            h += PLAYER_BONUS;
         }
 
-        h += 100;
+        h += MARBLE_POINT;
 
         return h;
     }
+
+    private static int[] getPositionMap(char playerMarble, int layout) {
+        int[] map = POSITION_WEIGHT_MAP;
+        if (playerMarble == '@' && layout == 1) {
+            map = POSITION_WEIGHT_MAP2;
+        } else if (playerMarble == '@' && layout == 2) {
+            map = POSITION_WEIGHT_MAP2;
+        } else if (playerMarble == '@' && layout == 3) {
+            map = POSITION_WEIGHT_MAP3;
+        } else if (playerMarble == 'O' && layout == 1) {
+            map = POSITION_WEIGHT_MAP;
+        } else if (playerMarble == 'O' && layout == 2) {
+            map = POSITION_WEIGHT_MAP;
+        } else if (playerMarble == 'O' && layout == 3) {
+            map = POSITION_WEIGHT_MAP;
+        }
+
+        return map;
+    }
+
+    private static double calculateFactor(char playerMarble, int layout) {
+        double factor = 1.0;
+        if (playerMarble == '@' && layout == 1) {
+            factor = 1.2;
+        } else if (playerMarble == '@' && layout == 2) {
+            factor = 1.3;
+        } else if (playerMarble == '@' && layout == 3) {
+            factor = 0.9;
+        } else if (playerMarble == 'O' && layout == 1) {
+            factor = 1.4;
+        } else if (playerMarble == 'O' && layout == 2) {
+            factor = 1.5;
+        } else if (playerMarble == 'O' && layout == 3) {
+            factor = 1.4;
+        }
+        //System.out.println("Factor: " + factor);
+        return factor;
+    }
+
+
+//    public static int simpleHeuristicValue2(char[] state, int pos, boolean isPlayer, int layout) {
+//        int h = POSITION_WEIGHT_MAP2[pos] * 2;
+//        byte[] destPos = LOCATION_LOOKUP_TABLE[pos];
+//        char playerState = state[pos];
+//        char opponentState = (playerState == '@') ? 'O' : '@';
+//        int numOfAlly = 0;
+//        int numOfEnmiy = 0;
+//
+//        for (int i = 0; i < destPos.length; i++) {
+//            int nextPos = destPos[i];
+//            if (nextPos != -1 && state[nextPos] == playerState) {
+//                h++;
+//                numOfAlly++;
+//            } else if (nextPos != -1 && state[nextPos] == opponentState) {
+//                numOfEnmiy++;
+//            }
+//        }
+//
+//        if (numOfAlly == 6 || numOfEnmiy == 6) {
+//            h++;
+//        }
+//
+//        if (!isPlayer) {
+//            h *= AGGRESSIVE_FACTOR;
+//        } else {
+//            h += PLAYER_BONUS;
+//        }
+//
+//        h += MARBLE_POINT;
+//
+//        return h;
+//    }
+
 
     public static void main(String[] args) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(AbaloneGame.BELGIAN_DAISY_INITIAL_STATE, 2), -1);

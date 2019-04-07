@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
     private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 =
-            new TimeLimitSearchAI<>(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
+            new TimeLimitSearchAI<>(AbaloneHeuristicJason.simplePositionWeightedHeuristic, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
     private NonOptimizedTimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 =
             new NonOptimizedTimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
 
@@ -22,10 +22,11 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         AbaloneGame.Action action;
         if (turn % 2 == 1) {
-//            ai1.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
+            ai1.setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristic);
             action = ai1.search(game, info, timeLimit * 1000 - 100, 1, 1);
         } else {
-//            ai1.setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
+            ai1.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
+            //ai1.setHeuristicCalculator(AbaloneHeuristicJeff.simplePositionWeightedHeuristic);
             action = ai1.search(game, info, timeLimit * 1000 - 100, 1, 1);
         }
 //            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
