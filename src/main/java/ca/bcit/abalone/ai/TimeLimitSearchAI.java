@@ -69,7 +69,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
             depthLimitAI.setTerminate(true);
             return;
         }
-        if (System.currentTimeMillis() + Math.pow(2, step) * timeSpent > endTime) {
+        if (System.currentTimeMillis() + Math.pow(10, step) * timeSpent > endTime) {
             System.out.println("Terminate search since the remaining time is less the spent time at this level");
             depthLimitAI.setTerminate(true);
             return;
