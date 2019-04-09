@@ -22,6 +22,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private int quiescenceDepth = -2;
     private int searchedCount = 0;
     private TranspositionTable transpositionTable = new TranspositionTable(23);
+    private final Object valueUpdateLock = new Object();
 
     private G rootGame;
 
@@ -34,7 +35,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         searchedCount = 0;
         rootGame = game;
         this.maxLevel = maxLevel;
-        threadPoolExecutor = Executors.newFixedThreadPool(1);
+        threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
@@ -53,12 +54,14 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = minValue(game.result(a), alpha, beta, maxLevel - 1);
-                if (result > value) {
-                    value = result;
-                    action = a;
+                int result = minValue(game.result(a), alpha, beta, maxLevel);
+                synchronized (valueUpdateLock) {
+                    if (result > value) {
+                        value = result;
+                        action = a;
+                    }
+                    alpha = Math.max(alpha, value);
                 }
-                alpha = Math.max(alpha, value);
             });
         }
         threadPoolExecutor.shutdown();
@@ -80,12 +83,14 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = maxValue(game.result(a), alpha, beta, maxLevel - 1);
-                if (result < value) {
-                    value = result;
-                    action = a;
+                int result = maxValue(game.result(a), alpha, beta, maxLevel);
+                synchronized (valueUpdateLock) {
+                    if (result < value) {
+                        value = result;
+                        action = a;
+                    }
+                    beta = Math.min(beta, value);
                 }
-                beta = Math.min(beta, value);
             });
         }
         threadPoolExecutor.shutdown();

@@ -87,83 +87,38 @@ public class AbaloneHeuristicJason {
             char marble = state[i];
             switch (marble) {
                 case AbaloneGame.BLACK:
-                    heuristic += simpleHeuristicValue2(state, i, rootGame.getPlayer() == marble);
+                    heuristic += simpleHeuristicValue(state, i, rootGame.getPlayer() == marble);
                     break;
                 case AbaloneGame.WHITE:
-                    heuristic -= simpleHeuristicValue2(state, i, rootGame.getPlayer() == marble);
+                    heuristic -= simpleHeuristicValue(state, i, rootGame.getPlayer() == marble);
                     break;
             }
         }
         return heuristic;
     };
 
-
-    public static int simpleHeuristicValue(char[] state, int selectedPos) {
-        int h = POSITION_WEIGHT_MAP[selectedPos] * 2;
-        byte[] destPos = LOCATION_LOOKUP_TABLE[selectedPos];
-        int numOfAlly = 0;
-
-        //check diagonal direction
-        for (int i = 0; i < 3; i++) {
-            int nextPos = destPos[i];
-            int oppositeNextPos = destPos[5 - i];
-            //check if ally neighbour
-            if (nextPos != -1 && oppositeNextPos != -1 && state[nextPos] == state[selectedPos] && state[oppositeNextPos] == state[selectedPos]) {
-                h = h + 3;
-                numOfAlly = numOfAlly + 2;
-            } else if (nextPos != -1 && state[nextPos] == state[selectedPos]) {
-                h++;
-                numOfAlly++;
-
-                int nextTwoPos = LOCATION_LOOKUP_TABLE[nextPos][i];
-                if (nextTwoPos != -1 && state[nextTwoPos] == state[selectedPos]) {
-                    h++;
-                }
-
-            } else if ((oppositeNextPos != -1 && state[oppositeNextPos] == state[selectedPos])) {
-                h++;
-                numOfAlly++;
-
-                int nextTwoPos = LOCATION_LOOKUP_TABLE[oppositeNextPos][5 - i];
-                if (nextTwoPos != -1 && state[nextTwoPos] == state[selectedPos]) {
-                    h++;
-                }
-            }
-        }
-
-        if(numOfAlly == 6 || numOfAlly == 0){
-            h = h + 5;
-        }
-
-        return h;
-    }
-
-    public static int simpleHeuristicValue2(char[] state, int selectedPos, boolean isPlayer) {
-        int h = POSITION_WEIGHT_MAP[selectedPos]*5;
+    public static int simpleHeuristicValue(char[] state, int selectedPos, boolean isPlayer) {
+        int h = POSITION_WEIGHT_MAP[selectedPos] * 5;
         byte[] destPos = LOCATION_LOOKUP_TABLE[selectedPos];
         char playerState = state[selectedPos];
-        char opponentState = state[selectedPos] == '@'? 'O' : '@';
         int numOfAlly = 0;
-        int numOfEnmiy = 0;
 
         for (int i = 0; i < destPos.length; i++) {
             int nextPos = destPos[i];
-            if (nextPos != -1 && state[nextPos] == playerState ) {
+            if (nextPos != -1 && state[nextPos] == playerState) {
                 h++;
                 numOfAlly++;
-            } else if (nextPos != -1 && state[nextPos] == opponentState ) {
-                numOfEnmiy++;
             }
         }
 
-        if(numOfAlly == 6 || numOfEnmiy == 6){
-            h = h + 1;
+        if (numOfAlly == 6) {
+            h++;
         }
 
         if (!isPlayer) {
-            h *= 1.2;
+            h *= 0.9;
         } else {
-            h += 10;
+            h += 30;
         }
 
         h += 100;
