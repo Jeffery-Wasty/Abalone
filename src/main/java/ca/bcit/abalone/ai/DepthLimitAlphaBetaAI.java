@@ -21,6 +21,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
     private int searchedCount = 0;
+    private final Object valueUpdateLock = new Object();
 //    private TranspositionTable maxTranspositionTable = new TranspositionTable(28);
 //    private TranspositionTable minTranspositionTable = new TranspositionTable(28);
 
@@ -55,11 +56,13 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
                 int result = minValue(game.result(a), alpha, beta, maxLevel);
-                if (result > value) {
-                    value = result;
-                    action = a;
+                synchronized (valueUpdateLock) {
+                    if (result > value) {
+                        value = result;
+                        action = a;
+                    }
+                    alpha = Math.max(alpha, value);
                 }
-                alpha = Math.max(alpha, value);
             });
         }
         threadPoolExecutor.shutdown();
@@ -82,11 +85,13 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
                 int result = maxValue(game.result(a), alpha, beta, maxLevel);
-                if (result < value) {
-                    value = result;
-                    action = a;
+                synchronized (valueUpdateLock) {
+                    if (result < value) {
+                        value = result;
+                        action = a;
+                    }
+                    beta = Math.min(beta, value);
                 }
-                beta = Math.min(beta, value);
             });
         }
         threadPoolExecutor.shutdown();
