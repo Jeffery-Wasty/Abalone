@@ -1,6 +1,9 @@
 package ca.bcit.abalone.network;
 
-import ca.bcit.abalone.ai.*;
+import ca.bcit.abalone.ai.AbaloneHeuristic;
+import ca.bcit.abalone.ai.AbaloneQuiescenceSearch;
+import ca.bcit.abalone.ai.NonOptimizedTimeLimitSearchAI;
+import ca.bcit.abalone.ai.TimeLimitSearchAI;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
 
@@ -14,7 +17,7 @@ import java.util.Scanner;
 public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient> {
 
     private TimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai1 =
-            new TimeLimitSearchAI<>(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
+            new TimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC, AbaloneQuiescenceSearch.SIMPLE_QUIESCENCE);
     private NonOptimizedTimeLimitSearchAI<Character, AbaloneGame.State, AbaloneGame.Action, AbaloneGame> ai2 =
             new NonOptimizedTimeLimitSearchAI<>(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
 
@@ -28,7 +31,13 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
 //            ai1.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
 //            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
         }
-        action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
+        action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
+        AbaloneGame.Action action2 = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
+        if (!action.equals(action2)) {
+            System.err.println("!!!!!!!!!!!!!!!Inconsistent Output!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println("Table AI: " + action);
+            System.err.println("Normal AI: " + action2);
+        }
 
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {

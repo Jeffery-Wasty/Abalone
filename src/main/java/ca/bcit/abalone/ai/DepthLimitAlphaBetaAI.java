@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
 
+    private int numberOfThreads = 1;
     private ExecutorService threadPoolExecutor;
     private int maxLevel;
     private boolean terminate;
@@ -21,7 +22,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
     private int searchedCount = 0;
-    private TranspositionTable transpositionTable = new TranspositionTable(23);
+    private TranspositionTable transpositionTable = new TranspositionTable(23, numberOfThreads);
     private final Object valueUpdateLock = new Object();
 
     private G rootGame;
@@ -35,15 +36,19 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         searchedCount = 0;
         rootGame = game;
         this.maxLevel = maxLevel;
-        threadPoolExecutor = Executors.newFixedThreadPool(4);
+        threadPoolExecutor = Executors.newFixedThreadPool(numberOfThreads);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
         action = null;
 
-        return game.isPlayerMax(game.getPlayer())
+        A a = game.isPlayerMax(game.getPlayer())
                 ? maxAction(game)
                 : minAction(game);
+
+        this.transpositionTable.flush();
+
+        return a;
     }
 
     private A maxAction(G game) {
@@ -54,7 +59,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = minValue(game.result(a), alpha, beta, maxLevel);
+                int result = minValue(game.result(a), alpha, beta, maxLevel - 1);
                 synchronized (valueUpdateLock) {
                     if (result > value) {
                         value = result;
@@ -83,7 +88,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         long time = System.currentTimeMillis();
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
-                int result = maxValue(game.result(a), alpha, beta, maxLevel);
+                int result = maxValue(game.result(a), alpha, beta, maxLevel - 1);
                 synchronized (valueUpdateLock) {
                     if (result < value) {
                         value = result;
@@ -136,7 +141,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             alpha = Math.max(alpha, value);
         }
 
-        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level, value));
+        transpositionTable.queue((int) (Thread.currentThread().getId() % numberOfThreads), new TranspositionTable.History(game.zobristKey(), level, value));
 
         return value;
     }
@@ -173,7 +178,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             beta = Math.min(beta, value);
         }
 
-        transpositionTable.put(game.zobristKey(), new TranspositionTable.History(game.zobristKey(), level, value));
+        transpositionTable.queue((int) Thread.currentThread().getId() % numberOfThreads, new TranspositionTable.History(game.zobristKey(), level, value));
 
         return value;
 

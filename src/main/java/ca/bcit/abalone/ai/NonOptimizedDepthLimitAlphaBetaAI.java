@@ -17,16 +17,19 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
     private A action;
     private boolean earlyTermination;
     private HeuristicCalculator<G> heuristicCalculator;
+    private int searchedCount = 0;
     private G rootGame;
+    private final Object valueUpdateLock = new Object();
 
     public NonOptimizedDepthLimitAlphaBetaAI(HeuristicCalculator<G> heuristicCalculator) {
         this.heuristicCalculator = heuristicCalculator;
     }
 
     public A play(G game, int maxLevel) {
+        searchedCount = 0;
         this.maxLevel = maxLevel;
         rootGame = game;
-        threadPoolExecutor = Executors.newFixedThreadPool(1);
+        threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
@@ -46,11 +49,13 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
                 int result = minValue(game.result(a), alpha, beta, maxLevel - 1);
-                if (result > value) {
-                    value = result;
-                    action = a;
+                synchronized (valueUpdateLock) {
+                    if (result > value) {
+                        value = result;
+                        action = a;
+                    }
+                    alpha = Math.max(alpha, value);
                 }
-                alpha = Math.max(alpha, value);
             });
         }
         threadPoolExecutor.shutdown();
@@ -60,7 +65,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
             System.out.println("Level " + maxLevel + " Search Terminated");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + "heuristic: " + value);
+        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
@@ -73,11 +78,13 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
         for (A a : game.actions()) {
             threadPoolExecutor.execute(() -> {
                 int result = maxValue(game.result(a), alpha, beta, maxLevel - 1);
-                if (result < value) {
-                    value = result;
-                    action = a;
+                synchronized (valueUpdateLock) {
+                    if (result < value) {
+                        value = result;
+                        action = a;
+                    }
+                    beta = Math.min(beta, value);
                 }
-                beta = Math.min(beta, value);
             });
         }
         threadPoolExecutor.shutdown();
@@ -87,12 +94,13 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
             System.out.println("Level " + maxLevel + " Search Terminated");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + "heuristic: " + value);
+        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
     private int maxValue(G game, int alpha, int beta, int level) {
         if (terminate || level <= 0 || game.isTerminal()) {
+            searchedCount++;
             if (level <= 0) {
                 earlyTermination = true;
             }
@@ -114,6 +122,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
 
     private int minValue(G game, int alpha, int beta, int level) {
         if (terminate || level <= 0 || game.isTerminal()) {
+            searchedCount++;
             if (level <= 0) {
                 earlyTermination = true;
             }

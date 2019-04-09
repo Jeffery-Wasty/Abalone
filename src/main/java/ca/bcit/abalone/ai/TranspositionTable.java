@@ -1,18 +1,27 @@
 package ca.bcit.abalone.ai;
 
+import java.util.ArrayList;
+
 public class TranspositionTable {
 
     private final int capacity;
     private final int bitMask;
+    private final int numberOfQueues;
     private int size = 0;
     private int collision = 0;
     private int hit = 0;
     private final History[] transpositionTable;
+    private final ArrayList<ArrayList<History>> queues;
 
-    public TranspositionTable(int capacity) {
+    public TranspositionTable(int capacity, int numberOfQueues) {
         this.capacity = 1 << capacity;
+        this.numberOfQueues = numberOfQueues;
         bitMask = (1 << capacity) - 1;
         transpositionTable = new History[this.capacity];
+        this.queues = new ArrayList<>(numberOfQueues);
+        for (int i = 0; i < numberOfQueues; i++) {
+            this.queues.add(new ArrayList<>());
+        }
     }
 
     public History get(long key) {
@@ -24,10 +33,11 @@ public class TranspositionTable {
         return null;
     }
 
-    public void put(long key, History history) {
+    public void put(History history) {
+        long key = history.zobristKey;
         int ndx = (int) (key & bitMask);
         History prev = transpositionTable[ndx];
-        if (prev != null && prev.zobristKey == key && prev.depth > history.depth) {
+        if (prev != null && prev.zobristKey == key && prev.depth >= history.depth) {
             return;
         }
         if (prev == null) {
@@ -38,6 +48,19 @@ public class TranspositionTable {
             hit++;
         }
         transpositionTable[ndx] = history;
+    }
+
+    public void flush() {
+        for (ArrayList<History> queue : queues) {
+            for (History h : queue) {
+                this.put(h);
+            }
+            queue.clear();
+        }
+    }
+
+    public void queue(int queueId, History history) {
+        queues.get(queueId).add(history);
     }
 
     public int getCapacity() {
