@@ -80,8 +80,7 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
         searchNextLevel(game);
     }
 
-    public void setHeuristicCalculator(HeuristicCalculator<G> heuristicCalculator) {
-        this.depthLimitAI.setHeuristicCalculator(heuristicCalculator);
+    public DepthLimitAlphaBetaAI<P, S, A, G> getDepthLimitAI() {
+        return depthLimitAI;
     }
-
 }

@@ -113,9 +113,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
+        long key = game.zobristKey();
+        TranspositionTable.History h = transpositionTable.get(key);
         if (h != null && h.depth >= level) {
-            earlyTermination = true;
             return h.value;
         }
         if (
@@ -141,7 +141,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             alpha = Math.max(alpha, value);
         }
 
-        transpositionTable.queue((int) (Thread.currentThread().getId() % numberOfThreads), new TranspositionTable.History(game.zobristKey(), level, value));
+        transpositionTable.put(new TranspositionTable.History(key, level, value));
 
         return value;
     }
@@ -150,9 +150,9 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
+        long key = game.zobristKey();
+        TranspositionTable.History h = transpositionTable.get(key);
         if (h != null && h.depth >= level) {
-            earlyTermination = true;
             return h.value;
         }
         if (
@@ -178,7 +178,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             beta = Math.min(beta, value);
         }
 
-        transpositionTable.queue((int) Thread.currentThread().getId() % numberOfThreads, new TranspositionTable.History(game.zobristKey(), level, value));
+        transpositionTable.put(new TranspositionTable.History(key, level, value));
 
         return value;
 
@@ -190,6 +190,10 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
 
     public boolean isEarlyTermination() {
         return earlyTermination;
+    }
+
+    public TranspositionTable getTranspositionTable() {
+        return transpositionTable;
     }
 
     public boolean isTerminate() {

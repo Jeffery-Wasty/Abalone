@@ -139,6 +139,12 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
                 if (option == -1) {
                     break;
                 }
+                switch (option) {
+                    case 1:
+                        System.out.println(server.ai1.getDepthLimitAI().getTranspositionTable());
+                        break;
+                    default:
+                }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }

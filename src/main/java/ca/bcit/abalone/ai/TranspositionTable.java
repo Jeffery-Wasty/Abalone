@@ -95,6 +95,30 @@ public class TranspositionTable {
             this.value = value;
         }
 
+        @Override
+        public String toString() {
+            return "History{" +
+                    "zobristKey=" + zobristKey +
+                    ", depth=" + depth +
+                    ", value=" + value +
+                    '}';
+        }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("TranspositionTable{" +
+                "capacity=" + capacity +
+                ", size=" + size +
+                ", collision=" + collision +
+                ", hit=" + hit +
+                ", transpositionTable=");
+        for (History h : transpositionTable) {
+            if (h != null) {
+                sb.append(h.toString());
+            }
+        }
+        sb.append('}');
+        return sb.toString();
+    }
 }
