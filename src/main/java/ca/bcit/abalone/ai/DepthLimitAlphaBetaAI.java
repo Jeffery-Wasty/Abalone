@@ -22,7 +22,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
     private int searchedCount = 0;
-    private TranspositionTable transpositionTable = new TranspositionTable(23, numberOfThreads);
+    private TranspositionTable transpositionTable = new TranspositionTable(26, numberOfThreads);
     private final Object valueUpdateLock = new Object();
 
     private G rootGame;
@@ -45,8 +45,6 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         A a = game.isPlayerMax(game.getPlayer())
                 ? maxAction(game)
                 : minAction(game);
-
-        this.transpositionTable.flush();
 
         return a;
     }
@@ -113,10 +111,10 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
-        if (h != null && h.depth >= level) {
+        long[] h = transpositionTable.get(game.zobristKey());
+        if (h != null && h[1] >= level) {
             earlyTermination = true;
-            return h.value;
+            return (int) h[2];
         }
         if (
                 level <= 0
@@ -141,7 +139,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             alpha = Math.max(alpha, value);
         }
 
-        transpositionTable.queue((int) (Thread.currentThread().getId() % numberOfThreads), new TranspositionTable.History(game.zobristKey(), level, value));
+        transpositionTable.put(new long[]{game.zobristKey(), level, value});
 
         return value;
     }
@@ -150,10 +148,10 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        TranspositionTable.History h = transpositionTable.get(game.zobristKey());
-        if (h != null && h.depth >= level) {
+        long[] h = transpositionTable.get(game.zobristKey());
+        if (h != null && h[1] >= level) {
             earlyTermination = true;
-            return h.value;
+            return (int) h[2];
         }
         if (
                 level <= 0
@@ -178,7 +176,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             beta = Math.min(beta, value);
         }
 
-        transpositionTable.queue((int) Thread.currentThread().getId() % numberOfThreads, new TranspositionTable.History(game.zobristKey(), level, value));
+        transpositionTable.put(new long[]{game.zobristKey(), level, value});
 
         return value;
 
