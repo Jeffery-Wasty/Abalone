@@ -32,7 +32,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         this.quiescenceSearch = quiescenceSearch;
     }
 
-    public A play(G game, int maxLevel) {
+    public A play(G game, int maxLevel, long timeLimit) {
         searchedCount = 0;
         rootGame = game;
         this.maxLevel = maxLevel;
@@ -43,15 +43,15 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         action = null;
 
         A a = game.isPlayerMax(game.getPlayer())
-                ? maxAction(game)
-                : minAction(game);
+                ? maxAction(game, timeLimit)
+                : minAction(game, timeLimit);
 
         this.transpositionTable.flush();
 
         return a;
     }
 
-    private A maxAction(G game) {
+    private A maxAction(G game, long timeLimit) {
         if (game.isTerminal()) {
             return null;
         }
@@ -71,16 +71,19 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         }
         threadPoolExecutor.shutdown();
         try {
-            threadPoolExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            boolean timeExceeded = !threadPoolExecutor.awaitTermination(timeLimit, TimeUnit.MILLISECONDS);
+            if (timeExceeded) {
+                this.setTerminate(true);
+            }
         } catch (InterruptedException e) {
             System.out.println(LocalDateTime.now() + " Level " + maxLevel + " Search Terminated");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
+        System.out.println("Level " + maxLevel + " completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
-    private A minAction(G game) {
+    private A minAction(G game, long timeLimit) {
         if (game.isTerminal()) {
             return null;
         }
@@ -100,12 +103,15 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         }
         threadPoolExecutor.shutdown();
         try {
-            threadPoolExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            boolean timeExceeded = !threadPoolExecutor.awaitTermination(timeLimit, TimeUnit.MILLISECONDS);
+            if (timeExceeded) {
+                this.setTerminate(true);
+            }
         } catch (InterruptedException e) {
             System.out.println(LocalDateTime.now() + " Level " + maxLevel + " Search Terminated ");
         }
         time = System.currentTimeMillis() - time;
-        System.out.println("Search completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
+        System.out.println("Level " + maxLevel + " completed in " + time + " ms, " + searchedCount + " nodes, heuristic: " + value);
         return action;
     }
 
