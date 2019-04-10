@@ -1,12 +1,10 @@
 package ca.bcit.abalone.network;
 
-import ca.bcit.abalone.ai.AbaloneHeuristic;
-import ca.bcit.abalone.ai.AbaloneQuiescenceSearch;
-import ca.bcit.abalone.ai.NonOptimizedTimeLimitSearchAI;
-import ca.bcit.abalone.ai.TimeLimitSearchAI;
+import ca.bcit.abalone.ai.*;
 import ca.bcit.abalone.game.AbaloneGame;
 import ca.bcit.abalone.game.Utility;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Arrays;
@@ -25,10 +23,8 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         AbaloneGame.Action action;
 //        if (turn % 2 == 1) {
-//            ai1.getDepthLimitAI().setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
 //            action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
 //        } else {
-//            ai1.getDepthLimitAI().setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
 //            action = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
 //        }
         action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
@@ -142,6 +138,14 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
                 switch (option) {
                     case 1:
                         System.out.println(server.ai1.getDepthLimitAI().getTranspositionTable());
+                        break;
+                    case 2:
+                        int fileSize = server.ai1.getDepthLimitAI().getTranspositionTable().toFile("test.dat");
+                        break;
+                    case 3:
+                        TranspositionTable table = TranspositionTable.fromFile(new File("test.dat"), 28);
+                        server.ai1.getDepthLimitAI().setTranspositionTable(table);
+                        System.out.println("Loaded Table into AI");
                         break;
                     default:
                 }

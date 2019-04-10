@@ -29,7 +29,7 @@ public class NonOptimizedDepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>>
         searchedCount = 0;
         this.maxLevel = maxLevel;
         rootGame = game;
-        threadPoolExecutor = Executors.newFixedThreadPool(1);
+        threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;

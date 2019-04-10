@@ -125,11 +125,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             return heuristicCalculator.getHeuristic(game, rootGame);
         }
-        long key = game.zobristKey();
-        long[] h = transpositionTable.get(key);
-        if (h != null && h[1] >= level) {
-            return (int) h[2];
-        }
+//        long key = game.zobristKey();
+//        long[] h = transpositionTable.get(key);
+//        if (h != null && h[1] >= level) {
+//            return (int) h[2];
+//        }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
             int result = minValue(game.result(a), alpha, beta, level - 1);
@@ -142,7 +142,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             alpha = Math.max(alpha, value);
         }
 
-        transpositionTable.put(new long[]{key, level, value});
+//        transpositionTable.put(new long[]{key, level, value});
 
         return value;
     }
@@ -162,11 +162,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             }
             return heuristicCalculator.getHeuristic(game, rootGame);
         }
-        long key = game.zobristKey();
-        long[] h = transpositionTable.get(key);
-        if (h != null && h[1] >= level) {
-            return (int) h[2];
-        }
+//        long key = game.zobristKey();
+//        long[] h = transpositionTable.get(key);
+//        if (h != null && h[1] >= level) {
+//            return (int) h[2];
+//        }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {
             int result = maxValue(game.result(a), alpha, beta, level - 1);
@@ -179,7 +179,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             beta = Math.min(beta, value);
         }
 
-        transpositionTable.put(new long[]{key, level, value});
+//        transpositionTable.put(new long[]{key, level, value});
 
         return value;
 
@@ -205,4 +205,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         this.terminate = terminate;
     }
 
+    public void setTranspositionTable(TranspositionTable transpositionTable) {
+        this.transpositionTable = transpositionTable;
+    }
 }
