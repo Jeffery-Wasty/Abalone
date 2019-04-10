@@ -115,9 +115,10 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             return 0;
         }
         long key = game.zobristKey();
-        TranspositionTable.History h = transpositionTable.get(key);
-        if (h != null && h.depth >= level) {
-            return h.value;
+        long[] h = transpositionTable.get(key);
+        if (h != null && h[1] >= level) {
+            earlyTermination = true;
+            return (int) h[2];
         }
         if (
                 level <= 0
@@ -142,7 +143,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             alpha = Math.max(alpha, value);
         }
 
-        transpositionTable.put(new TranspositionTable.History(key, level, value));
+        transpositionTable.put(new long[]{key, level, value});
 
         return value;
     }
@@ -152,9 +153,10 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             return 0;
         }
         long key = game.zobristKey();
-        TranspositionTable.History h = transpositionTable.get(key);
-        if (h != null && h.depth >= level) {
-            return h.value;
+        long[] h = transpositionTable.get(key);
+        if (h != null && h[1] >= level) {
+            earlyTermination = true;
+            return (int) h[2];
         }
         if (
                 level <= 0
@@ -179,7 +181,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
             beta = Math.min(beta, value);
         }
 
-        transpositionTable.put(new TranspositionTable.History(key, level, value));
+        transpositionTable.put(new long[]{key, level, value});
 
         return value;
 
