@@ -2,8 +2,6 @@ package ca.bcit.abalone.ai;
 
 import ca.bcit.abalone.game.Game;
 
-import java.util.concurrent.TimeUnit;
-
 public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
 
     private DepthLimitAlphaBetaAI<P, S, A, G> depthLimitAI;
@@ -23,59 +21,35 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
         endTime = System.currentTimeMillis() + timeLimit;
         this.step = step;
 
-        Thread thread = new Thread(() -> {
-            searchNextLevel(game);
-        });
-        thread.start();
-
-        long prevCheckTime = System.currentTimeMillis();
-
-        while (!depthLimitAI.isTerminate() && System.currentTimeMillis() < endTime) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(10);
-                long waitTime = System.currentTimeMillis() - prevCheckTime;
-                if (waitTime > 100) {
-                    System.err.println("Waited " + waitTime + "ms");
-                }
-                prevCheckTime = System.currentTimeMillis();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        thread.interrupt();
-        depthLimitAI.setTerminate(true);
-//        depthLimitAI.resetTranspositionTable();
-
-        return action;
+        return search(game);
     }
 
-    private void searchNextLevel(G game) {
+    private A search(G game) {
         if (System.currentTimeMillis() > endTime) {
-            return;
+            return null;
         }
         System.out.println("Start searching level " + level);
         long timeSpent = System.currentTimeMillis();
-        A possibleAction = depthLimitAI.play(game, level);
+        A possibleAction = depthLimitAI.play(game, level, endTime - System.currentTimeMillis());
         if (depthLimitAI.isTerminate() || System.currentTimeMillis() > endTime) {
             System.out.println("Terminate current search, result discarded.");
-            return;
+            return null;
         }
         action = possibleAction;
         timeSpent = System.currentTimeMillis() - timeSpent;
-        System.out.println("level " + level + ": " + timeSpent + "ms");
         if (!depthLimitAI.isEarlyTermination()) {
             System.out.println("Reached terminal-test, end further searches.");
             depthLimitAI.setTerminate(true);
-            return;
+            return action;
         }
         if (System.currentTimeMillis() + Math.pow(10, step) * timeSpent > endTime) {
             System.out.println("Terminate search since the remaining time is less the spent time at this level");
             depthLimitAI.setTerminate(true);
-            return;
+            return action;
         }
         level += step;
-        searchNextLevel(game);
+        A nextAction = search(game);
+        return nextAction != null ? nextAction : possibleAction;
     }
 
     public void setHeuristicCalculator(HeuristicCalculator<G> heuristicCalculator) {
