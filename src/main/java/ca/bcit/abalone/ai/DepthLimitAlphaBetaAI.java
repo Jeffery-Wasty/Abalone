@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
 
-    private int numberOfThreads = 1;
     private ExecutorService threadPoolExecutor;
     private int maxLevel;
     private boolean terminate;
@@ -22,7 +21,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
     private int searchedCount = 0;
-    private TranspositionTable transpositionTable = new TranspositionTable(23, numberOfThreads);
+    private TranspositionTable transpositionTable = new TranspositionTable(26);
     private final Object valueUpdateLock = new Object();
 
     private G rootGame;
@@ -36,19 +35,15 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         searchedCount = 0;
         rootGame = game;
         this.maxLevel = maxLevel;
-        threadPoolExecutor = Executors.newFixedThreadPool(numberOfThreads);
+        threadPoolExecutor = Executors.newFixedThreadPool(1);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
         action = null;
 
-        A a = game.isPlayerMax(game.getPlayer())
+        return game.isPlayerMax(game.getPlayer())
                 ? maxAction(game, timeLimit)
                 : minAction(game, timeLimit);
-
-        this.transpositionTable.flush();
-
-        return a;
     }
 
     private A maxAction(G game, long timeLimit) {
