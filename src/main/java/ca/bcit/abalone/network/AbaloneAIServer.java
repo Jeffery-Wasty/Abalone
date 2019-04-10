@@ -24,14 +24,14 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         AbaloneGame.Action action;
-        if (turn % 2 == 1) {
+//        if (turn % 2 == 1) {
 //            ai1.getDepthLimitAI().setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
-            action = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
-        } else {
+//            action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
+//        } else {
 //            ai1.getDepthLimitAI().setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
-            action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
-        }
-//        action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
+//            action = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
+//        }
+        action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
 //        AbaloneGame.Action action2 = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
 //        if (!action.equals(action2)) {
 //            System.err.println("!!!!!!!!!!!!!!!Inconsistent Output!!!!!!!!!!!!!!!!!!!!!!!");
