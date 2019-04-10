@@ -25,19 +25,19 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         AbaloneGame.Action action;
         if (turn % 2 == 1) {
-//            ai1.setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
-//            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
+//            ai1.getDepthLimitAI().setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristicJason);
+            action = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
         } else {
-//            ai1.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
-//            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
+//            ai1.getDepthLimitAI().setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
+            action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
         }
-        action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
-        AbaloneGame.Action action2 = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
-        if (!action.equals(action2)) {
-            System.err.println("!!!!!!!!!!!!!!!Inconsistent Output!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("Table AI: " + action);
-            System.err.println("Normal AI: " + action2);
-        }
+//        action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
+//        AbaloneGame.Action action2 = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
+//        if (!action.equals(action2)) {
+//            System.err.println("!!!!!!!!!!!!!!!Inconsistent Output!!!!!!!!!!!!!!!!!!!!!!!");
+//            System.err.println("Table AI: " + action);
+//            System.err.println("Normal AI: " + action2);
+//        }
 
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {

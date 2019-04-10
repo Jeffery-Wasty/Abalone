@@ -48,9 +48,6 @@ public class TimeLimitSearchAI<P, S, A, G extends Game<P, S, A>> {
             return action;
         }
         level += step;
-        if (level > 4) {
-            return action;
-        }
         A nextAction = search(game);
         return nextAction != null ? nextAction : possibleAction;
     }

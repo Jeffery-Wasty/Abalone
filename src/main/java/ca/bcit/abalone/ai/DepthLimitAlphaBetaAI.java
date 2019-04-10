@@ -21,7 +21,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
     private QuiescenceSearch<G> quiescenceSearch;
     private int quiescenceDepth = -2;
     private int searchedCount = 0;
-    private TranspositionTable transpositionTable = new TranspositionTable(26);
+    private TranspositionTable transpositionTable = new TranspositionTable(28);
     private final Object valueUpdateLock = new Object();
 
     private G rootGame;
@@ -35,7 +35,7 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         searchedCount = 0;
         rootGame = game;
         this.maxLevel = maxLevel;
-        threadPoolExecutor = Executors.newFixedThreadPool(1);
+        threadPoolExecutor = Executors.newFixedThreadPool(4);
         earlyTermination = false;
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
@@ -114,12 +114,6 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        long key = game.zobristKey();
-        long[] h = transpositionTable.get(key);
-        if (h != null && h[1] >= level) {
-            earlyTermination = true;
-            return (int) h[2];
-        }
         if (
                 level <= 0
 //                level <= quiescenceDepth
@@ -130,6 +124,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game, rootGame);
+        }
+        long key = game.zobristKey();
+        long[] h = transpositionTable.get(key);
+        if (h != null && h[1] >= level) {
+            return (int) h[2];
         }
         int value = Integer.MIN_VALUE;
         for (A a : game.actions()) {
@@ -152,12 +151,6 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
         if (terminate) {
             return 0;
         }
-        long key = game.zobristKey();
-        long[] h = transpositionTable.get(key);
-        if (h != null && h[1] >= level) {
-            earlyTermination = true;
-            return (int) h[2];
-        }
         if (
                 level <= 0
 //                level <= quiescenceDepth
@@ -168,6 +161,11 @@ public class DepthLimitAlphaBetaAI<P, S, A, G extends Game<P, S, A>> {
                 earlyTermination = true;
             }
             return heuristicCalculator.getHeuristic(game, rootGame);
+        }
+        long key = game.zobristKey();
+        long[] h = transpositionTable.get(key);
+        if (h != null && h[1] >= level) {
+            return (int) h[2];
         }
         int value = Integer.MAX_VALUE;
         for (A a : game.actions()) {

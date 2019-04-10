@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 
 public class TranspositionTable {
 
@@ -25,6 +24,7 @@ public class TranspositionTable {
         int ndx = (int) (key & bitMask);
         long[] history = transpositionTable[ndx];
         if (history != null && history[0] == key) {
+            hit++;
             return history;
         }
         return null;
@@ -41,8 +41,6 @@ public class TranspositionTable {
             size++;
         } else if (prev[0] != key) {
             collision++;
-        } else {
-            hit++;
         }
         transpositionTable[ndx] = history;
     }
@@ -91,19 +89,11 @@ public class TranspositionTable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("TranspositionTable{" +
+        return "TranspositionTable{" +
                 "capacity=" + capacity +
                 ", size=" + size +
                 ", collision=" + collision +
-                ", hit=" + hit +
-                ", transpositionTable=");
-        for (long[] h : transpositionTable) {
-            if (h != null) {
-                sb.append(Arrays.toString(h));
-            }
-        }
-        sb.append('}');
-        return sb.toString();
+                ", hit=" + hit + '}';
     }
 
     public static void fromFile() throws IOException {
