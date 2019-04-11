@@ -14,7 +14,7 @@ public abstract class Game<P, S, A> {
     private boolean assignedUtility;
 
     public Game(final S state) {
-        this.state = makeStateCopy(state);
+        this.state = state;
     }
 
     public abstract S makeStateCopy(S state);

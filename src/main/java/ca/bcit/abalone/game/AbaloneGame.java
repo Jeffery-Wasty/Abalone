@@ -295,6 +295,20 @@ public class AbaloneGame extends Game<Character, AbaloneGame.State, AbaloneGame.
             return newPieces;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Action action = (Action) o;
+
+            return Arrays.deepEquals(newPieces, action.newPieces);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.deepHashCode(newPieces);
+        }
     }
 
     // diagonal: +++OOO, ++OO, +O, OOO+++, OO++, O+

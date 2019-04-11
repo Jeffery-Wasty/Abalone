@@ -21,15 +21,18 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
     private String getNextStateByAI(char[] state, int turnLimit, int timeLimit, int turn, AbaloneHeuristicJason.AdditionalInfo info) {
         AbaloneGame game = new AbaloneGame(new AbaloneGame.State(state, turn), turnLimit);
         AbaloneGame.Action action;
-        if (turn % 2 == 1) {
-            ai1.setHeuristicCalculator(AbaloneHeuristicJason.simplePositionWeightedHeuristic);
-            action = ai1.search(game, info, timeLimit * 1000 - 100, 1, 1);
-        } else {
-            ai1.setHeuristicCalculator(AbaloneHeuristic.SIMPLE_POSITION_WEIGHTED_HEURISTIC);
-            //ai1.setHeuristicCalculator(AbaloneHeuristicJeff.simplePositionWeightedHeuristic);
-            action = ai1.search(game, info, timeLimit * 1000 - 100, 1, 1);
-        }
-//            action = ai1.search(game, timeLimit * 1000 - 100, 3, 1);
+//        if (turn % 2 == 1) {
+//            action = ai1.search(game, timeLimit * 1000 - 100, 1, 1);
+//        } else {
+//            action = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
+//        }
+        action = ai1.search(game, info, timeLimit * 1000 - 100, 1, 1);
+//        AbaloneGame.Action action2 = ai2.search(game, timeLimit * 1000 - 100, 1, 1);
+//        if (!action.equals(action2)) {
+//            System.err.println("!!!!!!!!!!!!!!!Inconsistent Output!!!!!!!!!!!!!!!!!!!!!!!");
+//            System.err.println("Table AI: " + action);
+//            System.err.println("Normal AI: " + action2);
+//        }
 
         byte[][] result = action.getNewPieces();
         for (byte[] move : result) {
@@ -131,6 +134,20 @@ public class AbaloneAIServer extends ServerHandler<AbaloneAIServer.AbaloneClient
                 int option = readOption(scanner);
                 if (option == -1) {
                     break;
+                }
+                switch (option) {
+                    case 1:
+                        System.out.println(server.ai1.getDepthLimitAI().getTranspositionTable());
+                        break;
+                    case 2:
+                        int fileSize = server.ai1.getDepthLimitAI().getTranspositionTable().toFile("test.dat");
+                        break;
+                    case 3:
+                        TranspositionTable table = TranspositionTable.fromFile(new File("test.dat"), 28);
+                        server.ai1.getDepthLimitAI().setTranspositionTable(table);
+                        System.out.println("Loaded Table into AI");
+                        break;
+                    default:
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
