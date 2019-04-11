@@ -32,7 +32,7 @@ public class TranspositionTableTest {
             }
             for (AbaloneGame.Action a : game.actions()) {
                 AbaloneGame next = game.result(a);
-                table.put(next.zobristKey(), new TranspositionTable.History(next.zobristKey(), 1, 1));
+                table.put(new long[]{next.zobristKey(), 1, 1});
                 benchmark(next, level - 1);
             }
         }
