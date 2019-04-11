@@ -200,7 +200,7 @@ public class AbaloneHeuristicJason {
         } else if (playerMarble == 'O' && layout == 3) {
             factor = 1.4;
         }
-        //System.out.println("Factor: " + factor);
+//        System.out.println("Factor: " + factor);
         return factor;
     }
 
